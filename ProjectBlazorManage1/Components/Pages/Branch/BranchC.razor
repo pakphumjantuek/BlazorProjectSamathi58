@@ -1,0 +1,271 @@
+﻿@page "/Branch"
+@inject BranchService BranchService
+@inject IJSRuntime JSRuntime
+
+
+<Modals @ref="branchModal"
+		Title="จัดการสาขา"
+		IsVisible="showModal"
+		OnConfirm="HandleValidSubmit"
+		OnClose="CloseModal">
+
+	<ChildContent>
+		<EditForm Model="@currentBranch" OnValidSubmit="@HandleValidSubmit" FormName="branchForm">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+
+			@if (currentBranch != null)
+			{
+				<input type="hidden" @bind="currentBranch.Status" />
+				@if (isEditMode == false)
+				{
+					<div class="form-group mb-3">
+						<label>รหัสสาขา</label>
+						<InputNumber class="form-control" @bind-Value="currentBranch.Branch_Id" />
+						<ValidationMessage For="@(() => currentBranch.Branch_Id)" />
+					</div>
+				}
+				else
+				{
+					<div class="form-group mb-3">
+						<label>รหัสสาขา</label>
+						<InputNumber class="form-control" @bind-Value="currentBranch.Branch_Id" disabled />
+					</div>
+				}
+				<div class="form-group mb-3">
+					<label>ชื่อสาขา</label>
+					<InputText class="form-control" @bind-Value="currentBranch.Branch_Name" />
+					<ValidationMessage For="@(() => currentBranch.Branch_Name)" />
+				</div>
+
+				<div class="form-group mb-3">
+					<label>เบอร์โทรศัพท์</label>
+					<InputText class="form-control" @bind-Value="currentBranch.Branch_Phone" MaxLength="10" onkeypress="return /[0-9]/.test(event.key)" />
+					<ValidationMessage For="@(() => currentBranch.Branch_Phone)" />
+				</div>
+
+				<div class="form-group mb-3">
+					<label>อีเมล</label>
+					<InputText class="form-control" @bind-Value="currentBranch.Branch_Email" />
+					<ValidationMessage For="@(() => currentBranch.Branch_Email)" />
+				</div>
+			}
+		</EditForm>
+	</ChildContent>
+</Modals>
+
+@if (IsProcessing)
+{
+	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</div>
+}
+else
+{
+	<div class="card shadow border-0 mt-4">
+		<div class="card-header bg-black bg-gradient ml-0 py-3">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h2 class="text-white py-2">ระบบจัดการข้อมูลสาขา</h2>
+				</div>
+			</div>
+		</div>
+		<div class="card-body p-4">
+			<div class="row pb-3">
+				<div class="col-12 text-end">
+					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
+						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลสาขา
+					</button>
+				</div>
+			</div>
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>รหัสสาขา</th>
+						<th>ชื่อสาขา</th>
+						<th>เบอร์โทรศํพท์</th>
+						<th>อีเมล</th>
+						<th>สถานะ</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var b in branchesList)
+					{
+						<tr>
+							<td>@b.Branch_Id</td>
+							<td>@b.Branch_Name</td>
+							<td>@b.Branch_Phone</td>
+							<td>@b.Branch_Email</td>
+							<td>
+								<div class="form-check form-switch">
+									<input class="form-check-input custom-switch"
+										   type="checkbox"
+										   id="switch-@b.Branch_Id"
+										   checked="@b.Status"
+										   @onclick="() => ToggleStatus(b)"
+										   disabled="@(IsProcessing ? true : false)">
+									<label class="form-check-label" for="switch-@b.Branch_Id">
+										<span class="visually-hidden">Toggle status</span>
+									</label>
+								</div>
+							</td>
+							<td>
+								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
+								<button class="btn btn-sm btn-danger" @onclick="() => DeleteProduct(b.Branch_Id)">ลบ</button>
+							</td>
+
+						</tr>
+					}
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+}
+
+
+@code {
+	private List<Branch> branchesList = new();
+	private Branch branch = new();
+	private bool IsProcessing { get; set; } = true;
+
+	private Modals branchModal;
+	private bool showModal = false;
+	private Branch currentBranch = new();
+	private bool isEditMode = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await LoadBranch();
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task LoadBranch()
+	{
+		branchesList = await BranchService.GetBranches();
+	}
+
+	
+
+	private void ShowAddModal()
+	{
+		currentBranch = new Branch();
+		isEditMode = false;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void CloseModal()
+	{
+		showModal = false;
+		StateHasChanged();
+	}
+
+	private void ShowEditModal(Branch branch)
+	{
+		currentBranch = new Branch
+			{
+				Branch_Id = branch.Branch_Id,
+				Branch_Name = branch.Branch_Name,
+				Branch_Phone = branch.Branch_Phone,
+				Branch_Email = branch.Branch_Email,
+				Status = branch.Status
+			};
+		isEditMode = true;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private async Task ToggleStatus(Branch branch)
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+			branch.Status = !branch.Status;
+			await BranchService.UpdateBranch(branch);
+			await LoadBranch();
+			if (branch.Status)
+			{
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "เปิดสถานะสำเร็จ");
+			}
+			else
+			{
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ปิดสถานะสำเร็จ");
+			}
+
+		}
+		catch (Exception ex)
+		{
+
+			Console.WriteLine($"Error toggling status: {ex.Message}");
+			branch.Status = !branch.Status;
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	public async Task DeleteProduct(int id)
+	{
+		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบสินค้าหรือไม่?");
+
+		if (confirmDelete)
+		{
+			await BranchService.DeleteBranch(id);
+
+			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสินค้าสำเร็จ");
+		}
+		await LoadBranch();
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+
+			if (isEditMode)
+			{
+				await BranchService.UpdateBranch(currentBranch);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "อัพเดทสาขาสำเร็จ");
+			}
+			else
+			{
+				await BranchService.AddBranch(currentBranch);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสาขาสำเร็จ");
+			}
+
+			await LoadBranch();
+			showModal = false;
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+
+
+}

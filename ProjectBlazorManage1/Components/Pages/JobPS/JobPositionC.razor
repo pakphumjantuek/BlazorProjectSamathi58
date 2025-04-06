@@ -1,0 +1,239 @@
+﻿@page "/JobPosition"
+@inject JobPositionService JobPositionService
+@inject IJSRuntime JSRuntime
+
+<Modals @ref="JobPSModal"
+		Title="ระบบจัดการข้อมูลตำเเหน่งงาน"
+		IsVisible="showModal"
+		OnConfirm="HandleValidSubmit"
+		OnClose="CloseModal">
+
+	<ChildContent>
+		<EditForm Model="@currentJobPosition" OnValidSubmit="@HandleValidSubmit">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+
+			@if (currentJobPosition != null)
+			{
+				<input type="hidden" @bind="currentJobPosition.Status" />
+				<input type="hidden" @bind="currentJobPosition.Id" />
+				<div class="form-group mb-3">
+					<label>ชื่อตำเเหน่ง</label>
+					<InputText class="form-control" @bind-Value="currentJobPosition.Position_Name" />
+					<ValidationMessage For="@(() => currentJobPosition.Position_Name)" />
+				</div>
+				<div class="form-group mb-3">
+					<label>ลำดับขั้น</label>
+					<InputNumber class="form-control" @bind-Value="currentJobPosition.Position_Level" />
+					<ValidationMessage For="@(() => currentJobPosition.Position_Level)" />
+				</div>		
+			}
+		</EditForm>
+	</ChildContent>
+</Modals>
+
+@if (IsProcessing)
+{
+	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</div>
+}
+else
+{
+	<div class="card shadow border-0 mt-4">
+		<div class="card-header bg-black bg-gradient ml-0 py-3">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h2 class="text-white py-2">ระบบจัดการข้อมูลตำเเหน่งงาน</h2>
+				</div>
+			</div>
+		</div>
+		<div class="card-body p-4">
+			<div class="row pb-3">
+				<div class="col-12 text-end">
+					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
+						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลตำเเหน่งงาน
+					</button>
+				</div>
+			</div>
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>ชื่อตำเเหน่งงาน</th>
+						<th>ลำดับขั้น</th>
+						<th>สถานะ</th>
+
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var b in jobPositionsList)
+					{
+						<tr>
+							<td>@b.Position_Name</td>
+							<td>@b.Position_Level</td>						
+							<td>
+								<div class="form-check form-switch">
+									<input class="form-check-input custom-switch"
+										   type="checkbox"
+										   id="switch-@b.Id"
+										   checked="@b.Status"
+										   @onclick="() => ToggleStatus(b)"
+										   disabled="@(IsProcessing ? true : false)">
+									<label class="form-check-label" for="switch-@b.Id">
+										<span class="visually-hidden">Toggle status</span>
+									</label>
+								</div>
+							</td>
+							<td>
+								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
+								<button class="btn btn-sm btn-danger" @onclick="() => Delete(b.Id)">ลบ</button>
+							</td>
+
+						</tr>
+					}
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+}
+
+@code {
+	private List<JobPosition> jobPositionsList = new();
+	private bool IsProcessing { get; set; } = true;
+
+	private Modals JobPSModal;
+	private bool showModal = false;
+	private JobPosition currentJobPosition = new();
+	private bool isEditMode = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await LoadJobPS();
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+	private async Task LoadJobPS()
+	{
+		jobPositionsList = await JobPositionService.GetJobPS();
+	}
+
+	private void ShowAddModal()
+	{
+		currentJobPosition = new JobPosition();
+		isEditMode = false;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void ShowEditModal(JobPosition jobPS)
+	{
+		currentJobPosition = new JobPosition
+			{
+				Id = jobPS.Id,
+				Position_Name = jobPS.Position_Name,
+				Position_Level = jobPS.Position_Level,
+				Status = jobPS.Status
+			};
+		isEditMode = true;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private async Task ToggleStatus(JobPosition jobPS)
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+			jobPS.Status = !jobPS.Status;
+			await JobPositionService.UpdateJobPs(jobPS);
+			await LoadJobPS();
+			if (jobPS.Status)
+			{
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "เปิดสถานะสำเร็จ");
+			}
+			else
+			{
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ปิดสถานะสำเร็จ");
+			}
+
+		}
+		catch (Exception ex)
+		{
+
+			Console.WriteLine($"Error toggling status: {ex.Message}");
+			jobPS.Status = !jobPS.Status;
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private void CloseModal()
+	{
+		showModal = false;
+		StateHasChanged();
+	}
+
+	public async Task Delete(int id)
+	{
+		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบหรือไม่?");
+
+		if (confirmDelete)
+		{
+			await JobPositionService.DeleteJobPs(id);
+
+			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสินค้าสำเร็จ");
+		}
+		await LoadJobPS();
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+
+			if (isEditMode)
+			{
+				await JobPositionService.UpdateJobPs(currentJobPosition);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "อัพเดทตำเเหน่งงานสำเร็จ");
+			}
+			else
+			{
+				await JobPositionService.AddJobPs(currentJobPosition);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มตำเเหน่งงานสำเร็จ");
+			}
+
+			await LoadJobPS();
+			showModal = false;
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+
+}
