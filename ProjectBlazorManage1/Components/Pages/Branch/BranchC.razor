@@ -10,13 +10,12 @@
 		OnClose="CloseModal">
 
 	<ChildContent>
-		<EditForm Model="@currentBranch" OnValidSubmit="@HandleValidSubmit" FormName="branchForm">
+		<EditForm id="modalForm" Model="@currentBranch" OnValidSubmit="@HandleValidSubmit">
 			<DataAnnotationsValidator />
 			<ValidationSummary />
 
 			@if (currentBranch != null)
 			{
-				<input type="hidden" @bind="currentBranch.Status" />
 				@if (isEditMode == false)
 				{
 					<div class="form-group mb-3">

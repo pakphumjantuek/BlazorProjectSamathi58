@@ -1,0 +1,159 @@
+﻿@page "/scores/{ClassId:int?}"
+@inject ApplicationDbContext _context
+@inject IJSRuntime _JSRuntime
+@inject NavigationManager NavigationManager 
+
+@if(IsProcessing)
+{
+	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</div>
+}
+else{
+	<h2 class="text-body text-center fw-bold mb-4">ตารางบันทึกการบ้าน (เดินจงกรม - นั่งสมาธิ) รุ่นที่ @ClassId</h2>
+	<h6 class="text-muted text-center fw-bold mb-4">
+		หลักสูตรครูสมาธิ รุ่นที่ @ClassId ทฺวิปญฺญาสโม (วิริยมงคล) ความเพียรนำไปสู่ความเจริญ
+	</h6>
+
+	<div class="mb-4">
+		<label for="classSelect" class="form-label fw-semibold">เลือกรุ่น:</label>
+		<select class="form-select shadow-sm w-50"
+				@onchange="HandleClassChanged">
+			@foreach (var cls in ClassList)
+			{
+				<option value="@cls.Id" selected="@((SelectedClassId == cls.Id) ? "selected" : null)">
+					รุ่นที่ @cls.Id
+				</option>
+			}
+		</select>
+	</div>
+
+	<EditForm Model="@this" OnValidSubmit="SaveScores">
+		<div class="card shadow-lg p-4">
+			<div class="table-responsive">
+				<table class="table table-hover table-bordered align-middle table-striped" id="scoreTable">
+					<thead class="table-dark">
+						<tr>
+							<th>รหัสนักเรียน</th>
+							<th class="text-center">ชื่อ-นามสกุล</th>
+							@foreach (var month in Months)
+							{
+								<th class="text-center">@month (ช.ม)</th>
+							}
+							<th class="text-center">รวม(ช.ม)</th>
+							<th class="text-center">จำนวนชั่วโมง</th>
+						</tr>
+					</thead>
+					<tbody>
+						@if (Students.Count == 0)
+						{
+							<tr><td colspan="8" class="text-center">ไม่พบข้อมูล</td></tr>
+						}
+						else
+						{
+							@foreach (var student in Students)
+							{
+								<tr>
+									<td>@student.PersonalId</td>
+									<td class="text-center">@student.FirstName @student.LastName</td>
+									<td><InputNumber @bind-Value="student.month1" class="form-control form-control-sm text-center" /></td>
+									<td><InputNumber @bind-Value="student.month2" class="form-control form-control-sm text-center" /></td>
+									<td><InputNumber @bind-Value="student.month3" class="form-control form-control-sm text-center" /></td>
+									<td><InputNumber @bind-Value="student.month4" class="form-control form-control-sm text-center" /></td>
+									<td><InputNumber @bind-Value="student.month5" class="form-control form-control-sm text-center" /></td>
+									<td><InputNumber @bind-Value="student.month6" class="form-control form-control-sm text-center" /></td>
+									<td class="text-center">@student.TotalScore.ToString("F2")</td>
+									<td class="text-center">@student.Total.ToString("F2")</td>
+								</tr>
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+			<div class="text-end mt-3">
+				<button type="submit" class="btn btn-success px-4 py-2 shadow-sm">บันทึกคะแนน</button>
+			</div>
+		</div>
+	</EditForm>
+}
+
+
+
+@code {
+	[Parameter] public int? ClassId { get; set; }
+	public int? SelectedClassId { get; set; }
+
+	public List<ClassStudied> ClassList { get; set; } = new();
+	public List<Students> Students { get; set; } = new();
+	public List<string> Months { get; set; } = new();
+
+	private bool IsProcessing { get; set; } = true;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		ClassList = await _context.ClassStudieds.OrderByDescending(c => c.Id).ToListAsync();
+		SelectedClassId = ClassId ?? ClassList.FirstOrDefault()?.Id;
+		await LoadStudentsAsync();
+		IsProcessing = false;
+	}
+
+	private async Task OnClassChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int value))
+		{
+			SelectedClassId = value;
+			await LoadStudentsAsync();
+		}
+	}
+
+	private async Task HandleClassChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int classId))
+		{
+			SelectedClassId = classId;
+			NavigationManager.NavigateTo($"/scores/{classId}", forceLoad: false);
+			await LoadStudentsAsync();
+		}
+	}
+
+	private async Task LoadStudentsAsync()
+	{
+		if (SelectedClassId == null) return;
+
+		var selectedClass = await _context.ClassStudieds.FirstOrDefaultAsync(c => c.Id == SelectedClassId);
+		Months = selectedClass?.GetStudyMonths() ??
+					new List<string> { "เดือนที่ 1", "เดือนที่ 2", "เดือนที่ 3", "เดือนที่ 4", "เดือนที่ 5", "เดือนที่ 6" };
+
+		Students = await _context.students
+			.Where(s => s.ClassStudie_Id == SelectedClassId)
+			.OrderBy(s => s.FirstName)
+			.ToListAsync();
+	}
+
+	private async Task SaveScores()
+	{
+		try
+		{
+			foreach (var student in Students)
+			{
+				_context.students.Update(student);
+			}
+
+			await _context.SaveChangesAsync();
+			await _JSRuntime.InvokeVoidAsync("showToastr", "success", "บันทึกสำเร็จ");
+		}
+		catch (Exception ex)
+		{
+			await _JSRuntime.InvokeVoidAsync("showToastr", "error", "เกิดข้อผิดพลาดในการบันทึก");
+		}
+	}
+
+}

@@ -1,0 +1,179 @@
+﻿@page "/Student/Student_Details/{Id:int}"
+@inject StudentService _StudentService
+
+<div class="container-fluid py-4">
+	@if (students == null)
+	{
+		<div class="d-flex justify-content-center">
+			<div class="spinner-border text-primary" role="status">
+				<span class="visually-hidden">กำลังโหลด...</span>
+			</div>
+		</div>
+	}
+	else
+	{
+		<div class="card shadow-sm mb-4">
+			<div class="card-header bg-secondary bg-gradient text-white">
+				<div class="d-flex align-items-center">
+					<h2 class="mb-0 fs-4"><i class="bi bi-person-badge me-2"></i>ข้อมูลนักเรียน</h2>
+					<a href="/Student" class="btn btn-light btn-sm ms-auto">
+						<i class="bi bi-arrow-left me-1"></i>กลับ
+					</a>
+				</div>
+			</div>
+
+			<div class="card-body">
+				<div class="row mb-4">
+					<!-- รูปภาพอาจารย์ -->
+					<div class="col-lg-2 col-md-3 text-center mb-4 mb-md-0">
+						<div class="avatar-container position-relative mx-auto" style="width: 150px; height: 150px;">
+							@if (!string.IsNullOrEmpty(students.Images))
+							{
+								var firstImage = students.Images.Split(',').FirstOrDefault()?.Trim();
+								if (!string.IsNullOrEmpty(firstImage))
+								{
+									<img src="@firstImage" class="img-thumbnail rounded-circle w-100 h-100 object-fit-cover" alt="@students.FirstName" />
+								}
+								else
+								{
+									<div class="avatar-placeholder bg-light rounded-circle w-100 h-100 d-flex align-items-center justify-content-center" style="font-size: 3rem; color: #6c757d;">
+										<i class="bi bi-person"></i>
+									</div>
+								}
+							}
+							else
+							{
+								<div class="avatar-placeholder bg-light rounded-circle w-100 h-100 d-flex align-items-center justify-content-center" style="font-size: 3rem; color: #6c757d;">
+									<i class="bi bi-person"></i>
+								</div>
+							}
+
+							@if (!string.IsNullOrEmpty(students.Images) && students.Images.Split(',').Length > 1)
+							{
+								<span class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px; font-size: 12px;">
+									+@(students.Images.Split(',').Length - 1)
+								</span>
+							}
+						</div>
+						<h3 class="mt-3 fs-5">@students.FirstName @students.LastName</h3>
+					</div>
+
+					<!-- ข้อมูลทั่วไป -->
+					<div class="col-lg-10 col-md-9">
+						<div class="row">
+							<div class="col-md-6">
+								<div class="card h-100 border-0 bg-light">
+									<div class="card-body">
+										<h5><i class="bi bi-person-vcard me-2"></i>ข้อมูลทั่วไป</h5>
+										<hr>
+										<div class="row mb-2">
+											<div class="col-sm-4 text-muted">รหัสอาจารย์:</div>
+											<div class="col-sm-8">@students.Id</div>
+										</div>
+										<div class="row mb-2">
+											<div class="col-sm-4 text-muted">ชื่อ-นามสกุล:</div>
+											<div class="col-sm-8">@students.FirstName @students.LastName</div>
+										</div>
+										<div class="row mb-2">
+											<div class="col-sm-4 text-muted">เบอร์โทร:</div>
+											<div class="col-sm-8">@students.Phone_Number</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<div class="card h-100 border-0 bg-light">
+									<div class="card-body">
+										<h5><i class="bi bi-gear me-2"></i>จัดการข้อมูล</h5>
+										<hr>
+										@* <div class="d-flex gap-2 flex-wrap justify-content-center"> *@
+										@* 	<a @onclick="() => ShowAddModal()" class="btn btn-outline-success"> *@
+										@* 		<i class="bi bi-plus-circle me-1"></i>เพิ่มประวัติการศึกษา *@
+										@* 	</a> *@
+										@* 	<a @onclick="() => ShowAddDhammaModal()" class="btn btn-outline-success"> *@
+										@* 		<i class="bi bi-journal-plus me-1"></i>เพิ่มประวัติทางธรรม *@
+										@* 	</a> *@
+										@* 	<button class="btn btn-outline-danger bi bi-filetype-pdf" @onclick="ExportToPdf">ดาวโหลดข้อมูล PDF</button> *@
+										@* 	@if (!string.IsNullOrEmpty(errorMessage)) *@
+										@* 	{ *@
+										@* 		<div class="alert alert-danger mt-2">@errorMessage</div> *@
+										@* 	} *@
+										@* </div> *@
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+
+				<div class="tab-content pt-3">
+					<!-- ประวัติส่วนตัว -->
+					<div class="@(activeTab == "personal" ? "tab-pane fade show active" : "tab-pane fade")">
+						<div class="card shadow-sm p-4">
+							<h5 class="mb-3"><i class="bi bi-person-lines-fill me-2"></i>ข้อมูลประวัติส่วนตัว</h5>
+
+							<div class="row mb-2">
+								<div class="col-sm-2 text-muted">ชื่อ-นามสกุล:</div>
+								<div class="col-sm-8">@students.FirstName @students.LastName</div>
+							</div>
+
+							<div class="row mb-2">
+								<div class="col-sm-2 text-muted">เบอร์โทร:</div>
+								<div class="col-sm-8">@students.Phone_Number)</div>
+							</div>
+
+							@* <div class="row mb-2"> *@
+							@* 	<div class="col-sm-2 text-muted">ตำแหน่งงาน:</div> *@
+							@* 	<div class="col-sm-8">@students.p</div> *@
+							@* </div> *@
+							@* <div class="row mb-2"> *@
+							@* 	<div class="col-sm-2 text-muted">ตำแหน่งงานเพิ่มเติม:</div> *@
+							@* 	<div class="col-sm-8">@students.Position_detail</div> *@
+							@* </div> *@
+						</div>
+					</div>
+
+					
+
+				
+				</div>
+			</div>
+		</div>
+	}
+</div>
+
+@* @if (ModalDisplay == "block") *@
+@* { *@
+@* 	<div class="modal-backdrop fade show"></div> *@
+@* } *@
+
+
+
+
+@code {
+	[Parameter]
+	public int Id { get; set; }
+	public Students students { get; set; }
+
+	private string activeTab = "personal";
+	private string ModalDisplay = "none";
+	private string ModalClass = "";
+	private string deleteMessage = "";
+	private int deleteId = 0;
+	private string deleteType = "";
+	private string errorMessage = "";
+	private bool isGenerating = false;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await LoadTeacher();
+	}
+
+	private async Task LoadTeacher()
+	{
+		students = await _StudentService.GetStudentId(Id);
+
+	}
+
+}

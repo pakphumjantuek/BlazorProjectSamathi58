@@ -8,9 +8,8 @@
 		IsVisible="showModal"
 		OnConfirm="HandleValidSubmit"
 		OnClose="CloseModal">
-
 	<ChildContent>
-		<EditForm Model="@currentInitial" OnValidSubmit="@HandleValidSubmit">
+		<EditForm id="modalForm" Model="@currentInitial" OnValidSubmit="@HandleValidSubmit">
 			<DataAnnotationsValidator />
 			<ValidationSummary />
 
@@ -22,7 +21,6 @@
 					<InputText class="form-control" @bind-Value="currentInitial.Initial_Name" />
 					<ValidationMessage For="@(() => currentInitial.Initial_Name)" />
 				</div>
-
 			}
 		</EditForm>
 	</ChildContent>

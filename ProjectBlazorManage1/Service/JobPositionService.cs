@@ -42,7 +42,6 @@
             }
             try
             {
-                ValidateJobPosition(jobPosition);
                 await _context.JobPositions.AddAsync(jobPosition);
                 await _context.SaveChangesAsync();
             }
@@ -85,13 +84,6 @@
                 throw new InvalidOperationException("ไม่สามารถตำเเหน่งงานได้ ข้อมูลอาจถูกใช้งานอยู่", ex);
             }
         }
-        private void ValidateJobPosition(JobPosition jobPosition)
-        {
-            if (string.IsNullOrWhiteSpace(jobPosition.Position_Name))
-            {
-                throw new ArgumentException("ชื่อตำเเหน่งงานไม่สามารถเป็นค่าว่าง");
-            }          
-        }
-
+      
     }
 }

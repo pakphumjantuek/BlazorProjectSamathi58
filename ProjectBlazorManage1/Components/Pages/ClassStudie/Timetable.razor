@@ -1,0 +1,108 @@
+﻿@page "/ClassStudie/Timetable/{Id:int}"
+@inject IJSRuntime JSRuntime
+@inject ClassStudieService ClassStudieService
+@inject LearningPlanService LearningPlanService
+
+<h1 class="text-center">ตารางสอน</h1>
+<div class="mb-3">
+    <button @onclick="ExportToPdf" class="btn btn-outline-danger bi bi-file-earmark-pdf ">Export to PDF</button>
+    <button @onclick="ExportToPdfSecure" class="btn btn-outline-danger bi bi-file-earmark-pdf">Export to PDF ปลอดภัย</button>
+    <button @onclick="ExportToExcel" class="btn btn-outline-success bi bi-file-earmark-excel">Export to Excel</button>
+
+</div>
+
+<table class="table table-bordered table-striped table-hover mt-3">
+    <thead>
+        <tr>
+            <th class="text-center">วันที่</th>
+            <th class="text-center">เวลา</th>
+            <th class="text-center">รายวิชา</th>
+            <th class="text-center">เทปที่</th>
+            <th class="text-center">ผู้บรรยาย</th>
+            <th class="text-center">เบอร์โทร</th>
+            <th class="text-center">สาขา</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (learningPlanList == null || !learningPlanList.Any())
+        {
+            <tr>
+                <td colspan="7" class="text-center">ไม่พบข้อมูลตารางเรียน</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var study in learningPlanList.OrderBy(p => p.Date))
+            {
+                <tr>
+                    <td class="text-center">
+                        @(study.Date.HasValue ? study.Date.Value.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH")) : "-")
+                    </td>
+                    <td class="text-center">@study.Time</td>
+                    <td>@study.Name</td>
+                    <td class="text-center">@study.Tape</td>
+                    <td class="text-center">
+                        @(study.teacher != null ? $"{study.teacher.Teacher_Name} {study.teacher.Teacher_LastName}" : "-")
+                    </td>
+                    <td class="text-center">
+                        @(study.teacher != null ? study.teacher.Phone_Number : "-")
+                    </td>
+                    <td class="text-center">
+                        @(study.teacher?.Branch != null ? study.teacher.Branch.Branch_Name : "-")
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private IEnumerable<LearningPlan> learningPlanList = new List<LearningPlan>();
+
+
+    protected override async Task OnInitializedAsync()
+    {  
+        learningPlanList = await LearningPlanService.GetLearningPlansByClassStudiedIdAsync(Id); 
+    }
+
+    private async Task ExportToExcel()
+    {
+        try
+        {
+            var excelData = await ClassStudieService.GenerateExcel(Id);
+
+            var base64ExcelData = Convert.ToBase64String(excelData);
+
+            await JSRuntime.InvokeVoidAsync("downloadExcelFile", excelData, "ClassStudyReport.xlsx");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error exporting Excel: {ex.Message}");
+        }
+    }
+    private async Task ExportToPdf()
+    {
+     
+            var pdfBytes = await ClassStudieService.GenerateClassSchedulePdf(Id);
+
+            var base64 = Convert.ToBase64String(pdfBytes);
+            var fileName = $"ประวัติ.pdf";
+
+            await JSRuntime.InvokeVoidAsync("downloadPdfFile", base64, fileName);
+          
+    }
+    private async Task ExportToPdfSecure()
+    {
+
+        var pdfBytes = await ClassStudieService.GenerateClassSchedulePdfSecure(Id);
+
+        var base64 = Convert.ToBase64String(pdfBytes);
+        var fileName = $"ประวัติปลอดภัย.pdf";
+
+        await JSRuntime.InvokeVoidAsync("downloadPdfFile", base64, fileName);
+
+    }
+}

@@ -1,0 +1,194 @@
+﻿@page "/CourseName"
+@inject CourseNameService CourseNameService
+@inject IJSRuntime JSRuntime
+
+<Modals @ref="courseNameModal"
+		Title="ระบบจัดการข้อมูลหลักสูตร"
+		IsVisible="showModal"
+		OnConfirm="HandleValidSubmit"
+		OnClose="CloseModal">
+
+	<ChildContent>
+		<EditForm id="modalForm" Model="@currentCoureseName" OnValidSubmit="@HandleValidSubmit">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+
+			@if (currentCoureseName != null)
+			{
+				<div class="form-group mb-3">
+					<label>ชื่อหลักสูตร</label>
+					<InputText class="form-control" @bind-Value="currentCoureseName.Name" />
+					<ValidationMessage For="@(() => currentCoureseName.Name)" />
+				</div>
+				<div class="form-group mb-3">
+					<label>ลำดับหลักสูตร</label>
+					<InputNumber class="form-control" @bind-Value="currentCoureseName.Level" />
+					<ValidationMessage For="@(() => currentCoureseName.Level)" />
+				</div>
+			}
+		</EditForm>
+	</ChildContent>
+</Modals>
+
+@if (IsProcessing)
+{
+	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</div>
+}
+else
+{
+	<div class="card shadow border-0 mt-4">
+		<div class="card-header bg-black bg-gradient ml-0 py-3">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h2 class="text-white py-2">ระบบจัดการข้อมูลหลักสูตร</h2>
+				</div>
+			</div>
+		</div>
+		<div class="card-body p-4">
+			<div class="row pb-3">
+				<div class="col-12 text-end">
+					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
+						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลหลักสูตร
+					</button>
+				</div>
+			</div>
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>ชื่อหลักสูตร</th>
+						<th>ลำดับชั้น</th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var b in courseNameList)
+					{
+						<tr>
+
+							<td>@b.Name</td>
+							<td>@b.Level</td>
+							<td>
+								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
+								<button class="btn btn-sm btn-danger" @onclick="() => DeleteInnitail(b.Id)">ลบ</button>
+							</td>
+
+						</tr>
+					}
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+}
+
+
+
+@code {
+	private List<CourseName> courseNameList = new();
+	private CourseName courseName = new();
+	private bool IsProcessing { get; set; } = true;
+
+	private Modals courseNameModal;
+	private bool showModal = false;
+	private CourseName currentCoureseName = new();
+	private bool isEditMode = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await LoadCourseName();
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task LoadCourseName()
+	{
+		courseNameList = await CourseNameService.GetAllCourseNames();
+	}
+
+	private void ShowAddModal()
+	{
+		currentCoureseName = new CourseName();
+		isEditMode = false;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void ShowEditModal(CourseName courseName)
+	{
+		currentCoureseName = new CourseName
+			{
+				Id = courseName.Id,
+				Name = courseName.Name,
+				Level = courseName.Level,
+
+			};
+		isEditMode = true;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void CloseModal()
+	{
+		showModal = false;
+		StateHasChanged();
+	}
+
+	public async Task DeleteInnitail(int id)
+	{
+		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบหรือไม่?");
+
+		if (confirmDelete)
+		{
+			await CourseNameService.DeleteCourseName(id);
+
+			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสำเร็จ");
+		}
+		await LoadCourseName();
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+
+			if (isEditMode)
+			{
+				await CourseNameService.UpdateCourseName(currentCoureseName);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "อัพเดทสำเร็จ");
+			}
+			else
+			{
+				await CourseNameService.AddCourseNames(currentCoureseName);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
+			}
+
+			await LoadCourseName();
+			showModal = false;
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
+
+	}
+}

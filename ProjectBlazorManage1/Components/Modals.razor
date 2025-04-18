@@ -1,7 +1,7 @@
 ﻿@namespace ProjectBlazorManage1.Components
 
 <div class="modal @(IsVisible ? "show d-block" : "d-none")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered @Size">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">@Title</h5>
@@ -14,7 +14,7 @@
                 <button type="button" class="btn btn-secondary" @onclick="Close">ปิด</button>
                 @if (ShowConfirmButton)
                 {
-                    <button type="button" class="btn btn-primary" @onclick="OnConfirm">ยืนยัน</button>
+                    <button type="submit" form="@FormId" class="btn btn-primary">ยืนยัน</button>
                 }
             </div>
         </div>
@@ -28,6 +28,8 @@
     [Parameter] public RenderFragment ChildContent { get; set; }
     [Parameter] public EventCallback OnConfirm { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public string Size { get; set; } = "";
+    [Parameter] public string FormId { get; set; } = "modalForm"; // เพิ่ม Parameter นี้
 
     private async Task Close()
     {

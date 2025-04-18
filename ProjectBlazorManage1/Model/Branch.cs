@@ -5,10 +5,9 @@
         [Key]
         [DisplayName("รหัสสาขา")]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        [Required(ErrorMessage = "กรุณากรอกชื่อสาขา")]
+        [Required(ErrorMessage = "กรุณากรอกรหัสสาขา")]
         public int Branch_Id { get; set; }
-        [DisplayName("ชื่อสาขา")]
-        [Required]
+        [Required(ErrorMessage = "กรุณากรอกชื่อสาขา")]
         public string Branch_Name { get; set; }
         [DisplayName("เบอร์โทรศัพท์")]
         [StringLength(10, MinimumLength = 10, ErrorMessage = "กรูณากรอกเบอร์โทร์ 10 หลัก")]

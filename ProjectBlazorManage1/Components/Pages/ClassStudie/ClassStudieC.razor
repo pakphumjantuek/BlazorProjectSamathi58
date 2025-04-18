@@ -1,0 +1,235 @@
+﻿@page "/ClassStudie"
+@inject ClassStudieService ClassStudiedService
+@inject IJSRuntime JSRuntime
+
+<Modals @ref="classStudiedModal"
+		Title="ระบบจัดการข้อมูลคำนำหน้าชื่อ"
+		IsVisible="showModal"
+		OnConfirm="HandleValidSubmit"
+		OnClose="CloseModal">
+	<ChildContent>
+		<EditForm id="modalForm" Model="@currentClassStudied" OnValidSubmit="@HandleValidSubmit">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+
+			@if (currentClassStudied != null)
+			{
+				<div class="form-group mb-3">
+					<label>รหัสรุ่น</label>
+					<InputNumber class="form-control" @bind-Value="currentClassStudied.Id" min="1" />
+					<ValidationMessage For="@(() => currentClassStudied.Id)" />
+				</div>
+				<div class="form-group mb-3">
+					<label>วันที่เริมเรียน</label>
+					<InputDate class="form-control" @bind-Value="currentClassStudied.StartDate" />
+					<ValidationMessage For="@(() => currentClassStudied.StartDate)" />
+				</div>
+				<div class="form-group mb-3">
+					<label>วันที่สิ้นสุดการเรียน</label>
+					<InputDate class="form-control" @bind-Value="currentClassStudied.EndDate" />
+					<ValidationMessage For="@(() => currentClassStudied.EndDate)" />
+				</div>
+			}
+		</EditForm>
+	</ChildContent>
+</Modals>
+
+
+@if (IsProcessing)
+{
+	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</div>
+}
+else
+{
+	<div class="card shadow border-0 mt-4">
+		<div class="card-header bg-black bg-gradient ml-0 py-3">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h2 class="text-white py-2">ระบบจัดการข้อมูลสาขา</h2>
+				</div>
+			</div>
+		</div>
+		<div class="card-body p-4">
+			<div class="row pb-3">
+				<div class="col-12 text-end">
+					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
+						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลสาขา
+					</button>
+				</div>
+			</div>
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>รหัสรุ่น</th>
+						<th>วันที่เริ่มเรียน</th>
+						<th>วันที่สิ้นสุดการเรียน</th>
+						<th></th>
+						<th></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var b in ClassStudiesList)
+					{
+						<tr>
+							<td>@b.Id</td>
+							<td>@b.StartDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))</td>
+							<td>@b.EndDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))</td>
+							<td>
+								<div class="form-check form-switch">
+									<input class="form-check-input custom-switch"
+										   type="checkbox"
+										   id="switch-@b.Id"
+										   checked="@b.Status"
+										   @onclick="() => ToggleStatus(b)"
+										   disabled="@(IsProcessing ? true : false)">
+									<label class="form-check-label" for="switch-@b.Id">
+										<span class="visually-hidden">Toggle status</span>
+									</label>
+								</div>
+							</td>
+							<td>
+								<a class="btn btn-sm btn-primary" href="@($"/ClassStudie/Timetable/{b.Id}") ">ตารางเรียน</a>
+							</td>
+							<td>
+								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
+								<button class="btn btn-sm btn-danger" @onclick="() => Delete(b.Id)">ลบ</button>
+							</td>
+
+						</tr>
+					}
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+}
+
+
+@code {
+	private List<ClassStudied> ClassStudiesList = new();
+	private ClassStudied classStudied = new();
+	private bool IsProcessing { get; set; } = true;
+
+	private Modals classStudiedModal;
+	private bool showModal = false;
+	private ClassStudied currentClassStudied = new ClassStudied { Id = 1 };
+	private bool isEditMode = false;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await LoadClassstudies();
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task LoadClassstudies()
+	{
+		ClassStudiesList = await ClassStudiedService.GetClassStudies();
+	}
+
+	private void ShowAddModal()
+	{
+		currentClassStudied = new ClassStudied();
+		isEditMode = false;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void ShowEditModal(ClassStudied classStudied)
+	{
+		currentClassStudied = new ClassStudied
+			{
+				Id = classStudied.Id,
+				StartDate = classStudied.StartDate,
+				EndDate = classStudied.EndDate,
+				Status = classStudied.Status,
+			};
+		isEditMode = true;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void CloseModal()
+	{
+		showModal = false;
+		StateHasChanged();
+	}
+
+	public async Task Delete(int id)
+	{
+		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบหรือไม่?");
+
+		if (confirmDelete)
+		{
+			await ClassStudiedService.DeleteClassStudy(id);
+
+			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสำเร็จ");
+		}
+		await LoadClassstudies();
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+
+			if (isEditMode)
+			{
+				await ClassStudiedService.UpdateClassStudy(currentClassStudied);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "อัพเดทสำเร็จ");
+			}
+			else
+			{
+				await ClassStudiedService.AddClassStudy(currentClassStudied);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
+			}
+
+			await LoadClassstudies();
+			showModal = false;
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task ToggleStatus(ClassStudied classStudied)
+	{
+			IsProcessing = true;
+			StateHasChanged();
+			classStudied.Status = !classStudied.Status;
+			await ClassStudiedService.UpdateClassStudy(classStudied);
+			await LoadClassstudies();
+			if (classStudied.Status)
+			{
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "เปิดสถานะสำเร็จ");
+			}
+			else
+			{
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ปิดสถานะสำเร็จ");
+		 	}
+		  IsProcessing = false;
+	}
+
+}

@@ -9,7 +9,7 @@
 		OnClose="CloseModal">
 
 	<ChildContent>
-		<EditForm Model="@currentJobPosition" OnValidSubmit="@HandleValidSubmit">
+		<EditForm id="modalForm" Model="@currentJobPosition" OnValidSubmit="@HandleValidSubmit">
 			<DataAnnotationsValidator />
 			<ValidationSummary />
 

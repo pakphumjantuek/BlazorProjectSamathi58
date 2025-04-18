@@ -1,0 +1,584 @@
+﻿@page "/student"
+@inject StudentService _StudentService
+@inject InitialService _InitialService
+@inject ClassStudieService _ClassStudiedService
+@inject IWebHostEnvironment _webHostEnvironment
+@inject IJSRuntime JSRuntime
+
+<Modals @ref="StudensModal"
+		Title="ระบบจัดการข้อมูลคำนำหน้าชื่อ"
+		IsVisible="showModal"
+		OnConfirm="HandleValidSubmit"
+		OnClose="CloseModal"
+		Size="modal-xl">
+
+
+	<ChildContent>
+		<EditForm id="modalForm" Model="@currentStudents" OnValidSubmit="@HandleValidSubmit">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+
+			@if (currentStudents != null)
+			{
+				@if (currentStudents.Id != 0)
+				{
+					<div class="row">
+						<div class="col-md-4">
+							<div class="form-group mb-3">
+								<label>ลำดับที่</label>
+								<InputNumber class="form-control" @bind-Value="currentStudents.Id" readonly />
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group mb-3">
+								<label>รหัสผู้เรียน</label>
+								<InputText class="form-control" @bind-Value="currentStudents.PersonalId" />
+								<ValidationMessage For="@(() => currentStudents.PersonalId)" />
+							</div>
+						</div>
+						<div class="col-md-4">
+							<div class="form-group mb-3">
+								<label>โอนหน่วยกิต</label>
+								<InputNumber  class="form-control"  @bind-Value="currentStudents.credit" />
+								<ValidationMessage For="@(() => currentStudents.credit)" />
+							</div>
+						</div>
+
+					</div>
+
+				}
+				<div class="row">
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label for="initial">คำนำหน้าชื่อ</label>
+							<InputSelect @bind-Value="currentStudents.Initial_Id" class="form-control py-2 form-select" id="initial">
+								<option value="0" disabled selected>--โปรดเลือกคำนำหน้าชื่อ--</option>
+								@foreach (var initial in _initial)
+								{
+									<option value="@initial.Initial_Id">@initial.Initial_Name</option>
+								}
+							</InputSelect>
+							<ValidationMessage For="@(() => currentStudents.Initial_Id)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>ชื่อ</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.FirstName" placeholder="โปรดกรอกชื่อ" />
+							<ValidationMessage For="@(() => currentStudents.FirstName)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>นามสกุล</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.LastName" placeholder="โปรดกรอกนามสกุล" />
+							<ValidationMessage For="@(() => currentStudents.LastName)" />
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>ชื่อเล่น</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Nickname" placeholder="โปรดกรอกชื่อเล่น" />
+							<ValidationMessage For="@(() => currentStudents.Nickname)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>ชื่อภาษาอังกฤษ</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.EnglishName" placeholder="โปรดกรอกชื่อภาษาอังกฤษ" />
+							<ValidationMessage For="@(() => currentStudents.EnglishName)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>เบอร์โทรศัพท์</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Phone_Number" placeholder="โปรดกรอกเบอร์โทรศัพท์" />
+							<ValidationMessage For="@(() => currentStudents.Phone_Number)" />
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>วุฒิการศึกษา</label>
+							<InputSelect class="form-select py-2" @bind-Value="currentStudents.degreeType">
+								<option value="0" disabled selected>--โปรดเลือกวุฒิการศึกษา--</option>
+								@foreach (var gender in Enum.GetValues(typeof(DegreeType)))
+								{
+									<option value="@gender">@gender</option>
+								}
+							</InputSelect>
+							<ValidationMessage For="@(() => currentStudents.degreeType)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>สถาบันการศึกษา</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Institution" placeholder="โปรดกรอกสถาบันการศึกษา" />
+							<ValidationMessage For="@(() => currentStudents.Institution)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>โรคประจำตัว</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.MedicalCondition" placeholder="โปรดกรอกโรคประจำตัว" />
+							<ValidationMessage For="@(() => currentStudents.MedicalCondition)" />
+						</div>
+					</div>
+
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>ที่อยู่ตามบัตรประจำตัวประชาชน</label>
+							<InputTextArea class="form-control" @bind-Value="currentStudents.CitizenCardAddress" placeholder="โปรดกรอกที่อยู่ตามบัตรประจำตัวประชาชน" />
+							<ValidationMessage For="@(() => currentStudents.CitizenCardAddress)" />
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>ที่อยู่ที่ติดต่อได้</label>
+							<InputTextArea class="form-control" @bind-Value="currentStudents.ContactAddress" placeholder="โปรดกรอกที่อยู่ที่ติดต่อได้" />
+							<ValidationMessage For="@(() => currentStudents.ContactAddress)" />
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>อาชีพปัจจุบัน</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Occupation" placeholder="โปรดกรอกอาชีพปัจจุบัน" />
+							<ValidationMessage For="@(() => currentStudents.Occupation)" />
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>สถานที่ทำงาน</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Workplace" placeholder="โปรดกรอกสถานที่ทำงาน" />
+							<ValidationMessage For="@(() => currentStudents.Workplace)" />
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>บุคคลใกล้ชิด</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.ClosePersonName" placeholder="โปรดกรอกบุคคลใกล้ชิด" />
+							<ValidationMessage For="@(() => currentStudents.ClosePersonName)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>เบอร์โทรศัพท์บุคคลใกล้ชิด</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.ClosePersonPhone" placeholder="โปรดกรอกเบอร์โทรศัพท์บุคคลใกล้ชิด" />
+							<ValidationMessage For="@(() => currentStudents.ClosePersonPhone)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>ความสัมพันธ์</label>
+							<InputSelect class="form-select py-2" @bind-Value="currentStudents.relationshipType">
+								<option value="0" disabled selected>--โปรดเลือกความสัมพันธ์--</option>
+								@foreach (var gender in Enum.GetValues(typeof(RelationshipType)))
+								{
+									<option value="@gender">@gender</option>
+								}
+							</InputSelect>
+							<ValidationMessage For="@(() => currentStudents.relationshipType)" />
+						</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>อีเมล</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Email" placeholder="โปรดกรอกอีเมล" />
+							<ValidationMessage For="@(() => currentStudents.Email)" />
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>ไอดีไลน์</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.LineId" placeholder="โปรดกรอกไอดีไลน์" />
+							<ValidationMessage For="@(() => currentStudents.LineId)" />
+						</div>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>ผู้เเนะนำ</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.adviser" />
+							<ValidationMessage For="@(() => currentStudents.adviser)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>หมายเหตู</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Remarks" />
+							<ValidationMessage For="@(() => currentStudents.Remarks)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label for="initial">รุ่นที่เรียน</label>
+							<InputSelect @bind-Value="currentStudents.ClassStudie_Id" class="form-control py-2 form-select" id="initial">
+								<option value="0" disabled selected>--โปรดเลือกรุ่นที่เรียน--</option>
+								@foreach (var classStu in _ClassStudie)
+								{
+									@if (classStu.Status == true)
+									{
+										<option value="@classStu.Id">@classStu.Id</option>
+									}
+								}
+							</InputSelect>
+							<ValidationMessage For="@(() => currentStudents.ClassStudie_Id)" />
+						</div>
+					</div>
+				</div>
+				<div class="form-floating py-3 col-12">
+					@if (currentStudents.Images == null)
+					{
+
+						<InputFile OnChange="LoadFiles" class="form-control py-2" id="customFile"
+								   accept="image/x-png,image/jpeg"></InputFile>
+						<label for="customFile">Upload Image</label>
+					}
+					<label for="customFile">Upload Image</label>
+
+				</div>
+
+				@if (!string.IsNullOrEmpty(_previewImage) || !string.IsNullOrEmpty(currentStudents.Images))
+				{
+					<div class="row pt-3">
+						<div class="col-3">
+							<img src="@GetImageUrl()" alt="preview" class="img-thumbnail" style="width: 150px; height: 150px;" />
+						</div>
+						<div class="col-md-9">
+							<i class="bi bi-trash btn btn-outline-danger" @onclick="DeleteImage">Remove</i>
+						</div>
+					</div>
+				}
+
+			}
+		</EditForm>
+	</ChildContent>
+</Modals>
+
+@if (IsProcessing)
+{
+	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</div>
+}
+else
+{
+	<div class="card shadow border-0 mt-4">
+		<div class="card-header bg-black bg-gradient ml-0 py-3">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h2 class="text-white py-2">ระบบจัดการข้อมูลผู้สอน</h2>
+				</div>
+			</div>
+		</div>
+		<div class="card-body p-4">
+			<div class="row pb-3">
+				<div class="col-6">
+					<button class="btn btn-success" @onclick="DownloadSelectedStudents">ดาวน์โหลดบัตรนักเรียน</button>
+				</div>
+				<div class="col-6 text-end">
+					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
+						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลผู้สอน
+					</button>
+				</div>
+			</div>		
+			<table class="table">
+				<thead>
+					<tr>
+						<th>ชื่อ-นามสกุล</th>
+						<th>เบอร์โทร์</th>
+
+						<th></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var student in StudenslList)
+					{
+						<tr>
+							<td>
+								<InputCheckbox @bind-Value="student.IsSelected" />
+							</td>
+							<td>@student.FirstName - @student.LastName</td>
+							<td>@student.Phone_Number</td>
+							<td>
+								<a class="btn btn-sm btn-primary" href="@($"Student/Student_Details/{student.Id}")">รายระเอียด</a>
+							</td>
+							<td>
+								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(student)">แก้ไข</button>
+								<button class="btn btn-sm btn-danger" @onclick="() => Delete(student.Id)">ลบ</button>
+							</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+}
+
+
+@code {
+	private List<Students> StudenslList = new();
+	private List<Initial> _initial = new();
+	private List<ClassStudied> _ClassStudie = new();
+	private bool IsProcessing { get; set; } = true;
+
+	private Modals StudensModal;
+	private bool showModal = false;
+	private Students currentStudents = new();
+	private bool isEditMode = false;
+
+	private string? _directoryPath { get; set; }
+	private IBrowserFile? _selectedFile { get; set; }
+	private string? _previewImage { get; set; }
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await LoadStudent();
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	protected override Task OnInitializedAsync()
+	{
+		_directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "Students");
+		return base.OnInitializedAsync();
+	}
+
+	private async Task DownloadSelectedStudents()
+	{
+		var selectedIds = StudenslList
+			.Where(s => s.IsSelected)
+			.Select(s => s.Id)
+			.ToList();
+
+		if (!selectedIds.Any())
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "warning", "กรุณาเลือกนักเรียนอย่างน้อย 1 คน");
+			return;
+		}
+
+		try
+		{
+			var fileBytes = _StudentService.GenerateStudentCards(selectedIds);
+			var base64 = Convert.ToBase64String(fileBytes);
+			var fileName = $"StudentCards_{DateTime.Now:yyyyMMddHHmmss}.pdf";
+
+			await JSRuntime.InvokeVoidAsync("downloadPdfFile", base64, fileName);
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+		}
+	}
+	private async Task LoadStudent()
+	{
+		StudenslList = await _StudentService.GetStudents();
+		_initial = await _InitialService.GetInitials();
+		_ClassStudie = await _ClassStudiedService.GetClassStudies();
+	}
+
+	private void ShowAddModal()
+	{
+		currentStudents = new Students();
+		isEditMode = false;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void ShowEditModal(Students student)
+	{
+		currentStudents = new Students
+			{
+				Id = student.Id,
+				FirstName = student.FirstName,
+				LastName = student.LastName,
+				PersonalId = student.PersonalId,
+				Initial_Id = student.Initial_Id,
+				Nickname = student.Nickname,
+				Phone_Number = student.Phone_Number,
+				EnglishName = student.EnglishName,
+				BirthDate = student.BirthDate,
+				degreeType = student.degreeType,
+				relationshipType = student.relationshipType,
+				Institution = student.Institution,
+				CitizenCardAddress = student.CitizenCardAddress,
+				ContactAddress = student.ContactAddress,
+				Occupation = student.Occupation,
+				Workplace = student.Workplace,
+				ClosePersonName = student.ClosePersonName,
+				ClosePersonPhone = student.ClosePersonPhone,
+				MedicalCondition = student.MedicalCondition,
+				Email = student.Email,
+				LineId = student.LineId,
+				ApplicationDate = student.ApplicationDate,
+				adviser = student.adviser,
+				Remarks = student.Remarks,
+				Images = student.Images,
+				ClassStudie_Id = student.ClassStudie_Id,
+				credit = student.credit,
+			};
+		isEditMode = true;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void CloseModal()
+	{
+		showModal = false;
+		StateHasChanged();
+	}
+
+	public async Task Delete(int id)
+	{
+		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบหรือไม่?");
+
+		if (confirmDelete)
+		{
+			await _StudentService.DeleteStudent(id);
+
+			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสำเร็จ");
+		}
+		await LoadStudent();
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+
+			if (_selectedFile != null)
+			{
+
+				if (!string.IsNullOrWhiteSpace(currentStudents.Images))
+				{
+					var oldFile = Path.GetFileName(currentStudents.Images);
+					var oldFilePath = Path.Combine(_directoryPath, oldFile);
+					if (File.Exists(oldFilePath))
+					{
+						File.Delete(oldFilePath);
+					}
+				}
+
+				var extension = Path.GetExtension(_selectedFile.Name);
+				var newFileName = $"{Guid.NewGuid()}{extension}";
+				var fullPath = Path.Combine(_directoryPath, newFileName);
+
+
+				if (!Directory.Exists(_directoryPath))
+				{
+					Directory.CreateDirectory(_directoryPath);
+				}
+
+
+				long maxAllowedSize = 10 * 1024 * 1024;
+				await using FileStream fileStream = new(fullPath, FileMode.Create);
+				await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(fileStream);
+
+				currentStudents.Images = $"/images/Students/{newFileName}";
+			}
+
+			if (isEditMode)
+			{
+				await _StudentService.UpdateStudent(currentStudents);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "อัพเดทสำเร็จ");
+			}
+			else
+			{
+				await _StudentService.AddStudent(currentStudents);
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
+			}
+
+			await LoadStudent();
+			showModal = false;
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
+
+	}
+
+	private string GetImageUrl()
+	{
+		if (!string.IsNullOrEmpty(_previewImage))
+		{
+			return _previewImage;
+		}
+		return currentStudents.Images ?? string.Empty;
+	}
+
+	private async Task LoadFiles(InputFileChangeEventArgs e)
+	{
+		IsProcessing = true;
+		_selectedFile = e.File;
+		long maxAllowedSize = 10 * 1024 * 1024;
+
+		using (var memoryStream = new MemoryStream())
+		{
+			await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(memoryStream);
+			byte[] buffer = memoryStream.ToArray();
+
+			string imageBase64Data = Convert.ToBase64String(buffer);
+			string imageDataUrl = $"data:{_selectedFile.ContentType};base64,{imageBase64Data}";
+
+			_previewImage = imageDataUrl;
+			IsProcessing = false;
+		}
+	}
+
+	void DeleteImage()
+	{
+		_previewImage = null;
+		_selectedFile = null;
+
+		if (currentStudents.Images == null) return;
+
+		var fileToDelete = currentStudents.Images.Split('/').Last();
+		var filePathToDeleteImage = Path.Combine(_directoryPath, fileToDelete);
+
+		if (File.Exists(filePathToDeleteImage))
+		{
+			File.Delete(filePathToDeleteImage);
+		}
+
+		currentStudents.Images = null;
+	}
+
+}

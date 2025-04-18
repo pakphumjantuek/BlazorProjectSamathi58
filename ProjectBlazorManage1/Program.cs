@@ -1,4 +1,4 @@
-global using System.ComponentModel.DataAnnotations.Schema;
+﻿global using System.ComponentModel.DataAnnotations.Schema;
 global using System.ComponentModel.DataAnnotations;
 global using System.ComponentModel;
 global using Microsoft.AspNetCore.Components.Authorization;
@@ -11,7 +11,8 @@ global using ProjectBlazorManage1.Model;
 global using ProjectBlazorManage1.Service.Interface;
 global using ProjectBlazorManage1.Service;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-
+global using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
+global using static ProjectBlazorManage1.Utility.SD;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -52,9 +53,19 @@ builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSe
 builder.Services.AddScoped<BranchService>();
 builder.Services.AddScoped<InitialService>();
 builder.Services.AddScoped<JobPositionService>();
+builder.Services.AddScoped<TeacherService>();
+builder.Services.AddScoped<EducationHistoryService>();
+builder.Services.AddScoped<CourseNameService>();
+builder.Services.AddScoped<DhammaCourseService>();
+builder.Services.AddScoped<ClassStudieService>();
+builder.Services.AddScoped<LearningPlanService>();
+builder.Services.AddScoped<StudentService>();
+
+
 builder.Services.AddScoped<Radzen.DialogService>();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

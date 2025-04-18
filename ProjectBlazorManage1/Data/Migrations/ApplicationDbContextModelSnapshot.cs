@@ -220,6 +220,38 @@ namespace ProjectBlazorManage1.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Attendance", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CheckInTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("LearningPlanId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudiedType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LearningPlanId");
+
+                    b.HasIndex("StudentId");
+
+                    b.ToTable("Attendances");
+                });
+
             modelBuilder.Entity("ProjectBlazorManage1.Model.Branch", b =>
                 {
                     b.Property<int>("Branch_Id")
@@ -244,6 +276,107 @@ namespace ProjectBlazorManage1.Migrations
                     b.HasKey("Branch_Id");
 
                     b.ToTable("Branches");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.ClassStudied", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ClassStudieds");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.CourseName", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Level")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CourseNames");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.DhammaCourse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseName_Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("generation")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseName_Id");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("DhammaCourses");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.EducationHistory", b =>
+                {
+                    b.Property<int>("EducationHistoryId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("EducationHistoryId"));
+
+                    b.Property<int>("Degree")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Institution")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MajorName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("YearGraduated")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("degreeName")
+                        .HasColumnType("int");
+
+                    b.HasKey("EducationHistoryId");
+
+                    b.HasIndex("TeacherId");
+
+                    b.ToTable("EducationHistories");
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.Initial", b =>
@@ -284,6 +417,253 @@ namespace ProjectBlazorManage1.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("JobPositions");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.LearningPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Book")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ClassStudiedId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Lecturer")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("Score")
+                        .HasColumnType("float");
+
+                    b.Property<bool?>("Status")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Tape")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Teacher_ID")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Time")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassStudiedId");
+
+                    b.HasIndex("Teacher_ID");
+
+                    b.ToTable("LearningPlans");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Students", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("ApplicationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<double?>("Attendance_Score")
+                        .HasColumnType("float");
+
+                    b.Property<DateTime>("BirthDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CitizenCardAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("ClassStudie_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ClosePersonName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ClosePersonPhone")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("ContactAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EnglishName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Images")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Initial_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Institution")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsSelected")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LineId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MedicalCondition")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Nickname")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Occupation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PersonalId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone_Number")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Remarks")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Workplace")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("adviser")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double?>("credit")
+                        .HasColumnType("float");
+
+                    b.Property<int>("degreeType")
+                        .HasColumnType("int");
+
+                    b.Property<double>("month1")
+                        .HasColumnType("float");
+
+                    b.Property<double>("month2")
+                        .HasColumnType("float");
+
+                    b.Property<double>("month3")
+                        .HasColumnType("float");
+
+                    b.Property<double>("month4")
+                        .HasColumnType("float");
+
+                    b.Property<double>("month5")
+                        .HasColumnType("float");
+
+                    b.Property<double>("month6")
+                        .HasColumnType("float");
+
+                    b.Property<int>("relationshipType")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClassStudie_Id");
+
+                    b.HasIndex("Initial_Id");
+
+                    b.ToTable("students");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Teacher", b =>
+                {
+                    b.Property<int>("Teacher_Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Teacher_Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Branch_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Images")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Initial_Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("JobPosition_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Occupation")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone_Number")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("Position_detail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Special_Skill")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Teacher_LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Teacher_Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Teacher_Id");
+
+                    b.HasIndex("Branch_Id");
+
+                    b.HasIndex("Initial_Id");
+
+                    b.HasIndex("JobPosition_Id");
+
+                    b.ToTable("Teachers");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -335,6 +715,128 @@ namespace ProjectBlazorManage1.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Attendance", b =>
+                {
+                    b.HasOne("ProjectBlazorManage1.Model.LearningPlan", "LearningPlan")
+                        .WithMany()
+                        .HasForeignKey("LearningPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectBlazorManage1.Model.Students", "Students")
+                        .WithMany()
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LearningPlan");
+
+                    b.Navigation("Students");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.DhammaCourse", b =>
+                {
+                    b.HasOne("ProjectBlazorManage1.Model.CourseName", "CourseName")
+                        .WithMany()
+                        .HasForeignKey("CourseName_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectBlazorManage1.Model.Teacher", "Teacher")
+                        .WithMany("DhamaHistories")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CourseName");
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.EducationHistory", b =>
+                {
+                    b.HasOne("ProjectBlazorManage1.Model.Teacher", "Teacher")
+                        .WithMany("EducationHistories")
+                        .HasForeignKey("TeacherId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Teacher");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.LearningPlan", b =>
+                {
+                    b.HasOne("ProjectBlazorManage1.Model.ClassStudied", "ClassStudied")
+                        .WithMany("learningPlans")
+                        .HasForeignKey("ClassStudiedId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectBlazorManage1.Model.Teacher", "teacher")
+                        .WithMany()
+                        .HasForeignKey("Teacher_ID");
+
+                    b.Navigation("ClassStudied");
+
+                    b.Navigation("teacher");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Students", b =>
+                {
+                    b.HasOne("ProjectBlazorManage1.Model.ClassStudied", "classStudied")
+                        .WithMany()
+                        .HasForeignKey("ClassStudie_Id");
+
+                    b.HasOne("ProjectBlazorManage1.Model.Initial", "Initial")
+                        .WithMany()
+                        .HasForeignKey("Initial_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Initial");
+
+                    b.Navigation("classStudied");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Teacher", b =>
+                {
+                    b.HasOne("ProjectBlazorManage1.Model.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("Branch_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectBlazorManage1.Model.Initial", "Initial")
+                        .WithMany()
+                        .HasForeignKey("Initial_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectBlazorManage1.Model.JobPosition", "jobPosition")
+                        .WithMany()
+                        .HasForeignKey("JobPosition_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Initial");
+
+                    b.Navigation("jobPosition");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.ClassStudied", b =>
+                {
+                    b.Navigation("learningPlans");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Teacher", b =>
+                {
+                    b.Navigation("DhamaHistories");
+
+                    b.Navigation("EducationHistories");
                 });
 #pragma warning restore 612, 618
         }

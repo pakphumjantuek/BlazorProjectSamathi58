@@ -7,6 +7,14 @@ namespace ProjectBlazorManage1.Data
         public DbSet<Branch> Branches { get; set; }
         public DbSet<Initial> Initials { get; set; }
         public DbSet<JobPosition> JobPositions { get; set; }
+        public DbSet<Teacher> Teachers { get; set; }
+        public DbSet<EducationHistory>  EducationHistories { get; set; }
+        public DbSet<CourseName> CourseNames { get; set; }
+        public DbSet<DhammaCourse> DhammaCourses { get; set; }
+        public DbSet<LearningPlan> LearningPlans { get; set; }
+        public DbSet<ClassStudied> ClassStudieds { get; set; }
+        public DbSet<Students> students { get; set; }
+        public DbSet<Attendance> Attendances { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

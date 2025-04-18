@@ -1,0 +1,170 @@
+﻿@page "/attendance/report/{classId:int}"
+@inject ApplicationDbContext _context
+@using Microsoft.EntityFrameworkCore
+@using System.Globalization
+@using ProjectBlazorManage1.Model.Dtos
+
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h3 class="fw-bold text-primary">📋 รายงานการเข้าเรียน</h3>
+        <h5 class="text-muted">หลักสูตรครูสมาธิ รุ่นที่ <span class="text-dark fw-semibold">@report?.ClassNumber</span></h5>
+    </div>
+
+    @if (isLoading)
+    {
+        <div class="d-flex justify-content-center align-items-center" style="height: 60vh;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else if (report == null)
+    {
+        <div class="alert alert-danger text-center">❌ ไม่พบข้อมูล</div>
+    }
+    else
+    {
+        <div class="d-flex justify-content-end mb-3 gap-2">
+            <a class="btn btn-success" href="@($"/attendance/export-excel/{report.ClassId}")">
+                <i class="bi bi-file-earmark-excel-fill"></i> ส่งออก Excel
+            </a>
+            <a class="btn btn-outline-secondary" href="@($"/attendance/menu/{report.ClassId}")">
+                <i class="bi bi-arrow-left-circle"></i> กลับ
+            </a>
+        </div>
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white fw-semibold">รายละเอียดการเข้าเรียน</div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle text-center mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th rowspan="2">ลำดับ</th>
+                            <th rowspan="2">รหัสนักเรียน</th>
+                            <th rowspan="2" class="text-start">ชื่อ-นามสกุล</th>
+                            <th colspan="@report.LearningPlans.Count">วิชา</th>
+                            <th rowspan="2">คะแนนรวม</th>
+                        </tr>
+                        <tr>
+                            @foreach (var plan in report.LearningPlans)
+                            {
+                                <th title="@plan.Name - @(plan.Date?.ToString("dd/MM/yyyy", new CultureInfo("th-TH")) ?? "-")">
+                                    @plan.Name.Substring(0, Math.Min(plan.Name.Length, 10))@(plan.Name.Length > 10 ? "..." : "")
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < report.Students.Count; i++)
+                        {
+                            var student = report.Students[i];
+                            <tr>
+                                <td>@(i + 1)</td>
+                                <td>@student.Id</td>
+                                <td class="text-start">@student.FirstName @student.LastName</td>
+                                @foreach (var plan in report.LearningPlans)
+                                {
+                                    var status = report.GetAttendanceStatus(student.Id, plan.Id);
+                                    <td title="@status.Remark">
+                                        @switch (status.Type)
+                                        {
+                                            case "present":
+                                                <i class="bi bi-check-circle-fill text-success"></i>
+                                                break;
+                                            case "extra":
+                                                <i class="bi bi-check-circle-fill text-warning"></i>
+                                                break;
+                                            case "branch":
+                                                <i class="bi bi-check-circle-fill text-info"></i>
+                                                break;
+                                            default:
+                                                <i class="bi bi-x-circle-fill text-danger"></i>
+                                                break;
+                                        }
+                                        @if (!string.IsNullOrWhiteSpace(status.Remark))
+                                        {
+                                            <i class="bi bi-info-circle-fill text-info ms-1 small"></i>
+                                        }
+                                    </td>
+                                }
+                                <td class="fw-bold">
+                                    @(report.StudentScores.ContainsKey(student.Id) ? report.StudentScores[student.Id] : 0)
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white fw-semibold">📊 สรุปคะแนนนักเรียน</div>
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>รหัสนักเรียน</th>
+                            <th>ชื่อ-นามสกุล</th>
+                            <th>คะแนนรวม</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var student in report.Students)
+                        {
+                            <tr>
+                                <td>@student.Id</td>
+                                <td>@student.FirstName @student.LastName</td>
+                                <td>@(report.StudentScores.ContainsKey(student.Id) ? report.StudentScores[student.Id] : 0)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public int classId { get; set; }
+    private AttendanceReportViewModel? report;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+
+        var classInfo = await _context.ClassStudieds.FirstOrDefaultAsync(c => c.Id == classId);
+        if (classInfo == null) return;
+
+        var learningPlans = await _context.LearningPlans
+            .Where(lp => lp.ClassStudiedId == classId)
+            .OrderBy(lp => lp.Date)
+            .ToListAsync();
+
+        var students = await _context.students
+            .Where(s => s.ClassStudie_Id == classId)
+            .ToListAsync();
+
+        var attendance = await _context.Attendances
+            .Where(a => a.LearningPlan.ClassStudiedId == classId)
+            .ToListAsync();
+
+        var studentScores = students.ToDictionary(s => s.Id, s =>
+            attendance
+                .Where(a => a.StudentId == s.Id &&
+                    (a.StudiedType == StudiedType.มาเรียน || a.StudiedType == StudiedType.เรียนเสริม || a.StudiedType == StudiedType.เรียนต่างสาขา))
+                .Sum(a => learningPlans.FirstOrDefault(lp => lp.Id == a.LearningPlanId)?.Score ?? 0));
+
+        report = new AttendanceReportViewModel
+            {
+                ClassId = classId,
+                ClassNumber = classInfo.Id,
+                Students = students,
+                LearningPlans = learningPlans,
+                AttendanceRecords = attendance,
+                StudentScores = studentScores
+            };
+
+        isLoading = false;
+    }
+}

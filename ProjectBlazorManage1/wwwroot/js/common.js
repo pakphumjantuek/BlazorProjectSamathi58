@@ -18,7 +18,7 @@ window.ShowSwal = function (type, message) {
     return new Promise((test) => {
         if (type == "success") {
             Swal.fire({
-                title: "คุณแน่ใจที่จะลบสินค้าหรือไม่?",
+                title: "คุณแน่ใจที่จะลบหรือไม่?",
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
@@ -51,9 +51,42 @@ window.ShowSwal = function (type, message) {
                 test(false);
             });
         }
+        else if (type == "confirm") {
+            Swal.fire({
+                title: "ข้อมูลซ้ำ",
+                text: message,
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "บันทึกซ้ำ",
+                cancelButtonText: "ยกเลิก"
+            }).then((result) => {
+                test(result.isConfirmed);
+            });
+        }
     });
 };
 
+window.downloadPdfFile = (base64Data, fileName) => {
+    const link = document.createElement('a');
+    link.href = 'data:application/pdf;base64,' + base64Data;
+    link.download = fileName;
+    link.click();
+};
 
 
+window.downloadExcelFile = (binaryData, fileName) => {
+    const blob = new Blob([binaryData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+};
 
+function downloadFileFromBase64(base64, fileName, contentType) {
+    const link = document.createElement('a');
+    link.href = `data:${contentType};base64,${base64}`;
+    link.download = fileName;
+    link.click();
+}

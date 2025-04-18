@@ -58,7 +58,6 @@ namespace ProjectBlazorManage1.Service
 
             try
             {
-                await ValidateBranch(branch);
                 await _context.Branches.AddAsync(branch);
                 await _context.SaveChangesAsync();
             }
@@ -106,33 +105,6 @@ namespace ProjectBlazorManage1.Service
                 throw new InvalidOperationException("ไม่สามารถลบสาขาได้ ข้อมูลอาจถูกใช้งานอยู่", ex);
             }
         }
-
-        private async Task ValidateBranch(Branch branch)
-        {
-            // ตรวจสอบความถูกต้องของข้อมูลสาขา
-            if (string.IsNullOrWhiteSpace(branch.Branch_Name))
-            {
-                throw new ArgumentException("ชื่อสาขาไม่สามารถเป็นค่าว่าง");
-            }
-            if (string.IsNullOrWhiteSpace(branch.Branch_Phone))
-            {
-                throw new ArgumentException("เบอร์โทรไม่สามารถเป็นค่าว่าง");
-            }
-            if (string.IsNullOrWhiteSpace(branch.Branch_Email))
-            {
-                throw new ArgumentException("อีเมลไม่สามารถเป็นค่าว่าง");
-            }
-
-            // ตรวจสอบว่าชื่อสาขาซ้ำหรือไม่
-            //var exists = await _context.Branches
-            //    .AnyAsync(b => b.Branch_Id != branch.Branch_Id);
-
-            //if (exists)
-            //{
-            //    throw new InvalidOperationException("มีชื่อสาขานี้อยู่แล้ว");
-            //}
-        }
-
 
     }
 }

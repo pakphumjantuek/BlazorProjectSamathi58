@@ -1,0 +1,319 @@
+﻿@page "/learningplan"
+@inject LearningPlanService LearningPlanService
+@inject ClassStudieService ClassStudiedService
+@inject TeacherService TeacherService
+@inject IJSRuntime JSRuntime
+
+<Modals @ref="LearningPlansModal"
+		Title="จัดการสาขา"
+		IsVisible="showModal"
+		OnConfirm="HandleValidSubmit"
+		OnClose="CloseModal">
+
+	<ChildContent>
+		<EditForm id="modalForm" Model="@currentLearningPlan" OnValidSubmit="@HandleValidSubmit">
+			<DataAnnotationsValidator />
+			<ValidationSummary />
+
+			@if (currentLearningPlan != null)
+			{
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>วันที่เรียน</label>
+							<InputDate class="form-control" @bind-Value="currentLearningPlan.Date" />
+							<ValidationMessage For="@(() => currentLearningPlan.Date)" />
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>เวลาเรียน</label>
+							<InputText class="form-control" @bind-Value="currentLearningPlan.Time" />
+							<ValidationMessage For="@(() => currentLearningPlan.Time)" />
+						</div>
+					</div>
+				</div>
+
+
+				<div class="form-group mb-3">
+					<label>หัวข้อการเรียน</label>
+					<InputText class="form-control" @bind-Value="currentLearningPlan.Name" />
+					<ValidationMessage For="@(() => currentLearningPlan.Name)" />
+				</div>
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>เทป</label>
+							<InputText class="form-control" @bind-Value="currentLearningPlan.Tape" />
+							<ValidationMessage For="@(() => currentLearningPlan.Tape)" />
+						</div>
+					</div>
+					<div class="col-md-6">
+
+						<div class="form-group mb-3">
+							<label>เล่มที่</label>
+							<InputText class="form-control" @bind-Value="currentLearningPlan.Book" />
+							<ValidationMessage For="@(() => currentLearningPlan.Book)" />
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group mb-3">
+					<label>คะเเนน</label>
+					<InputNumber class="form-control" @bind-Value="currentLearningPlan.Score" />
+					<ValidationMessage For="@(() => currentLearningPlan.Score)" />
+				</div>
+
+				<div class="form-group mb-3">
+					<label for="initial">เลือกผู้สอน</label>
+					<InputSelect @bind-Value="currentLearningPlan.Teacher_ID" class="form-control form-select">
+						<option value="0" disabled selected>--โปรดเลือกผู้สอน--</option>
+						@foreach (var t in _teacher)
+						{
+							<option value="@t.Teacher_Id">@t.Teacher_Name @t.Teacher_LastName</option>
+						}
+					</InputSelect>
+					<ValidationMessage For="@(() => currentLearningPlan.Teacher_ID)" />
+				</div>
+				<div class="form-group mb-3">
+					<label for="initial">เลือกรุ่น</label>
+					<InputSelect @bind-Value="currentLearningPlan.ClassStudiedId" class="form-control form-select">
+						<option value="0" disabled selected>--โปรดเลือกรุ่น--</option>
+						@foreach (var t in _ClassStudied)
+						{
+							@if (t.Status == true)
+							{
+								<option value="@t.Id">@t.Id</option>
+							}
+
+						}
+					</InputSelect>
+					<ValidationMessage For="@(() => currentLearningPlan.ClassStudiedId)" />
+				</div>
+			}
+		</EditForm>
+	</ChildContent>
+</Modals>
+
+@if (IsProcessing)
+{
+	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+		<div class="spinner">
+			<div class="rect1"></div>
+			<div class="rect2"></div>
+			<div class="rect3"></div>
+			<div class="rect4"></div>
+			<div class="rect5"></div>
+		</div>
+	</div>
+}
+else
+{
+	<div class="card shadow border-0 mt-4">
+		<div class="card-header bg-black bg-gradient ml-0 py-3">
+			<div class="row">
+				<div class="col-12 text-center">
+					<h2 class="text-white py-2">ระบบจัดการข้อมูลสาขา</h2>
+				</div>
+			</div>
+		</div>
+		<div class="card-body p-4">
+			<div class="row pb-3">
+				<!-- Container to align form elements properly -->
+				<div class="col-12 d-flex justify-content-between align-items-center">
+					<!-- Select Dropdown for Class -->
+					<div class="col-md-4">
+						<label for="classStudiedFilter">เลือกรุ่น:</label>
+						<select id="classStudiedFilter" class="form-select" @bind="selectedClassStudiedId">
+							<option value="">ทั้งหมด</option>
+							@foreach (var classStudied in learningPlansList.OrderByDescending(p => p.ClassStudiedId).Select(b => b.ClassStudied).Distinct())
+							{
+								<option value="@classStudied?.Id">@classStudied?.Id</option>
+							}
+						</select>
+					</div>
+
+					<!-- Buttons -->
+					<div class="d-flex gap-3">
+						<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
+							<i class="bi bi-plus-square"></i> เพิ่มข้อมูลสาขา
+						</button>
+						<a class="btn btn-lg btn-success" style="width:250px;" href="/upload-excel">
+							<i class="bi bi-file-earmark-excel"></i> อัพโหลด Excel
+						</a>
+					</div>
+				</div>
+			</div>
+
+
+
+
+			<table class="table">
+				<thead>
+					<tr>
+						<th>วันที่เรียน</th>
+						<th>เวลาเรียน</th>
+						<th>หัวข้อการเรียน</th>
+						<th>ผู้สอน</th>
+						<th>รุ่นที่เรียน</th>
+						<th></th>
+						<th></th>
+					</tr>
+				</thead>
+				<tbody>
+					@foreach (var b in FilteredLearningPlans.OrderBy(p => p.Date).OrderByDescending(b => b.ClassStudiedId))
+					{
+						<tr>
+							<td>@(b.Date.HasValue ? b.Date.Value.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH")) : "")</td>
+							<td>@b.Time</td>
+							<td>@b.Name</td>
+							<td>@($"{b.teacher?.Teacher_Name} {b.teacher?.Teacher_LastName}" ?? "")</td>
+							<td>@b.ClassStudiedId</td>
+
+							<td>
+								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
+								<button class="btn btn-sm btn-danger" @onclick="() => Delete(b.Id)">ลบ</button>
+							</td>
+
+						</tr>
+					}
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+}
+
+
+@code {
+	private List<LearningPlan> learningPlansList = new();
+	private bool IsProcessing { get; set; } = true;
+	private List<Teacher> _teacher = new();
+	private List<ClassStudied> _ClassStudied = new();
+
+	private Modals LearningPlansModal;
+	private bool showModal = false;
+	private LearningPlan currentLearningPlan = new();
+	private bool isEditMode = false;
+
+	private int? selectedClassStudiedId = null;
+
+	private IEnumerable<LearningPlan> FilteredLearningPlans =>
+		learningPlansList
+		.Where(b => !selectedClassStudiedId.HasValue || b.ClassStudiedId == selectedClassStudiedId)
+		.OrderBy(p => p.Date)
+		.OrderByDescending(b => b.ClassStudiedId);
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await LoadLearningPlan();
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+	private async Task LoadLearningPlan()
+	{
+		learningPlansList = await LearningPlanService.GetAllAsync();
+		_teacher = await TeacherService.GetAllTeachers();
+		_ClassStudied = await ClassStudiedService.GetClassStudies();
+	}
+
+	private void ShowAddModal()
+	{
+		currentLearningPlan = new LearningPlan();
+		isEditMode = false;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	private void CloseModal()
+	{
+		showModal = false;
+		StateHasChanged();
+	}
+
+	private void ShowEditModal(LearningPlan learningPlan)
+	{
+		currentLearningPlan = new LearningPlan
+			{
+				Id = learningPlan.Id,
+				Date = learningPlan.Date,
+				Time = learningPlan.Time,
+				Name = learningPlan.Name,
+				Tape = learningPlan.Tape,
+				Lecturer = learningPlan.Lecturer,
+				Book = learningPlan.Book,
+				Score = learningPlan.Score,
+				Teacher_ID = learningPlan.Teacher_ID,
+				ClassStudiedId = learningPlan.ClassStudiedId,
+				Status = learningPlan.Status
+			};
+		isEditMode = true;
+		showModal = true;
+		StateHasChanged();
+	}
+
+	public async Task Delete(int id)
+	{
+		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบหรือไม่?");
+
+		if (confirmDelete)
+		{
+			await LearningPlanService.DeleteAsync(id);
+
+			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสำเร็จ");
+		}
+		await LoadLearningPlan();
+	}
+
+	private async Task HandleValidSubmit()
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+
+			var result = await LearningPlanService.SaveLearningPlan(currentLearningPlan, forceSave: false);
+
+			if (!result.Success && result.Message.Contains("เคยสอนหัวข้อนี้แล้ว"))
+			{
+				// ใช้ SweetAlert Confirm
+				bool confirm = await JSRuntime.InvokeAsync<bool>("ShowSwal", "confirm", result.Message);
+				if (confirm)
+				{
+					var result2 = await LearningPlanService.SaveLearningPlan(currentLearningPlan, forceSave: true);
+					await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", result2.Message);
+				}
+				else
+				{
+					await JSRuntime.InvokeVoidAsync("showToastr", "info", "ยกเลิกการบันทึก");
+					return;
+				}
+			}
+			else
+			{
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", result.Message);
+			}
+
+			await LoadLearningPlan();
+			showModal = false;
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
+	}
+
+
+
+}
