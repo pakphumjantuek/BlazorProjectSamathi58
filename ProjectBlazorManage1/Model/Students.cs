@@ -126,5 +126,6 @@ namespace ProjectBlazorManage1.Model
         [DisplayName("โอนหน่วยกิต")]
         public double? credit { get; set; } = 0;// หน่วยกิต
         public bool IsSelected { get; set; } = false;
+
     }
 }

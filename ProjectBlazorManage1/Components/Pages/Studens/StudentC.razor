@@ -4,6 +4,8 @@
 @inject ClassStudieService _ClassStudiedService
 @inject IWebHostEnvironment _webHostEnvironment
 @inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
 
 <Modals @ref="StudensModal"
 		Title="ระบบจัดการข้อมูลคำนำหน้าชื่อ"
@@ -39,7 +41,7 @@
 						<div class="col-md-4">
 							<div class="form-group mb-3">
 								<label>โอนหน่วยกิต</label>
-								<InputNumber  class="form-control"  @bind-Value="currentStudents.credit" />
+								<InputNumber class="form-control" @bind-Value="currentStudents.credit" />
 								<ValidationMessage For="@(() => currentStudents.credit)" />
 							</div>
 						</div>
@@ -248,8 +250,10 @@
 					@if (currentStudents.Images == null)
 					{
 
-						<InputFile OnChange="LoadFiles" class="form-control py-2" id="customFile"
-								   accept="image/x-png,image/jpeg"></InputFile>
+						<InputFile OnChange="LoadFiles"
+								   accept="image/*"
+								   class="form-control py-2"
+								   id="customFile" />
 						<label for="customFile">Upload Image</label>
 					}
 					<label for="customFile">Upload Image</label>
@@ -295,6 +299,21 @@ else
 				</div>
 			</div>
 		</div>
+		<div class="row mb-3">
+			<div class="col-md-4">
+				<label for="classFilter" class="form-label fw-semibold">เลือกรุ่น:</label>
+				<select id="classFilter" class="form-select"
+						@onchange="OnClassFilterChanged">
+					<option value="">-- แสดงทุกรุ่น --</option>
+					@foreach (var cls in _ClassStudie.Where(c => c.Status))
+					{
+						<option value="@cls.Id" selected="@(SelectedClassId == cls.Id)">
+							รุ่นที่ @cls.Id
+						</option>
+					}
+				</select>
+			</div>
+		</div>
 		<div class="card-body p-4">
 			<div class="row pb-3">
 				<div class="col-6">
@@ -305,17 +324,21 @@ else
 						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลผู้สอน
 					</button>
 				</div>
-			</div>		
+			</div>
 			<table class="table">
 				<thead>
 					<tr>
+						<th>
+							<input type="checkbox" @onchange="ToggleSelectAll" checked="@isSelectAll" />
+						</th>
 						<th>ชื่อ-นามสกุล</th>
-						<th>เบอร์โทร์</th>
-
+						<th>เบอร์โทร</th>
+						<th></th>
 						<th></th>
 						<th></th>
 					</tr>
 				</thead>
+
 				<tbody>
 					@foreach (var student in StudenslList)
 					{
@@ -327,6 +350,9 @@ else
 							<td>@student.Phone_Number</td>
 							<td>
 								<a class="btn btn-sm btn-primary" href="@($"Student/Student_Details/{student.Id}")">รายระเอียด</a>
+							</td>
+							<td>
+								<button class="btn btn-sm btn-success" @onclick="@(() => ConfirmMoveToTeacher(student.Id))">ย้ายเป็นผู้สอน</button>
 							</td>
 							<td>
 								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(student)">แก้ไข</button>
@@ -358,6 +384,12 @@ else
 	private IBrowserFile? _selectedFile { get; set; }
 	private string? _previewImage { get; set; }
 
+	private int? SelectedClassId { get; set; } = null;
+	private bool isSelectAll = false;
+
+
+
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -372,6 +404,17 @@ else
 	{
 		_directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "Students");
 		return base.OnInitializedAsync();
+	}
+
+
+	private async Task ConfirmMoveToTeacher(int studentId)
+	{
+		var isConfirmed = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจว่าต้องการย้ายเป็นผู้สอนหรือไม่?");
+
+		if (isConfirmed)
+		{
+			Navigation.NavigateTo($"/student-to-teacher/{studentId}");
+		}
 	}
 
 	private async Task DownloadSelectedStudents()
@@ -400,11 +443,50 @@ else
 			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
 		}
 	}
+
 	private async Task LoadStudent()
 	{
-		StudenslList = await _StudentService.GetStudents();
 		_initial = await _InitialService.GetInitials();
 		_ClassStudie = await _ClassStudiedService.GetClassStudies();
+
+		var allStudents = await _StudentService.GetStudents();
+
+		if (SelectedClassId != null)
+		{
+			StudenslList = allStudents
+				.Where(s => s.ClassStudie_Id == SelectedClassId)
+				.ToList();
+		}
+		else
+		{
+			StudenslList = allStudents;
+		}
+	}
+
+	private async Task OnClassFilterChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int classId))
+		{
+			SelectedClassId = classId;
+		}
+		else
+		{
+			SelectedClassId = null;
+		}
+
+		await LoadStudent(); // reload ตามรุ่นที่เลือก
+	}
+
+	private void ToggleSelectAll(ChangeEventArgs e)
+	{
+		isSelectAll = (bool)e.Value;
+
+		foreach (var student in StudenslList)
+		{
+			student.IsSelected = isSelectAll;
+		}
+		StateHasChanged();
+
 	}
 
 	private void ShowAddModal()

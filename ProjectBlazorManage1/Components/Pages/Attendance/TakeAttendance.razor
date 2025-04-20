@@ -30,6 +30,7 @@ else
                             <th class="px-3">รหัส</th>
                             <th>ชื่อ</th>
                             <th>สถานะ</th>
+                            <th>เรียนเสริมพิเศษ</th>
                             <th>หมายเหตุ</th>
                         </tr>
                     </thead>
@@ -37,7 +38,7 @@ else
                         @foreach (var record in attendanceViewModel.AttendanceRecords)
                         {
                             var student = attendanceViewModel.Students.First(s => s.Id == record.StudentId);
-                            <tr>
+                            <tr @key="record.StudentId">
                                 <td class="px-3">@student.Id</td>
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -54,6 +55,9 @@ else
                                             <option value="@type">@type.ToString()</option>
                                         }
                                     </select>
+                                </td>
+                                <td>
+                                    <input type="checkbox" class="form-check-input" @bind="record.Extraclass" />
                                 </td>
                                 <td>
                                     <input type="text" class="form-control form-control-sm" @bind="record.Remarks" placeholder="เพิ่มหมายเหตุ..." />
@@ -135,8 +139,9 @@ else
                 AttendanceRecords = students.Select(s => new Attendance
                 {
                     StudentId = s.Id,
-                    StudiedType = existingAttendance.ContainsKey(s.Id) ? existingAttendance[s.Id].StudiedType : StudiedType.มาเรียน,
-                    Remarks = existingAttendance.ContainsKey(s.Id) ? existingAttendance[s.Id].Remarks : ""
+                    StudiedType = existingAttendance.ContainsKey(s.Id) ? existingAttendance[s.Id].StudiedType : StudiedType.ขาดเรียน,
+                    Remarks = existingAttendance.ContainsKey(s.Id) ? existingAttendance[s.Id].Remarks : "",
+                    Extraclass = existingAttendance.ContainsKey(s.Id) ? existingAttendance[s.Id].Extraclass: false
                 }).ToList()
             };
 
@@ -154,6 +159,7 @@ else
             {
                 existingRecord.StudiedType = attendance.StudiedType;
                 existingRecord.Remarks = attendance.Remarks;
+                existingRecord.Extraclass = attendance.Extraclass;
                 _context.Update(existingRecord);
             }
             else
@@ -165,6 +171,7 @@ else
                         CheckInTime = DateTime.Now,
                         StudiedType = attendance.StudiedType,
                         Remarks = attendance.Remarks,
+						Extraclass = attendance.Extraclass,
                     });
             }
         }

@@ -18,7 +18,7 @@ window.ShowSwal = function (type, message) {
     return new Promise((test) => {
         if (type == "success") {
             Swal.fire({
-                title: "คุณแน่ใจที่จะลบหรือไม่?",
+                title: message,
                 icon: "warning",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",

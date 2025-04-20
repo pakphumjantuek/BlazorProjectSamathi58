@@ -1,5 +1,6 @@
 ﻿@page "/ClassStudie"
 @inject ClassStudieService ClassStudiedService
+@inject BranchService branchService
 @inject IJSRuntime JSRuntime
 
 <Modals @ref="classStudiedModal"
@@ -20,6 +21,30 @@
 					<ValidationMessage For="@(() => currentClassStudied.Id)" />
 				</div>
 				<div class="form-group mb-3">
+					<label>ชื่อรุ่น</label>
+					<InputText class="form-control" @bind-Value="currentClassStudied.ClassName" placeholder="โปรดกรอกชื่อรุ่น" />
+					<ValidationMessage For="@(() => currentClassStudied.ClassName)" />
+				</div>
+				<div class="form-floating py-3">
+					<InputSelect @bind-Value="currentClassStudied.Branch_Id" class="form-select" id="branch">
+						<option value="0" disabled selected>--โปรดเลือกสาขา--</option>
+						@foreach (var b in _branch)
+						{
+							if (b.Status == true)
+							{
+								<option value="@b.Branch_Id">@b.Branch_Id @b.Branch_Name</option>
+							}
+						}
+					</InputSelect>
+					<label for="branch">สาขา</label>
+					<ValidationMessage For="@(() => currentClassStudied.Branch_Id)" />
+				</div>
+				<div class="form-group mb-3">
+					<label>ภาคเรียน</label>
+					<InputText class="form-control" @bind-Value="currentClassStudied.termClass" placeholder="โปรดกรอกภาคเรียน" />
+					<ValidationMessage For="@(() => currentClassStudied.termClass)" />
+				</div>
+				<div class="form-group mb-3">
 					<label>วันที่เริมเรียน</label>
 					<InputDate class="form-control" @bind-Value="currentClassStudied.StartDate" />
 					<ValidationMessage For="@(() => currentClassStudied.StartDate)" />
@@ -29,6 +54,7 @@
 					<InputDate class="form-control" @bind-Value="currentClassStudied.EndDate" />
 					<ValidationMessage For="@(() => currentClassStudied.EndDate)" />
 				</div>
+		
 			}
 		</EditForm>
 	</ChildContent>
@@ -119,6 +145,7 @@ else
 @code {
 	private List<ClassStudied> ClassStudiesList = new();
 	private ClassStudied classStudied = new();
+	private IEnumerable<Branch> _branch = new List<Branch>();
 	private bool IsProcessing { get; set; } = true;
 
 	private Modals classStudiedModal;
@@ -139,6 +166,8 @@ else
 	private async Task LoadClassstudies()
 	{
 		ClassStudiesList = await ClassStudiedService.GetClassStudies();
+		_branch = await branchService.GetBranches();
+
 	}
 
 	private void ShowAddModal()
@@ -157,6 +186,8 @@ else
 				StartDate = classStudied.StartDate,
 				EndDate = classStudied.EndDate,
 				Status = classStudied.Status,
+				ClassName = classStudied.ClassName,
+				termClass = classStudied.termClass
 			};
 		isEditMode = true;
 		showModal = true;

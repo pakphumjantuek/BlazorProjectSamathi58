@@ -7,6 +7,7 @@ using iText.Layout;
 using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProjectBlazorManage1.Service
 {
@@ -26,6 +27,22 @@ namespace ProjectBlazorManage1.Service
             _environment = environment ?? throw new ArgumentNullException(nameof(environment));
         }
 
+        public async Task<List<CourseName>> GetAllCourseNames()
+        {
+            return await _context.CourseNames.ToListAsync();
+        }
+
+        public async Task<List<Teacher>> GetTeachersByCourseId(int courseId)
+        {
+            return await _context.DhammaCourses
+                .Include(dc => dc.Teacher)
+                .Where(dc => dc.CourseName_Id == courseId)
+                .Select(dc => dc.Teacher)
+                .Distinct()
+                .ToListAsync();
+        }
+
+    
         public async Task<List<Teacher>> GetAllTeachers()
         {
             return await _context.Teachers
@@ -34,9 +51,17 @@ namespace ProjectBlazorManage1.Service
                     .Include(t => t.jobPosition)
                     .Include(t => t.EducationHistories)
                     .Include(t => t.DhamaHistories)
-                    .ThenInclude(t => t.CourseName)
+                    .ThenInclude(h => h.CourseName)
                 .AsNoTracking().ToListAsync();
         }
+
+        public async Task<List<CourseName>> GetAllCourses()
+        {
+            return await _context.CourseNames
+                .Where(c => c.Status == true) // แสดงเฉพาะหลักสูตรที่เปิดใช้งาน
+                .ToListAsync();
+        }
+ 
         public async Task<Teacher> GetTeacherById(int id)
         {
             if (id <= 0)

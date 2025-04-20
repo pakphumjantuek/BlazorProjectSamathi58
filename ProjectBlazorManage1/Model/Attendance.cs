@@ -7,6 +7,7 @@
         public int LearningPlanId { get; set; }
         public DateTime CheckInTime { get; set; }
         public StudiedType StudiedType { get; set; } 
+        public bool Extraclass { get; set; } // เรียนเสริมพิเศษ
         public string? Remarks { get; set; }
 
         [ForeignKey("StudentId")]

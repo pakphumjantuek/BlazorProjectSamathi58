@@ -8,6 +8,8 @@
     <button @onclick="ExportToPdf" class="btn btn-outline-danger bi bi-file-earmark-pdf ">Export to PDF</button>
     <button @onclick="ExportToPdfSecure" class="btn btn-outline-danger bi bi-file-earmark-pdf">Export to PDF ปลอดภัย</button>
     <button @onclick="ExportToExcel" class="btn btn-outline-success bi bi-file-earmark-excel">Export to Excel</button>
+    <a href=@($"/attendance/menu/{Id}") class="btn btn-outline-success ">บันทึกเวลาเรียน</a>
+    <a href=@($"/Reports/{Id}") class="btn btn-outline-success ">รายงานผลการเรียนหลักสูตร</a>
 
 </div>
 

@@ -15,11 +15,21 @@
         public DateTime EndDate { get; set; } = DateTime.Now;
         [DisplayName("สถานะ")]
         public bool Status { get; set; }
+        [DisplayName("ชื่อรุ่น")]
+        [Required(ErrorMessage = "กรุณาใส่ชื่อรุ่น")]
+        public string ClassName { get; set; } = string.Empty; // ชื่อรุ่น
+        [DisplayName("ภาคเรียน")]
+        [Required(ErrorMessage = "กรุณาเลือกภาคเรียน")]
+        public string termClass { get; set; } = string.Empty; // ภาคเรียน
+        [Required(ErrorMessage = "กรุณาเลือกสาขา")]
+        public int? Branch_Id { get; set; }
+        [ValidateNever]
+        [ForeignKey("Branch_Id")]
+        public Branch Branch { get; set; }
 
         [NotMapped]
         public LearningPlan? learningPlan { get; set; }
         public List<LearningPlan> learningPlans { get; set; }
-
 
         public List<string> GetStudyMonths()
         {

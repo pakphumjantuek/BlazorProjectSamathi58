@@ -28,6 +28,7 @@ namespace ProjectBlazorManage1.Service
                .Include(c => c.learningPlans)
                 .ThenInclude(t => t.teacher)
                 .ThenInclude(t => t.Branch)
+                .Include(c => c.Branch)
                .AsNoTracking().ToListAsync();
         }
         //public async Task<List<Students>> GetStudentsByClassId(int classId)
@@ -75,6 +76,10 @@ namespace ProjectBlazorManage1.Service
                 existingclassStudie.StartDate = classStudie.StartDate;
                 existingclassStudie.EndDate = classStudie.EndDate;
                 existingclassStudie.Status = classStudie.Status;
+                existingclassStudie.ClassName = classStudie.ClassName;
+                existingclassStudie.termClass = classStudie.termClass;
+                existingclassStudie.Branch_Id = classStudie.Branch_Id;
+
 
                 await _context.SaveChangesAsync();
             }

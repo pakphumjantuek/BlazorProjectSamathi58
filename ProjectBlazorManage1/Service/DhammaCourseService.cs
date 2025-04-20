@@ -1,4 +1,7 @@
 ﻿
+
+using Microsoft.EntityFrameworkCore;
+
 namespace ProjectBlazorManage1.Service
 {
     public class DhammaCourseService : IDhammaCourseService
@@ -9,6 +12,16 @@ namespace ProjectBlazorManage1.Service
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+
+        public async Task<List<DhammaCourse>> GetDhammaCoursesByCourseId(int courseId)
+        {
+            return await _context.DhammaCourses
+                .Include(dc => dc.Teacher)
+                .Include(dc => dc.CourseName)
+                .Where(dc => dc.CourseName_Id == courseId)
+                .ToListAsync();
         }
 
         public async Task AddDhamma(DhammaCourse dhammaCourse)

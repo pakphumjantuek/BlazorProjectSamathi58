@@ -14,7 +14,7 @@
 		IsVisible="showModal"
 		OnConfirm="HandleValidSubmit"
 		OnClose="CloseModals"
-        FormId="educationForm">
+		FormId="educationForm">
 
 
 	<ChildContent>
@@ -25,7 +25,7 @@
 			<div class="form-group mb-3">
 				<label for="degree">ระดับการศึกษา</label>
 				<InputSelect @bind-Value="currentEducationHistory.Degree" class="form-control form-select">
-					<option value="" disabled selected>กรุณาเลือก</option> 			
+					<option value="" disabled selected>กรุณาเลือก</option>
 					@foreach (var degree in Enum.GetValues(typeof(DegreeTypes)))
 					{
 						<option value="@degree">@degree</option>
@@ -48,7 +48,7 @@
 				<label for="yearGraduated">ประเทศที่จบ</label>
 				<InputText class="form-control" @bind-Value="currentEducationHistory.YearGraduated" />
 			</div>
-		
+
 
 			<div class="form-group mb-3">
 				<label for="degreeName">วุฒิที่จบ</label>
@@ -65,40 +65,50 @@
 	</ChildContent>
 </Modals>
 
-<Modals @ref="DhamaModal"
-		Title="เพิ่มประวัติทางธรรม"
-		IsVisible="showModalDhama"
+<Modals @ref="DhammaCourseModal"
+		Title="เพิ่ม/แก้ไขประวัติหลักสูตร"
+		IsVisible="showModalDhammaCourse"
 		OnConfirm="HandleValidSubmitDhama"
-		OnClose="CloseModalDhama"
-        FormId="dhamaForm">
-
+		OnClose="CloseModalDhammaCourse"
+		FormId="DhammaCourseForm">
 
 	<ChildContent>
-		<EditForm id="dhamaForm" Model="@currentDhammaCourse" OnValidSubmit="@HandleValidSubmitDhama">
+		<EditForm id="DhammaCourseForm" Model="@currentDhammaCourse" OnValidSubmit="@HandleValidSubmitDhama">
 			<DataAnnotationsValidator />
 			<ValidationSummary />
 
 			<div class="col-md-12">
 				<div class="form-group mb-3">
-					<label for="initial">หลักสูตร</label>
-					<InputSelect @bind-Value="currentDhammaCourse.CourseName_Id" class="form-control form-select" id="CourseName">
+					<label>หลักสูตร</label>
+					<InputSelect @bind-Value="currentDhammaCourse.CourseName_Id" class="form-control form-select">
 						<option value="0" disabled selected>--โปรดเลือกหลักสูตร--</option>
-						@foreach (var cn in _CourseName)
+						@if (isCourse)
 						{
-							<option value="@cn.Id">@cn.Name</option>
+							@foreach (var cn in _CourseName.Where(c => c.Status))
+							{
+								<option value="@cn.Id">@cn.Name</option>
+							}
 						}
-						<ValidationMessage For="@(() => currentDhammaCourse.CourseName_Id)" />
+						else
+						{
+							@foreach (var cn in _CourseName.Where(c => !c.Status))
+							{
+								<option value="@cn.Id">@cn.Name</option>
+							}
+						}
 					</InputSelect>
-					<div class="form-group mb-3">
-						<label for="majorName">รุ่นที่</label>
-						<InputNumber class="form-control" @bind-Value="currentDhammaCourse.generation" />
-					</div>
+					<ValidationMessage For="@(() => currentDhammaCourse.CourseName_Id)" />
+				</div>
+
+				<div class="form-group mb-3">
+					<label>รุ่นที่</label>
+					<InputNumber class="form-control" @bind-Value="currentDhammaCourse.generation" />
 				</div>
 			</div>
-
 		</EditForm>
 	</ChildContent>
 </Modals>
+
 
 <div class="container-fluid py-4">
 	@if (teacher == null)
@@ -193,14 +203,11 @@
 											<a @onclick="() => ShowAddModal()" class="btn btn-outline-success">
 												<i class="bi bi-plus-circle me-1"></i>เพิ่มประวัติการศึกษา
 											</a>
-											<a @onclick="() => ShowAddDhammaModal()" class="btn btn-outline-success">
+											<a @onclick="() => ShowAddDhammaCourseModal()" class="btn btn-outline-success">
 												<i class="bi bi-journal-plus me-1"></i>เพิ่มประวัติทางธรรม
 											</a>
 											<button class="btn btn-outline-danger bi bi-filetype-pdf" @onclick="ExportToPdf">ดาวโหลดข้อมูล PDF</button>
-											@if (!string.IsNullOrEmpty(errorMessage))
-											{
-												<div class="alert alert-danger mt-2">@errorMessage</div>
-											}
+											
 										</div>
 									</div>
 								</div>
@@ -214,22 +221,29 @@
 					<li class="nav-item" role="presentation">
 						<button class="nav-link @(activeTab == "personal" ? "active" : "")"
 								@onclick='() => SwitchTab("personal")'>
-						
+
 							<i class="bi bi-person-lines-fill me-1"></i>ประวัติส่วนตัว
 						</button>
 					</li>
 					<li class="nav-item" role="presentation">
 						<button class="nav-link @(activeTab == "education" ? "active" : "")"
 								@onclick='() => SwitchTab("education")'>
-						
+
 							<i class="bi bi-person-lines-fill me-1"></i>ประวัติการศึกษา
 						</button>
 					</li>
 					<li class="nav-item" role="presentation">
 						<button class="nav-link @(activeTab == "dhamma" ? "active" : "")"
 								@onclick='() => SwitchTab("dhamma")'>
-						
+
 							<i class="bi bi-person-lines-fill me-1"></i>ประวัติทางธรรม
+						</button>
+					</li>
+					<li class="nav-item" role="presentation">
+						<button class="nav-link @(activeTab == "course" ? "active" : "")"
+								@onclick='() => SwitchTab("course")'>
+
+							<i class="bi bi-person-lines-fill me-1"></i>ประวัติหลักสูตร
 						</button>
 					</li>
 				</ul>
@@ -302,9 +316,9 @@
 														<button @onclick="@(() => ShowEditModal(edu))" class="btn btn-sm btn-warning me-2">
 															<i class="bi bi-pencil"></i>
 														</button>
-														<button @onclick="@(() => DeleteEdu(edu.EducationHistoryId))" class="btn btn-sm btn-danger"> 
-														    <i class="bi bi-trash"></i>
-													 </button>
+														<button @onclick="@(() => DeleteEdu(edu.EducationHistoryId))" class="btn btn-sm btn-danger">
+															<i class="bi bi-trash"></i>
+														</button>
 													</td>
 												</tr>
 											}
@@ -332,7 +346,7 @@
 							<div class="card shadow-sm p-4">
 								<div class="d-flex justify-content-between align-items-center mb-3">
 									<h5 class="mb-0"><i class="bi bi-book me-2"></i>ประวัติทางธรรม</h5>
-									<button @onclick="ShowAddDhammaModal" class="btn btn-sm btn-primary">
+									<button @onclick="@(() => ShowAddDhammaCourseModal(false))" class="btn btn-sm btn-primary">
 										<i class="bi bi-plus-circle me-1"></i>เพิ่มประวัติ
 									</button>
 								</div>
@@ -346,21 +360,21 @@
 											</tr>
 										</thead>
 										<tbody>
-											@foreach (var dha in teacher.DhamaHistories)
+											@foreach (var dha in teacher.DhamaHistories.Where(d => d.CourseName.Status == false))
 											{
-												<tr>
-													<td>@dha.generation</td>
-													<td>@dha.CourseName.Name</td>
+													<tr>
+														<td>@dha.generation</td>
+														<td>@dha.CourseName.Name</td>
 
-													<td>
-														<button @onclick="@(() => ShowEditDhammaModal(dha))" class="btn btn-sm btn-warning me-2">
-															<i class="bi bi-pencil"></i>
-														</button>
-														<button @onclick="@(() => Deletedhama(dha.Id))" class="btn btn-sm btn-danger"> 
-														    <i class="bi bi-trash"></i> 
-														</button>
-													</td>
-												</tr>
+														<td>
+															<button @onclick="@(() => ShowEditDhammaCourseModal(dha))" class="btn btn-sm btn-warning me-2">
+																<i class="bi bi-pencil"></i>
+															</button>
+															<button @onclick="@(() => Deletedhama(dha.Id))" class="btn btn-sm btn-danger">
+																<i class="bi bi-trash"></i>
+															</button>
+														</td>
+													</tr>														
 											}
 										</tbody>
 									</table>
@@ -372,12 +386,71 @@
 							<div class="alert alert-info text-center py-4">
 								<i class="bi bi-info-circle fs-2 d-block mb-2"></i>
 								<p class="mb-0">ไม่มีข้อมูลทางธรรม</p>
-								<button @onclick="ShowAddDhammaModal" class="btn btn-primary mt-3">
+								<button @onclick="@(() => ShowAddDhammaCourseModal(false))" class="btn btn-primary mt-3">
 									<i class="bi bi-plus-circle me-1"></i>เพิ่มประวัติทางธรรม
 								</button>
 							</div>
 						}
 					</div>
+
+
+					<!-- ประวัติหลักสูตร -->
+					<div class="@(activeTab == "course" ? "tab-pane fade show active" : "tab-pane fade")">
+						@if (teacher?.DhamaHistories?.Any() == true)
+						{
+							<div class="card shadow-sm p-4">
+								<div class="d-flex justify-content-between align-items-center mb-3">
+									<h5 class="mb-0"><i class="bi bi-book me-2"></i>ประวัติหลักสูตร</h5>
+									<button @onclick="@(() => ShowAddDhammaCourseModal(true))" class="btn btn-sm btn-primary">
+										<i class="bi bi-plus-circle me-1"></i>เพิ่มประวัติ
+									</button>
+								</div>
+
+								<div class="table-responsive">
+									<table class="table table-hover">
+										<thead>
+											<tr>
+												<th>รุ่นที่เรียน</th>
+												<th>หลักสูตร</th>
+											</tr>
+										</thead>
+										<tbody>
+											@foreach (var dha in teacher.DhamaHistories.Where(d => d.CourseName.Status == true))
+											{
+												@if(dha.CourseName.Status == true)
+												{
+													<tr>
+														<td>@dha.generation</td>
+														<td>@dha.CourseName.Name</td>
+
+														<td>
+															<button @onclick="@(() => ShowEditDhammaCourseModal(dha))" class="btn btn-sm btn-warning me-2">
+																<i class="bi bi-pencil"></i>
+															</button>
+															<button @onclick="@(() => Deletedhama(dha.Id))" class="btn btn-sm btn-danger">
+																<i class="bi bi-trash"></i>
+															</button>
+														</td>
+													</tr>
+												}				
+											}
+										</tbody>
+									</table>
+								</div>
+							</div>
+						}
+						else
+						{
+							<div class="alert alert-info text-center py-4">
+								<i class="bi bi-info-circle fs-2 d-block mb-2"></i>
+								<p class="mb-0">ไม่มีข้อมูลทางธรรม</p>
+								<button @onclick="@(() => ShowAddDhammaCourseModal(true))" class="btn btn-primary mt-3">
+									<i class="bi bi-plus-circle me-1"></i>เพิ่มประวัติทางธรรม
+								</button>
+							</div>
+						}
+					</div>
+
 				</div>
 			</div>
 		</div>
@@ -396,23 +469,19 @@
 	private Teacher teacher;
 	private IEnumerable<Teacher> _Teachers = new List<Teacher>();
 	private IEnumerable<CourseName> _CourseName = new List<CourseName>();
-
+	private bool isCourse = false;
 
 	private Modals EducationModal;
-	private Modals DhamaModal;
+	private Modals DhammaCourseModal;
 	private bool showModal = false;
-	private bool showModalDhama = false;
 	private EducationHistory currentEducationHistory = new();
 	private DhammaCourse currentDhammaCourse = new();
 	private bool isEditMode = false;
+	private bool showModalDhammaCourse = false;
 
 	private string activeTab = "personal";
 	private string ModalDisplay = "none";
 	private string ModalClass = "";
-	private string deleteMessage = "";
-	private int deleteId = 0;
-	private string deleteType = "";
-	private string errorMessage = "";
 	private bool isGenerating = false;
 
 	protected override async Task OnInitializedAsync()
@@ -428,29 +497,18 @@
 	}
 
 	private async Task ExportToPdf()
-	{
-		try
-		{
-			errorMessage = "";
+	{	
 			var pdfBytes = await TeacherService.ExportToPdfSecurity(Id);
 
 			if (pdfBytes == null || pdfBytes.Length == 0)
 			{
-				errorMessage = "ไม่พบข้อมูลอาจารย์";
 				return;
 			}
 
-			// Convert byte[] to Base64
 			var base64 = Convert.ToBase64String(pdfBytes);
 			var fileName = $"ประวัติ {teacher.Teacher_Name}-{teacher.Teacher_LastName}.pdf";
 
-			// Call JS to download
-			await JSRuntime.InvokeVoidAsync("downloadPdfFile", base64, fileName);
-		}
-		catch (Exception ex)
-		{
-			errorMessage = $"เกิดข้อผิดพลาด: {ex.Message}";
-		}
+			await JSRuntime.InvokeVoidAsync("downloadPdfFile", base64, fileName);		
 	}
 
 	private void SwitchTab(string tabName)
@@ -476,17 +534,17 @@
 		StateHasChanged();
 	}
 
-	private void ShowAddDhammaModal()
+	private void ShowAddDhammaCourseModal(bool course = false)
 	{
 		currentDhammaCourse = new DhammaCourse
 			{
 				TeacherId = Id
 			};
+		isCourse = course;
 		isEditMode = false;
-		showModalDhama = true;
+		showModalDhammaCourse = true;
 		StateHasChanged();
 	}
-
 
 	private void ShowEditModal(EducationHistory educationHistory)
 	{
@@ -506,7 +564,7 @@
 		StateHasChanged();
 	}
 
-	private void ShowEditDhammaModal(DhammaCourse dhammaCourse)
+	private void ShowEditDhammaCourseModal(DhammaCourse dhammaCourse)
 	{
 		currentDhammaCourse = new DhammaCourse
 			{
@@ -514,12 +572,18 @@
 				generation = dhammaCourse.generation,
 				CourseName_Id = dhammaCourse.CourseName_Id,
 				TeacherId = dhammaCourse.TeacherId,
-
 			};
+
+		// ค้นหาหลักสูตรในรายการเพื่อดูว่า Status เป็นอะไร
+		var course = _CourseName.FirstOrDefault(c => c.Id == dhammaCourse.CourseName_Id);
+		isCourse = course?.Status ?? false;
+
 		isEditMode = true;
-		showModalDhama = true;
+		showModalDhammaCourse = true;
 		StateHasChanged();
 	}
+
+
 
 	private void CloseModals()
 	{
@@ -527,9 +591,9 @@
 		StateHasChanged();
 	}
 
-	private void CloseModalDhama()
+	private void CloseModalDhammaCourse()
 	{
-		showModalDhama = false;
+		showModalDhammaCourse = false;
 		StateHasChanged();
 	}
 
@@ -574,10 +638,10 @@
 			{
 				await dhammaCourseService.AddDhamma(currentDhammaCourse);
 				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
-
 			}
+
 			await LoadTeacher();
-			showModalDhama = false;
+			showModalDhammaCourse = false;
 		}
 		catch (Exception ex)
 		{
@@ -588,6 +652,7 @@
 			StateHasChanged();
 		}
 	}
+
 
 	public async Task Deletedhama(int id)
 	{

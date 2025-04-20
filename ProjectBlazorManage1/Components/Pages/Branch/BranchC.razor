@@ -15,7 +15,7 @@
 			<ValidationSummary />
 
 			@if (currentBranch != null)
-			{
+			 
 				@if (isEditMode == false)
 				{
 					<div class="form-group mb-3">
@@ -48,7 +48,7 @@
 					<InputText class="form-control" @bind-Value="currentBranch.Branch_Email" />
 					<ValidationMessage For="@(() => currentBranch.Branch_Email)" />
 				</div>
-			}
+			
 		</EditForm>
 	</ChildContent>
 </Modals>

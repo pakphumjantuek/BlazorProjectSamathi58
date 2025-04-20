@@ -17,9 +17,11 @@
         // คะแนนอื่นๆ
         public double DifferentBranchScore { get; set; }         // เรียนต่างสาขา
         public double ExtraClassScore { get; set; }              // เรียนเสริม
+        public double ExtraClassScore2 { get; set; }             // เรียนเสริมพิเศษ
 
         // คะแนนรวม
-        public double ExamScore { get; set; }                    // คะแนนรวมทั้งหมดก่อนคูณชั่วโมง
+        public double ExamScore { get; set; }
+        // คะแนนรวมทั้งหมดก่อนคูณชั่วโมง
         public double TotalHourScore { get; set; }               // คะแนนรวมหลังคูณชั่วโมง (x2)
         public double TotalScore { get; set; }                   // คะแนนรวมทั้งหมด + คะแนนอื่นๆ
 

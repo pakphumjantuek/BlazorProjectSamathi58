@@ -8,5 +8,6 @@
         public string Name { get; set; }
         [DisplayName("ลำดับหลักสูตร")]
         public int Level { get; set; } 
+        public bool Status { get; set; } 
     }
 }

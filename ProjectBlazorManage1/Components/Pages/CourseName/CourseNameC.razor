@@ -67,6 +67,7 @@ else
 						<th>ชื่อหลักสูตร</th>
 						<th>ลำดับชั้น</th>
 						<th></th>
+						<th></th>
 					</tr>
 				</thead>
 				<tbody>
@@ -76,6 +77,19 @@ else
 
 							<td>@b.Name</td>
 							<td>@b.Level</td>
+							<td>
+								<div class="form-check form-switch">
+									<input class="form-check-input custom-switch"
+										   type="checkbox"
+										   id="switch-@b.Id"
+										   checked="@b.Status"
+										   @onclick="() => ToggleStatus(b)"
+										   disabled="@(IsProcessing ? true : false)">
+									<label class="form-check-label" for="switch-@b.Id">
+										<span class="visually-hidden">Toggle status</span>
+									</label>
+								</div>
+							</td>
 							<td>
 								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
 								<button class="btn btn-sm btn-danger" @onclick="() => DeleteInnitail(b.Id)">ลบ</button>
@@ -133,6 +147,7 @@ else
 				Id = courseName.Id,
 				Name = courseName.Name,
 				Level = courseName.Level,
+				Status = courseName.Status,
 
 			};
 		isEditMode = true;
@@ -144,6 +159,38 @@ else
 	{
 		showModal = false;
 		StateHasChanged();
+	}
+
+	private async Task ToggleStatus(CourseName courseName)
+	{
+		try
+		{
+			IsProcessing = true;
+			StateHasChanged();
+			courseName.Status = !courseName.Status;
+			await CourseNameService.UpdateCourseName(courseName);
+			await LoadCourseName();
+			if (courseName.Status)
+			{
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "เปิดสถานะสำเร็จ");
+			}
+			else
+			{
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ปิดสถานะสำเร็จ");
+			}
+
+		}
+		catch (Exception ex)
+		{
+
+			Console.WriteLine($"Error toggling status: {ex.Message}");
+			courseName.Status = !courseName.Status;
+		}
+		finally
+		{
+			IsProcessing = false;
+			StateHasChanged();
+		}
 	}
 
 	public async Task DeleteInnitail(int id)

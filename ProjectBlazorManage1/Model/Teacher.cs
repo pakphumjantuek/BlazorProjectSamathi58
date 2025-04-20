@@ -29,20 +29,20 @@
         [ForeignKey("Initial_Id")]
         public Initial Initial { get; set; }
         //FK สาขา
-        [Required(ErrorMessage = "กรุณาเลือกสาขา")]
+        //[Required(ErrorMessage = "กรุณาเลือกสาขา")]
         public int? Branch_Id { get; set; }
         [ValidateNever]
         [ForeignKey("Branch_Id")]
         public Branch Branch { get; set; }
         [DisplayName("ตำเเหน่งงาน")]
-        [Required(ErrorMessage = "กรุณาเลือกตำเเหน่งงาน")]
+        //[Required(ErrorMessage = "กรุณาเลือกตำเเหน่งงาน")]
         public int? JobPosition_Id { get; set; }
         [ValidateNever]
         [ForeignKey("JobPosition_Id")]
         public JobPosition jobPosition { get; set; }
         [DisplayName("ตำเเหน่งเพิ่มเติม")]
         [Required(ErrorMessage = "กรุณากรอกตำเเหน่งเพิ่มเติม")]
-        public string Position_detail { get; set; }
+        public string? Position_detail { get; set; }
         [DisplayName("ความสามารถพิเศษ")]
         [Required(ErrorMessage = "กรุณากรอกความสามารถพิเศษ")]
         public string? Special_Skill { get; set; }

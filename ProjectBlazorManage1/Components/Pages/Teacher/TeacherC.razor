@@ -4,251 +4,128 @@
 @inject InitialService initialService
 @inject JobPositionService jobPositionService
 @inject BranchService branchService
+@inject DhammaCourseService dhammaCourseService
 @inject IWebHostEnvironment _webHostEnvironment
-@inject NavigationManager _navigationManager
 
-
-
-<Modals @ref="TeacherModal"
-		Title="ระบบจัดการข้อมูลผู้สอน"
-		IsVisible="showModal"
-		OnConfirm="HandleValidSubmit"
-		OnClose="CloseModal"
-		Size="modal-xl">
-
-	<ChildContent>
-		<EditForm id="modalForm" Model="@currentTeacher" OnValidSubmit="@HandleValidSubmit">
-			<DataAnnotationsValidator />
-			<ValidationSummary />
-
-			@if (currentTeacher != null)
-			{
-				<InputNumber hidden class="form-control" @bind-Value="currentTeacher.Teacher_Id" />
-
-				<div class="row">
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label for="initial">คำนำหน้าชื่อ</label>
-							<InputSelect @bind-Value="currentTeacher.Initial_Id" class="form-control form-select" id="initial">
-								<option value="0" disabled selected>--โปรดเลือกคำนำหน้าชื่อ--</option>
-								@foreach (var initial in _initial)
-								{
-									<option value="@initial.Initial_Id">@initial.Initial_Name</option>
-								}
-							</InputSelect>
-							<ValidationMessage For="@(() => currentTeacher.Initial_Id)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>ชื่อ</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Teacher_Name" placeholder="โปรดกรอกชื่อ" />
-							<ValidationMessage For="@(() => currentTeacher.Teacher_Name)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>นามสกุล</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Teacher_LastName" placeholder="โปรดกรอกนามสกุล" />
-							<ValidationMessage For="@(() => currentTeacher.Teacher_LastName)" />
-						</div>
-					</div>
-				</div>
-
-
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>เบอร์โทรศัพท์</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Phone_Number" MaxLength="10" onkeypress="return /[0-9]/.test(event.key)" placeholder="โปรดกรอกเบอร์โทรศัพท์" />
-							<ValidationMessage For="@(() => currentTeacher.Phone_Number)"  />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>ทักษะพิเศษ</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Special_Skill" placeholder="โปรดกรอกทักษะพิเศษ" />
-							<ValidationMessage For="@(() => currentTeacher.Special_Skill)" />
-						</div>
-					</div>
-				</div>
-
-				<div class="col-md-12">
-					<div class="form-group mb-3">
-						<label>ที่อยู่ปัจจุบัน</label>
-						<InputTextArea class="form-control" @bind-Value="currentTeacher.Address" placeholder="โปรดกรอกที่อยู่ปัจจุบัน" />
-						<ValidationMessage For="@(() => currentTeacher.Address)" />
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>อาชีพปัจจุบัน</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Occupation" placeholder="โปรดกรอกอาชีพปัจจุบัน" />
-							<ValidationMessage For="@(() => currentTeacher.Occupation)"  />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>ตำเเหน่งงานเพิ่มเติม</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Position_detail" placeholder="โปรดกรอกตำเเหน่งงานเพิ่มเติม" />
-							<ValidationMessage For="@(() => currentTeacher.Position_detail)" />
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-floating py-3">
-							<InputSelect @bind-Value="currentTeacher.Branch_Id" class="form-select" id="branch">
-								<option value="0" disabled selected>--โปรดเลือกสาขา--</option>
-								@foreach (var b in _branch)
-								{
-									if (b.Status == true)
-									{
-										<option value="@b.Branch_Id">@b.Branch_Name</option>
-									}
-								}
-							</InputSelect>
-							<label for="branch">สาขา</label>
-							<ValidationMessage For="@(() => currentTeacher.Branch_Id)" />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-floating py-3">
-							<InputSelect @bind-Value="currentTeacher.JobPosition_Id" class="form-select" id="JobPosition">
-								<option value="0" disabled selected>--โปรดเลือกตำเเหน่งงานในสถาบัน--</option>
-								@foreach (var jobPS in _jobps)
-								{
-									if (jobPS.Status == true)
-									{
-										<option value="@jobPS.Id">@jobPS.Position_Name</option>
-									}
-								}
-							</InputSelect>
-							<label for="JobPosition">ตำเเหน่งงานในสถาบัน</label>
-							<ValidationMessage For="@(() => currentTeacher.JobPosition_Id)" />
-						</div>
-					</div>
-				</div>
-				<div class="form-floating py-3 col-12">
-					@if (currentTeacher.Images == null)
-					{
-
-						<InputFile OnChange="LoadFiles" class="form-control" id="customFile"
-								   accept="image/x-png,image/jpeg"></InputFile>
-						<label for="customFile">Upload Image</label>
-					}
-					<label for="customFile">Upload Image</label>
-
-				</div>
-
-				@if (!string.IsNullOrEmpty(_previewImage) || !string.IsNullOrEmpty(currentTeacher.Images))
-				{
-					<div class="row pt-3">
-						<div class="col-3">
-							<img src="@GetImageUrl()" alt="preview" class="img-thumbnail" style="width: 150px; height: 150px;" />
-						</div>
-						<div class="col-md-9">
-							<i class="bi bi-trash btn btn-outline-danger" @onclick="DeleteImage">Remove</i>
-						</div>
-					</div>
-				}
-
-
-			}
-		</EditForm>
-	</ChildContent>
-</Modals>
-
-@if (IsProcessing)
-{
-	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
-		<div class="spinner">
-			<div class="rect1"></div>
-			<div class="rect2"></div>
-			<div class="rect3"></div>
-			<div class="rect4"></div>
-			<div class="rect5"></div>
+<div class="card shadow border-0 mt-4">
+	<div class="card-header bg-black bg-gradient ml-0 py-3">
+		<div class="row">
+			<div class="col-12 text-center">
+				<h2 class="text-white py-2">ระบบจัดการข้อมูลผู้สอน</h2>
+			</div>
 		</div>
 	</div>
-}
-else
-{
-	<div class="card shadow border-0 mt-4">
-		<div class="card-header bg-black bg-gradient ml-0 py-3">
-			<div class="row">
-				<div class="col-12 text-center">
-					<h2 class="text-white py-2">ระบบจัดการข้อมูลผู้สอน</h2>
-				</div>
+	<div class="card-body p-4">
+
+		<div class="row pb-3">
+			<div class="col-12 text-end">
+				<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
+					<i class="bi bi-plus-square"></i> เพิ่มข้อมูลผู้สอน
+				</button>
 			</div>
 		</div>
-		<div class="card-body p-4">
-			<div class="row pb-3">
-				<div class="col-12 text-end">
-					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
-						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลผู้สอน
-					</button>
-				</div>
-			</div>
 
-			<table class="table">
+		<!-- ตารางแสดงผู้สอนทั้งหมด -->
+		<table class="table table-bordered">
+			<thead>
+				<tr>
+					<th>ชื่อ-นามสกุล</th>
+					<th>เบอร์โทรศัพท์</th>
+					<th>รายละเอียด</th>
+					<th>การจัดการ</th>
+				</tr>
+			</thead>
+			<tbody>
+				@foreach (var t in teachersList)
+				{
+					<tr>
+						<td>@t.Teacher_Name @t.Teacher_LastName</td>
+						<td>@t.Phone_Number</td>
+						<td>
+							<a class="btn btn-sm btn-primary" href="@($"Teacher/Teacher_Detail/{t.Teacher_Id}")">รายละเอียด</a>
+						</td>
+						<td>
+							<button class="btn btn-sm btn-warning" @onclick="() => ShowEditModal(t)">แก้ไข</button>
+							<button class="btn btn-sm btn-danger" @onclick="() => DeleteTeacher(t.Teacher_Id)">ลบ</button>
+						</td>
+					</tr>
+				}
+			</tbody>
+		</table>
+
+		<hr class="my-5" />
+
+		<!-- ส่วนเลือกหลักสูตร -->
+		<div class="row mb-4">
+			<div class="col-md-6">
+				<label for="courseSelect">เลือกหลักสูตรที่ต้องการดูอาจารย์ที่เคยเรียน:</label>
+				<InputSelect id="courseSelect" class="form-select" @bind-Value="selectedCourseId" @onchange="OnCourseChanged">
+					<option value="0">-- เลือกหลักสูตร --</option>
+					@foreach (var course in courseList)
+					{
+						<option value="@course.Id">@course.Name</option>
+					}
+				</InputSelect>
+			</div>
+		</div>
+
+		@if (selectedCourseId > 0 && filteredTeachers?.Any() == true)
+		{
+			<h5 class="mt-4 text-primary">
+				รายชื่ออาจารย์ที่เคยเรียนหลักสูตร:
+				<strong>@courseList.FirstOrDefault(c => c.Id == selectedCourseId)?.Name</strong>
+			</h5>
+
+			<table class="table table-bordered">
 				<thead>
 					<tr>
-						<th>ชื่อ-นามสกุล</th>
-						<th>เบอร์โทร์</th>
-
-						<th></th>
-						<th></th>
+						<th>ชื่อ - นามสกุล</th>
+						<th>เบอร์โทร</th>
+						<th>ตำแหน่ง</th>
 					</tr>
 				</thead>
 				<tbody>
-					@foreach (var t in teachersList)
+					@foreach (var course in courseEnrollments)
 					{
 						<tr>
-
-							<td>@t.Teacher_Name - @t.Teacher_LastName</td>
-							<td>@t.Phone_Number</td>
-							<td>
-								<a class="btn btn-sm btn-primary" href="@($"Teacher/Teacher_Detail/{t.Teacher_Id}") ">รายระเอียด</a>
-							</td>
-							<td>
-								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(t)">แก้ไข</button>
-								<button class="btn btn-sm btn-danger" @onclick="() => DeleteTeacher(t.Teacher_Id)">ลบ</button>
-							</td>
-
+							<td>@course.Teacher.Teacher_Name @course.Teacher.Teacher_LastName</td>
+							<td>@course.Teacher.Phone_Number</td>
+							<td>@course.generation</td>
 						</tr>
 					}
 				</tbody>
 			</table>
-
-		</div>
+		}
+		else if (selectedCourseId > 0)
+		{
+			<p class="text-danger">ไม่พบอาจารย์ที่เคยเรียนในหลักสูตรนี้</p>
+		}
 	</div>
-
-}
+</div>
 
 @code {
 	private List<Teacher> teachersList = new();
-	private bool IsProcessing { get; set; } = true;
+	private List<CourseName> courseList = new();
+	private List<Teacher> filteredTeachers = new();
+
+	private int selectedCourseId = 0;
+
 	private IEnumerable<Initial> _initial = new List<Initial>();
 	private IEnumerable<Branch> _branch = new List<Branch>();
 	private IEnumerable<JobPosition> _jobps = new List<JobPosition>();
 
-	private Modals TeacherModal;
-	private bool showModal = false;
 	private Teacher currentTeacher = new();
 	private bool isEditMode = false;
 
-	private string? _directoryPath { get; set; }
-	private IBrowserFile? _selectedFile { get; set; }
-	private string? _previewImage { get; set; }
+	private List<DhammaCourse> courseEnrollments = new();
+
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
 		{
 			await LoadTeacher();
-			IsProcessing = false;
+			await LoadCourseData();
 			StateHasChanged();
 		}
 	}
@@ -261,166 +138,44 @@ else
 		_jobps = await jobPositionService.GetJobPS();
 	}
 
+	private async Task LoadCourseData()
+	{
+		courseList = await teacherService.GetAllCourseNames();
+	}
+
+	private async Task OnCourseChanged(ChangeEventArgs e)
+	{
+		if (int.TryParse(e.Value?.ToString(), out int id))
+		{
+			selectedCourseId = id;
+
+			courseEnrollments = await dhammaCourseService.GetDhammaCoursesByCourseId(selectedCourseId);
+			StateHasChanged();	
+		}
+	}
+
 	private void ShowAddModal()
 	{
 		currentTeacher = new Teacher();
 		isEditMode = false;
-		showModal = true;
-		StateHasChanged();
+		// logic สำหรับแสดง Modal เพิ่ม
 	}
 
 	private void ShowEditModal(Teacher teacher)
 	{
-		currentTeacher = new Teacher
-			{
-				Teacher_Id = teacher.Teacher_Id,
-				Teacher_Name = teacher.Teacher_Name,
-				Teacher_LastName = teacher.Teacher_LastName,
-				Phone_Number = teacher.Phone_Number,
-				Address = teacher.Address,
-				Images = teacher.Images,
-				Occupation = teacher.Occupation,
-				Initial_Id = teacher.Initial_Id,
-				Branch_Id = teacher.Branch_Id,
-				JobPosition_Id = teacher.JobPosition_Id,
-				Position_detail = teacher.Position_detail,
-				Special_Skill = teacher.Special_Skill,
-			};
+		currentTeacher = teacher;
 		isEditMode = true;
-		showModal = true;
-		StateHasChanged();
+		// logic สำหรับแสดง Modal แก้ไข
 	}
 
-	private void CloseModal()
+	private async Task DeleteTeacher(int id)
 	{
-		showModal = false;
-		StateHasChanged();
-	}
-
-	public async Task DeleteTeacher(int id)
-	{
-		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบหรือไม่?");
-
+		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "warning", "คุณแน่ใจหรือไม่ที่จะลบ?");
 		if (confirmDelete)
 		{
 			await teacherService.DeleteTeacher(id);
-
+			await LoadTeacher();
 			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสำเร็จ");
 		}
-		await LoadTeacher();
-	}
-
-	protected override Task OnInitializedAsync()
-	{
-		_directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "Teacher");
-		return base.OnInitializedAsync();
-	}
-
-	private async Task HandleValidSubmit()
-	{
-		try
-		{
-			IsProcessing = true;
-
-			if (_selectedFile != null)
-			{
-			
-				if (!string.IsNullOrWhiteSpace(currentTeacher.Images))
-				{
-					var oldFile = Path.GetFileName(currentTeacher.Images); 
-					var oldFilePath = Path.Combine(_directoryPath, oldFile);
-					if (File.Exists(oldFilePath))
-					{
-						File.Delete(oldFilePath);
-					}
-				}
-
-				var extension = Path.GetExtension(_selectedFile.Name);
-				var newFileName = $"{Guid.NewGuid()}{extension}";
-				var fullPath = Path.Combine(_directoryPath, newFileName);
-
-
-				if (!Directory.Exists(_directoryPath))
-				{
-					Directory.CreateDirectory(_directoryPath);
-				}
-
-
-				long maxAllowedSize = 10 * 1024 * 1024; 
-				await using FileStream fileStream = new(fullPath, FileMode.Create);
-				await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(fileStream);
-
-				currentTeacher.Images = $"/images/Teacher/{newFileName}";
-			}
-
-			if (isEditMode)
-			{
-				await teacherService.UpdateTeacher(currentTeacher);
-				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "อัพเดทสำเร็จ");
-			}
-			else
-			{
-				await teacherService.AddTeacher(currentTeacher);
-				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
-			}
-
-			await LoadTeacher();
-			showModal = false;
-		}
-		catch (Exception ex)
-		{
-			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
-		}
-		finally
-		{
-			IsProcessing = false;
-			StateHasChanged();
-		}
-	}
-
-	private string GetImageUrl()
-	{
-		if (!string.IsNullOrEmpty(_previewImage))
-		{
-			return _previewImage;
-		}
-		return currentTeacher.Images ?? string.Empty;
-	}
-
-	private async Task LoadFiles(InputFileChangeEventArgs e)
-	{
-		IsProcessing = true;
-		_selectedFile = e.File;
-		long maxAllowedSize = 10 * 1024 * 1024;
-
-		using (var memoryStream = new MemoryStream())
-		{
-			await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(memoryStream);
-			byte[] buffer = memoryStream.ToArray();
-
-			string imageBase64Data = Convert.ToBase64String(buffer);
-			string imageDataUrl = $"data:{_selectedFile.ContentType};base64,{imageBase64Data}";
-
-			_previewImage = imageDataUrl;
-			IsProcessing = false;
-		}
-	}
-
-	void DeleteImage()
-	{
-		_previewImage = null;
-		_selectedFile = null;
-
-		if (currentTeacher.Images == null) return;
-
-		var fileToDelete = currentTeacher.Images.Split('/').Last();
-		var filePathToDeleteImage = Path.Combine(_directoryPath, fileToDelete);
-
-		if (File.Exists(filePathToDeleteImage))
-		{
-			File.Delete(filePathToDeleteImage);
-		}
-
-		currentTeacher.Images = null;
 	}
 }

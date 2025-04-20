@@ -44,6 +44,7 @@
                                         <th rowspan="2" class="align-middle bg-secondary text-white">สอบ</th>
                                         <th rowspan="2" class="align-middle bg-warning text-dark">เรียนต่างสาขา</th>
                                         <th rowspan="2" class="align-middle bg-warning text-dark">เรียนเสริม</th>
+                                        <th rowspan="2" class="align-middle bg-warning text-dark">เรียนเสริมพิเศษ</th>
                                         <th rowspan="2" class="align-middle bg-warning text-dark">โอนหน่วยกิต</th>
                                         <th colspan="4" class="bg-danger text-white">รวม</th>
                                         <th colspan="2" class="bg-dark text-white">สรุป</th>
@@ -82,6 +83,7 @@
                                             <td class="text-center @(metrics.TestScore > 0 ? "text-success" : "")">@metrics.TestScore</td>
                                             <td class="text-center @(metrics.DifferentBranchScore > 0 ? "text-info" : "")">@metrics.DifferentBranchScore</td>
                                             <td class="text-center @(metrics.ExtraClassScore > 0 ? "text-info" : "")">@metrics.ExtraClassScore</td>
+                                            <td class="text-center @(metrics.ExtraClassScore2 > 0 ? "text-info" : "")">@metrics.ExtraClassScore2</td>
                                             <td class="text-center @(student.credit > 0 ? "text-info" : "")">@student.credit</td>
                                             <td class="text-center font-weight-bold text-primary">@metrics.ExamScore</td>
                                             <td class="text-center font-weight-bold text-primary">@metrics.TotalHourScore</td>
@@ -232,11 +234,19 @@
             .Where(a => a.StudiedType == StudiedType.เรียนเสริม)
             .Sum(a => a.LearningPlan.Score ?? 0);
 
+        metrics.ExtraClassScore = attendance
+      .Where(a => a.StudiedType == StudiedType.เรียนเสริม)
+      .Sum(a => a.LearningPlan.Score ?? 0);
+
+		metrics.ExtraClassScore2 = attendance
+                    .Where(a => a.Extraclass == true)
+					.Sum(a => a.LearningPlan.Score ?? 0);
+
         metrics.ExamScore = metrics.Book1Score + metrics.Book2Score + metrics.Book3Score +
                            metrics.DifferentBranchScore + metrics.ExtraClassScore +
                            metrics.OrientationScore + metrics.Activity1Score +
                            metrics.Activity2Score + metrics.Activity3AndClosingScore +
-                           metrics.FeedbackScore + metrics.TestScore +
+									metrics.FeedbackScore + metrics.TestScore + metrics.ExtraClassScore2 +
                            (student.credit ?? 0);
 
         metrics.TotalHourScore = metrics.ExamScore * 2;

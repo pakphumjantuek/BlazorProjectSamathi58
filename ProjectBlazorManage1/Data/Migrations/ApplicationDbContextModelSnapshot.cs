@@ -231,6 +231,9 @@ namespace ProjectBlazorManage1.Migrations
                     b.Property<DateTime>("CheckInTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("Extraclass")
+                        .HasColumnType("bit");
+
                     b.Property<int>("LearningPlanId")
                         .HasColumnType("int");
 
@@ -283,6 +286,13 @@ namespace ProjectBlazorManage1.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("int");
 
+                    b.Property<int>("Branch_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ClassName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("EndDate")
                         .HasColumnType("datetime2");
 
@@ -292,7 +302,13 @@ namespace ProjectBlazorManage1.Migrations
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
+                    b.Property<string>("termClass")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Branch_Id");
 
                     b.ToTable("ClassStudieds");
                 });
@@ -311,6 +327,9 @@ namespace ProjectBlazorManage1.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
 
                     b.HasKey("Id");
 
@@ -618,7 +637,7 @@ namespace ProjectBlazorManage1.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Branch_Id")
+                    b.Property<int?>("Branch_Id")
                         .HasColumnType("int");
 
                     b.Property<string>("Images")
@@ -627,7 +646,7 @@ namespace ProjectBlazorManage1.Migrations
                     b.Property<int>("Initial_Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("JobPosition_Id")
+                    b.Property<int?>("JobPosition_Id")
                         .HasColumnType("int");
 
                     b.Property<string>("Occupation")
@@ -736,6 +755,17 @@ namespace ProjectBlazorManage1.Migrations
                     b.Navigation("Students");
                 });
 
+            modelBuilder.Entity("ProjectBlazorManage1.Model.ClassStudied", b =>
+                {
+                    b.HasOne("ProjectBlazorManage1.Model.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("Branch_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+                });
+
             modelBuilder.Entity("ProjectBlazorManage1.Model.DhammaCourse", b =>
                 {
                     b.HasOne("ProjectBlazorManage1.Model.CourseName", "CourseName")
@@ -804,9 +834,7 @@ namespace ProjectBlazorManage1.Migrations
                 {
                     b.HasOne("ProjectBlazorManage1.Model.Branch", "Branch")
                         .WithMany()
-                        .HasForeignKey("Branch_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Branch_Id");
 
                     b.HasOne("ProjectBlazorManage1.Model.Initial", "Initial")
                         .WithMany()
@@ -816,9 +844,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasOne("ProjectBlazorManage1.Model.JobPosition", "jobPosition")
                         .WithMany()
-                        .HasForeignKey("JobPosition_Id")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("JobPosition_Id");
 
                     b.Navigation("Branch");
 

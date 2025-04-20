@@ -4,9 +4,7 @@
     {
         [Key]
         public int Id { get; set; }
-
         [DisplayName("รุ่นที่เรียน")]
-
         public int generation { get; set; } //รุ่นที่
         [DisplayName("หลักสูตร")]
         [Required(ErrorMessage = "กรุณาเลือกหลักสูตร")]

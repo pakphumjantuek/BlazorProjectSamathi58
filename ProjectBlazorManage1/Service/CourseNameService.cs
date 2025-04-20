@@ -12,6 +12,7 @@ namespace ProjectBlazorManage1.Service
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
         public async Task<List<CourseName>> GetAllCourseNames()
         {
             try
@@ -68,6 +69,8 @@ namespace ProjectBlazorManage1.Service
             {
                 existCourseName.Name = courseName.Name;
                 existCourseName.Level = courseName.Level;
+                existCourseName.Status = courseName.Status;
+
 
                 await _context.SaveChangesAsync();
             }
