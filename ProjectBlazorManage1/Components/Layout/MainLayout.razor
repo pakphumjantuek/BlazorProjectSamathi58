@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
-
+<MudThemeProvider />
+<MudPopoverProvider />
 <div class="page">
     <AuthorizeView Roles="@SD.Role_Admin">
         <div class="sidebar">
@@ -49,7 +50,6 @@
         {
             return true;
         }
-        //Navbar should not be displayed to admin user
         if (!user.IsInRole(SD.Role_Admin))
         {
             return true;
@@ -57,3 +57,4 @@
         return false;
     }
 }
+

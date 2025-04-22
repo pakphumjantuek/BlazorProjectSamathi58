@@ -4,7 +4,7 @@
 @inject IJSRuntime JSRuntime
 
 <Modals @ref="classStudiedModal"
-		Title="ระบบจัดการข้อมูลคำนำหน้าชื่อ"
+		Title="ระบบจัดการข้อมูลรุ่นที่เรียน"
 		IsVisible="showModal"
 		OnConfirm="HandleValidSubmit"
 		OnClose="CloseModal">
@@ -54,7 +54,7 @@
 					<InputDate class="form-control" @bind-Value="currentClassStudied.EndDate" />
 					<ValidationMessage For="@(() => currentClassStudied.EndDate)" />
 				</div>
-		
+
 			}
 		</EditForm>
 	</ChildContent>
@@ -79,62 +79,117 @@ else
 		<div class="card-header bg-black bg-gradient ml-0 py-3">
 			<div class="row">
 				<div class="col-12 text-center">
-					<h2 class="text-white py-2">ระบบจัดการข้อมูลสาขา</h2>
+					<h2 class="text-white py-2">ระบบจัดการข้อมูลรุ่นที่เรียน</h2>
 				</div>
 			</div>
 		</div>
 		<div class="card-body p-4">
-			<div class="row pb-3">
-				<div class="col-12 text-end">
-					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
-						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลสาขา
-					</button>
-				</div>
-			</div>
+			<MudDataGrid T="ClassStudied"
+						 Items="@ClassStudiesList"
+						 SortMode="SortMode.Multiple"
+						 Filterable="true"
+						 Hover="true"
+						 Elevation="2"
+						 Dense="true"
+						 Bordered="true"
+						 Striped="true"
+						 RowClick="@(args => ShowEditModal(args.Item))"
+						 Class="custom-datagrid mt-4">
 
-			<table class="table">
-				<thead>
-					<tr>
-						<th>รหัสรุ่น</th>
-						<th>วันที่เริ่มเรียน</th>
-						<th>วันที่สิ้นสุดการเรียน</th>
-						<th></th>
-						<th></th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var b in ClassStudiesList)
-					{
-						<tr>
-							<td>@b.Id</td>
-							<td>@b.StartDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))</td>
-							<td>@b.EndDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))</td>
-							<td>
-								<div class="form-check form-switch">
-									<input class="form-check-input custom-switch"
-										   type="checkbox"
-										   id="switch-@b.Id"
-										   checked="@b.Status"
-										   @onclick="() => ToggleStatus(b)"
-										   disabled="@(IsProcessing ? true : false)">
-									<label class="form-check-label" for="switch-@b.Id">
-										<span class="visually-hidden">Toggle status</span>
-									</label>
-								</div>
-							</td>
-							<td>
-								<a class="btn btn-sm btn-primary" href="@($"/ClassStudie/Timetable/{b.Id}") ">ตารางเรียน</a>
-							</td>
-							<td>
-								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
-								<button class="btn btn-sm btn-danger" @onclick="() => Delete(b.Id)">ลบ</button>
-							</td>
+				<ToolBarContent>
+					<MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">ระบบจัดการข้อมูลรุ่นที่เรียน</MudText>
+					<MudSpacer />
+					<MudButton Variant="Variant.Filled"
+							   Color="Color.Secondary"
+							   StartIcon="@Icons.Material.Filled.Add"
+							   OnClick="ShowAddModal"
+							   Size="Size.Medium">
+						เพิ่มข้อมูลรุ่นที่เรียน
+					</MudButton>
+				</ToolBarContent>
 
-						</tr>
-					}
-				</tbody>
-			</table>
+				<Columns>
+					<PropertyColumn Property="x => x.Id"
+									Title="รหัสรุ่น"
+									Filterable="true"
+									Sortable="true"
+									CellStyle="font-size: 14px;" />
+
+					<TemplateColumn Title="วันที่เริ่มเรียน"
+									Filterable="false"
+									Sortable="true">
+						<CellTemplate>
+							@context.Item.StartDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))
+						</CellTemplate>
+					</TemplateColumn>
+
+					<TemplateColumn Title="วันที่สิ้นสุดการเรียน"
+									Filterable="false"
+									Sortable="true">
+						<CellTemplate>
+							@context.Item.EndDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))
+						</CellTemplate>
+					</TemplateColumn>
+
+					<TemplateColumn Title="สถานะ"
+									CellClass="status-column"
+									Sortable="false">
+						<CellTemplate>
+							<div @onclick:stopPropagation>
+								<MudSwitch Value="@context.Item.Status"
+										   ValueChanged="@(async (bool value) => await ToggleStatus(context.Item))"
+										   ThumbIcon="@(context.Item.Status ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+										   ThumbIconColor="@(context.Item.Status ? Color.Success : Color.Error)"
+										   Disabled="@IsProcessing"
+										   Class="custom-switch" />
+							</div>
+						</CellTemplate>
+					</TemplateColumn>
+
+					<TemplateColumn Title="ตารางเรียน"
+									Sortable="false"
+									CellStyle="text-align:center;">
+						<CellTemplate>
+							<div @onclick:stopPropagation>
+
+								<MudButton Variant="Variant.Outlined"
+										   Color="Color.Primary"
+										   Size="Size.Small"
+										   Href="@($"/ClassStudie/Timetable/{context.Item.Id}")">
+									ตารางเรียน
+								</MudButton>
+							</div>
+						</CellTemplate>
+					</TemplateColumn>
+
+					<TemplateColumn Title="การจัดการ"
+									Sortable="false"
+									CellClass="action-column">
+						<CellTemplate>
+							<MudStack Row="true" Spacing="2">
+								<MudButton Variant="Variant.Outlined"
+										   Color="Color.Primary"
+										   Size="Size.Small"
+										   StartIcon="@Icons.Material.Filled.Edit"
+										   OnClick="@(() => ShowEditModal(context.Item))">
+									แก้ไข
+								</MudButton>
+								<MudButton Variant="Variant.Outlined"
+										   Color="Color.Error"
+										   Size="Size.Small"
+										   StartIcon="@Icons.Material.Filled.Delete"
+										   OnClick="@(() => Delete(context.Item.Id))">
+									ลบ
+								</MudButton>
+							</MudStack>
+						</CellTemplate>
+					</TemplateColumn>
+				</Columns>
+
+				<PagerContent>
+					<MudDataGridPager T="ClassStudied" />
+				</PagerContent>
+			</MudDataGrid>
 
 		</div>
 	</div>
@@ -187,7 +242,8 @@ else
 				EndDate = classStudied.EndDate,
 				Status = classStudied.Status,
 				ClassName = classStudied.ClassName,
-				termClass = classStudied.termClass
+				termClass = classStudied.termClass,
+				Branch_Id = classStudied.Branch_Id
 			};
 		isEditMode = true;
 		showModal = true;
@@ -247,20 +303,20 @@ else
 
 	private async Task ToggleStatus(ClassStudied classStudied)
 	{
-			IsProcessing = true;
-			StateHasChanged();
-			classStudied.Status = !classStudied.Status;
-			await ClassStudiedService.UpdateClassStudy(classStudied);
-			await LoadClassstudies();
-			if (classStudied.Status)
-			{
-				await JSRuntime.InvokeVoidAsync("showToastr", "success", "เปิดสถานะสำเร็จ");
-			}
-			else
-			{
-				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ปิดสถานะสำเร็จ");
-		 	}
-		  IsProcessing = false;
+		IsProcessing = true;
+		StateHasChanged();
+		classStudied.Status = !classStudied.Status;
+		await ClassStudiedService.UpdateClassStudy(classStudied);
+		await LoadClassstudies();
+		if (classStudied.Status)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "success", "เปิดสถานะสำเร็จ");
+		}
+		else
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ปิดสถานะสำเร็จ");
+		}
+		IsProcessing = false;
 	}
 
 }

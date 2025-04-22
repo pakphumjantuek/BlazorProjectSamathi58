@@ -1,8 +1,6 @@
 ﻿@page "/attendance/report/{classId:int}"
-@inject ApplicationDbContext _context
-@using Microsoft.EntityFrameworkCore
-@using System.Globalization
-@using ProjectBlazorManage1.Model.Dtos
+@inject AttendanceService _attendanceService
+@inject IJSRuntime JSRuntime
 
 <div class="container mt-4">
     <div class="text-center mb-4">
@@ -25,9 +23,9 @@
     else
     {
         <div class="d-flex justify-content-end mb-3 gap-2">
-            <a class="btn btn-success" href="@($"/attendance/export-excel/{report.ClassId}")">
-                <i class="bi bi-file-earmark-excel-fill"></i> ส่งออก Excel
-            </a>
+            <button @onclick="ExportToExcel" class="btn btn-success shadow-sm">
+                <i class="bi bi-file-earmark-excel-fill me-2"></i>Export Excel
+            </button>
             <a class="btn btn-outline-secondary" href="@($"/attendance/menu/{report.ClassId}")">
                 <i class="bi bi-arrow-left-circle"></i> กลับ
             </a>
@@ -133,38 +131,28 @@
     {
         isLoading = true;
 
-        var classInfo = await _context.ClassStudieds.FirstOrDefaultAsync(c => c.Id == classId);
-        if (classInfo == null) return;
+        report = await _attendanceService.GetAttendanceReportAsync(classId);
 
-        var learningPlans = await _context.LearningPlans
-            .Where(lp => lp.ClassStudiedId == classId)
-            .OrderBy(lp => lp.Date)
-            .ToListAsync();
-
-        var students = await _context.students
-            .Where(s => s.ClassStudie_Id == classId)
-            .ToListAsync();
-
-        var attendance = await _context.Attendances
-            .Where(a => a.LearningPlan.ClassStudiedId == classId)
-            .ToListAsync();
-
-        var studentScores = students.ToDictionary(s => s.Id, s =>
-            attendance
-                .Where(a => a.StudentId == s.Id &&
-                    (a.StudiedType == StudiedType.มาเรียน || a.StudiedType == StudiedType.เรียนเสริม || a.StudiedType == StudiedType.เรียนต่างสาขา))
-                .Sum(a => learningPlans.FirstOrDefault(lp => lp.Id == a.LearningPlanId)?.Score ?? 0));
-
-        report = new AttendanceReportViewModel
-            {
-                ClassId = classId,
-                ClassNumber = classInfo.Id,
-                Students = students,
-                LearningPlans = learningPlans,
-                AttendanceRecords = attendance,
-                StudentScores = studentScores
-            };
+        if (report == null)
+        {
+            return;
+        }
 
         isLoading = false;
     }
+
+    private async Task ExportToExcel()
+    {
+        try
+        {
+            var excelData = await _attendanceService.GenerateAttendanceReportExcel(classId);
+            var base64ExcelData = Convert.ToBase64String(excelData);
+            await JSRuntime.InvokeVoidAsync("downloadExcelFile", excelData, $"รายงานการเข้าเรียน รุ่นที่ {classId}.xlsx");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error exporting Excel: {ex.Message}");
+        }
+    }
 }
+

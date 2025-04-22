@@ -1,6 +1,8 @@
 ﻿@page "/Reports/{ClassId:int}"
 @using ProjectBlazorManage1.Model.Dtos
+@inject IJSRuntime JSRuntime
 @inject ApplicationDbContext _context
+@inject ReportService _reportService
 
 <div class="container-fluid py-4">
     <div class="row">
@@ -146,14 +148,14 @@
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-center mt-4">
-                            <button class="btn btn-primary me-2" @onclick="ExportToExcel">
-                                <i class="bi bi-file-earmark-excel me-2"></i>ส่งออก Excel
-                            </button>
-                            <button class="btn btn-danger" @onclick="ExportToPdf">
-                                <i class="bi bi-file-earmark-pdf me-2"></i>ส่งออก PDF
-                            </button>
-                        </div>
+                         <div class="d-flex justify-content-center mt-4">
+                            <button class="btn btn-success me-2" @onclick="ExportToExcel">
+                                <i class="bi bi-file-earmark-excel me-2"></i>ส่งออก Excel 
+                             </button>
+                            @* <button class="btn btn-danger" @onclick="ExportToPdf"> *@
+                            @*     <i class="bi bi-file-earmark-pdf me-2"></i>ส่งออก PDF *@
+                            @* </button> *@
+                         </div> 
                     }
                 </div>
             </div>
@@ -174,112 +176,33 @@
     protected override async Task OnInitializedAsync()
     {
         IsLoading = true;
+        var report = await _reportService.GetClassReportAsync(ClassId);
 
-        ClassInfo = await _context.ClassStudieds.FindAsync(ClassId);
-
-        if (ClassInfo == null)
+        ClassInfo = report.ClassInfo;
+        if (ClassInfo != null)
         {
-            IsLoading = false;
-            return;
+            LearningPlans = report.LearningPlans;
+            Students = report.Students;
+            AttendanceRecords = report.AttendanceRecords;
+            StudentMetricsDict = report.StudentMetricsDict;
         }
 
-        LearningPlans = await _context.LearningPlans
-            .Where(l => l.ClassStudiedId == ClassId)
-            .OrderBy(l => l.Date)
-            .ToListAsync();
-
-        Students = await _context.students
-            .Where(s => s.ClassStudie_Id == ClassId)
-            .OrderBy(s => s.FirstName)
-            .ToListAsync();
-
-        AttendanceRecords = await _context.Attendances
-            .Include(a => a.LearningPlan)
-            .Where(a => a.LearningPlan.ClassStudiedId == ClassId)
-            .ToListAsync();
-
-        foreach (var student in Students)
-        {
-            var metrics = CalculateMetrics(student);
-            StudentMetricsDict[student.Id] = metrics;
-            student.Attendance_Score = metrics.TotalScore;
-        }
-
-        await _context.SaveChangesAsync();
         IsLoading = false;
     }
 
-    private StudentMetrics CalculateMetrics(Students student)
+    private async Task ExportToExcel()
     {
-        var attendance = AttendanceRecords.Where(a => a.StudentId == student.Id).ToList();
-        var metrics = new StudentMetrics();
-
-        metrics.Book1Score = SumScore(attendance, "1");
-        metrics.Book2Score = SumScore(attendance, "2");
-        metrics.Book3Score = SumScore(attendance, "3");
-
-        metrics.OrientationScore = SumByName(attendance, "ปฐมนิเทศ");
-        metrics.Activity1Score = SumByName(attendance, "กิจกรรมสัมพันธ์ 1");
-        metrics.Activity2Score = SumByName(attendance, "กิจกรรมสัมพันธ์ 2");
-        metrics.Activity3AndClosingScore = SumByName(attendance, "กิจกรรมสัมพันธ์ 3") +
-                                          SumByName(attendance, "ปัจฉิมนิเทศ");
-        metrics.FeedbackScore = SumByName(attendance, "แสดงความรู้สึก");
-        metrics.TestScore = SumByName(attendance, "สอบ");
-
-        metrics.DifferentBranchScore = attendance
-            .Where(a => a.StudiedType == StudiedType.เรียนต่างสาขา)
-            .Sum(a => a.LearningPlan.Score ?? 0);
-
-        metrics.ExtraClassScore = attendance
-            .Where(a => a.StudiedType == StudiedType.เรียนเสริม)
-            .Sum(a => a.LearningPlan.Score ?? 0);
-
-        metrics.ExtraClassScore = attendance
-      .Where(a => a.StudiedType == StudiedType.เรียนเสริม)
-      .Sum(a => a.LearningPlan.Score ?? 0);
-
-		metrics.ExtraClassScore2 = attendance
-                    .Where(a => a.Extraclass == true)
-					.Sum(a => a.LearningPlan.Score ?? 0);
-
-        metrics.ExamScore = metrics.Book1Score + metrics.Book2Score + metrics.Book3Score +
-                           metrics.DifferentBranchScore + metrics.ExtraClassScore +
-                           metrics.OrientationScore + metrics.Activity1Score +
-                           metrics.Activity2Score + metrics.Activity3AndClosingScore +
-									metrics.FeedbackScore + metrics.TestScore + metrics.ExtraClassScore2 +
-                           (student.credit ?? 0);
-
-        metrics.TotalHourScore = metrics.ExamScore * 2;
-        metrics.TotalScore = metrics.TotalHourScore + student.Total;
-        metrics.TotalScoreS = metrics.Book1Score + metrics.Book2Score + metrics.Book3Score + metrics.DifferentBranchScore;
-
-        metrics.ExamEligibility = metrics.TotalScore >= 200;
-        metrics.DiligenceCertificate = metrics.TotalScoreS >= 96;
-
-        return metrics;
+        try
+        {
+            var excelData = await _reportService.GenerateClassReportExcel(ClassId);
+            var base64ExcelData = Convert.ToBase64String(excelData);
+            await JSRuntime.InvokeVoidAsync("downloadExcelFile", excelData, $"รายงานผลการเรียนหลักสูตร รุ่นที่ {ClassId}.xlsx");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error exporting Excel: {ex.Message}");
+        }
     }
-
-    private int SumScore(List<Attendance> attendance, string bookNumber) =>
-        (int)attendance
-            .Where(a => a.StudiedType == StudiedType.มาเรียน && a.LearningPlan.Book == bookNumber)
-            .Sum(a => a.LearningPlan.Score ?? 0);
-
-    private int SumByName(List<Attendance> attendance, string keyword) =>
-        (int)attendance
-            .Where(a => (a.StudiedType == StudiedType.มาเรียน || a.StudiedType == StudiedType.เรียนเสริม) &&
-                        a.LearningPlan.Name.Contains(keyword))
-            .Sum(a => a.LearningPlan.Score ?? 0);
-
-    private void ExportToExcel()
-    {
-        // Implement Excel export functionality here
-        // สามารถเพิ่มโค้ดการส่งออกเป็น Excel ในอนาคต
-    }
-
-    private void ExportToPdf()
-    {
-        // Implement PDF export functionality here
-        // สามารถเพิ่มโค้ดการส่งออกเป็น PDF ในอนาคต
-    }
+ 
 }
 

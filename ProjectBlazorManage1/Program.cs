@@ -13,6 +13,8 @@ global using ProjectBlazorManage1.Service;
 global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 global using static ProjectBlazorManage1.Utility.SD;
+global using ProjectBlazorManage1.Model.Dtos;
+using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -60,9 +62,12 @@ builder.Services.AddScoped<DhammaCourseService>();
 builder.Services.AddScoped<ClassStudieService>();
 builder.Services.AddScoped<LearningPlanService>();
 builder.Services.AddScoped<StudentService>();
+builder.Services.AddScoped<AttendanceService>();
+builder.Services.AddScoped<ReportService>();
+builder.Services.AddScoped<RoleService>();
+builder.Services.AddScoped<UserService>();
 
-
-builder.Services.AddScoped<Radzen.DialogService>();
+builder.Services.AddMudServices();
 
 var app = builder.Build();
 

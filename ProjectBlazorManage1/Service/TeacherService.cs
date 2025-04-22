@@ -26,23 +26,7 @@ namespace ProjectBlazorManage1.Service
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _environment = environment ?? throw new ArgumentNullException(nameof(environment));
         }
-
-        public async Task<List<CourseName>> GetAllCourseNames()
-        {
-            return await _context.CourseNames.ToListAsync();
-        }
-
-        public async Task<List<Teacher>> GetTeachersByCourseId(int courseId)
-        {
-            return await _context.DhammaCourses
-                .Include(dc => dc.Teacher)
-                .Where(dc => dc.CourseName_Id == courseId)
-                .Select(dc => dc.Teacher)
-                .Distinct()
-                .ToListAsync();
-        }
-
-    
+        
         public async Task<List<Teacher>> GetAllTeachers()
         {
             return await _context.Teachers

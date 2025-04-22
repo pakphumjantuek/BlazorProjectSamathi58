@@ -15,13 +15,19 @@ namespace ProjectBlazorManage1.Service
         }
 
 
-        public async Task<List<DhammaCourse>> GetDhammaCoursesByCourseId(int courseId)
+        public async Task<List<DhammaCourse>> GetallDhama()
+        {
+           return  await _context.DhammaCourses
+                .Include(p=> p.Teacher)
+                .Include(p=> p.CourseName)
+                .ToListAsync();
+        }
+        public async Task<List<DhammaCourse>> GetallCourse()
         {
             return await _context.DhammaCourses
-                .Include(dc => dc.Teacher)
-                .Include(dc => dc.CourseName)
-                .Where(dc => dc.CourseName_Id == courseId)
-                .ToListAsync();
+                 .Include(p => p.Teacher)
+                 .Include(p => p.CourseName)
+                 .ToListAsync();
         }
 
         public async Task AddDhamma(DhammaCourse dhammaCourse)

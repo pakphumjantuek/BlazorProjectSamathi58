@@ -31,15 +31,6 @@ namespace ProjectBlazorManage1.Service
                 .Include(c => c.Branch)
                .AsNoTracking().ToListAsync();
         }
-        //public async Task<List<Students>> GetStudentsByClassId(int classId)
-        //{
-        //    return await db.students
-        //        .Where(s => s.classStudied.Id == classId)
-        //        .Include(p => p.classStudied)
-        //        .Include(s => s.Initial)
-        //        .ToListAsync();
-        //}
-
         public async Task<ClassStudied> GetClassStudyById(int id)
         {
             return await _context.ClassStudieds

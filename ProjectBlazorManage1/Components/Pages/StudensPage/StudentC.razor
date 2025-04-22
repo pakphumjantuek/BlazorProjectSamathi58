@@ -299,69 +299,103 @@ else
 				</div>
 			</div>
 		</div>
-		<div class="row mb-3">
-			<div class="col-md-4">
-				<label for="classFilter" class="form-label fw-semibold">เลือกรุ่น:</label>
-				<select id="classFilter" class="form-select"
-						@onchange="OnClassFilterChanged">
-					<option value="">-- แสดงทุกรุ่น --</option>
-					@foreach (var cls in _ClassStudie.Where(c => c.Status))
-					{
-						<option value="@cls.Id" selected="@(SelectedClassId == cls.Id)">
-							รุ่นที่ @cls.Id
-						</option>
-					}
-				</select>
-			</div>
-		</div>
 		<div class="card-body p-4">
-			<div class="row pb-3">
-				<div class="col-6">
-					<button class="btn btn-success" @onclick="DownloadSelectedStudents">ดาวน์โหลดบัตรนักเรียน</button>
-				</div>
-				<div class="col-6 text-end">
-					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
-						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลผู้สอน
-					</button>
-				</div>
-			</div>
-			<table class="table">
-				<thead>
-					<tr>
-						<th>
-							<input type="checkbox" @onchange="ToggleSelectAll" checked="@isSelectAll" />
-						</th>
-						<th>ชื่อ-นามสกุล</th>
-						<th>เบอร์โทร</th>
-						<th></th>
-						<th></th>
-						<th></th>
-					</tr>
-				</thead>
 
-				<tbody>
-					@foreach (var student in StudenslList)
-					{
-						<tr>
-							<td>
-								<InputCheckbox @bind-Value="student.IsSelected" />
-							</td>
-							<td>@student.FirstName - @student.LastName</td>
-							<td>@student.Phone_Number</td>
-							<td>
-								<a class="btn btn-sm btn-primary" href="@($"Student/Student_Details/{student.Id}")">รายระเอียด</a>
-							</td>
-							<td>
-								<button class="btn btn-sm btn-success" @onclick="@(() => ConfirmMoveToTeacher(student.Id))">ย้ายเป็นผู้สอน</button>
-							</td>
-							<td>
-								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(student)">แก้ไข</button>
-								<button class="btn btn-sm btn-danger" @onclick="() => Delete(student.Id)">ลบ</button>
-							</td>
-						</tr>
-					}
-				</tbody>
-			</table>
+			<MudGrid Class="p-4" GutterSize="3">
+				<MudItem xs="12" sm="6">
+					<MudSelect T="int?" Label="เลือกรุ่น"
+							   Value="SelectedClassId"
+							   ValueChanged="OnClassFilterChanged"
+							   Dense="true"
+							   Class="me-3">
+						<MudSelectItem T="int?" Value="@(null)">ทั้งหมด</MudSelectItem>
+						@foreach (var classStudied in _ClassStudie.Where(p => p.Status).OrderByDescending(p => p.Id))
+						{
+							<MudSelectItem T="int?" Value="@classStudied.Id">รุ่นที่ @classStudied.Id</MudSelectItem>
+						}
+					</MudSelect>
+				</MudItem>
+			</MudGrid>
+
+			<MudGrid Class="px-4 pb-2">
+				<MudItem xs="12" sm="6">
+					<MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="DownloadSelectedStudents">
+						ดาวน์โหลดบัตรนักเรียน
+					</MudButton>
+				</MudItem>
+				<MudItem xs="12" sm="6" Class="d-flex justify-end">
+					<MudButton Variant="Variant.Filled"
+							   Color="Color.Secondary"
+							   StartIcon="@Icons.Material.Filled.Add"
+							   OnClick="ShowAddModal"
+							   Size="Size.Medium"
+							   Class="add-button">
+						เพิ่มข้อมูลนักศุึกษา
+					</MudButton>
+				</MudItem>
+			</MudGrid>
+
+			<MudDataGrid T="Students"
+						 Items="@StudenslList"
+						 Hover="true"
+						 Dense="true"
+						 Bordered="true"
+						 Striped="true"
+						 MultiSelection="true"
+						 @bind-SelectedItems="selectedStudents"
+						 Class="custom-datagrid mt-4">
+
+				<Columns>
+					<SelectColumn />
+
+					<TemplateColumn Title="ชื่อ-นามสกุล">
+						<CellTemplate>
+							@($"{context.Item.FirstName} - {context.Item.LastName}")
+						</CellTemplate>
+					</TemplateColumn>
+
+					<PropertyColumn Property="x => x.Phone_Number" Title="เบอร์โทร" />
+
+					<TemplateColumn Title="รายละเอียด" CellStyle="text-align:center;">
+						<CellTemplate>
+							<MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small"
+									   Href="@($"/Student/Student_Details/{context.Item.Id}")">
+								รายละเอียด
+							</MudButton>
+						</CellTemplate>
+					</TemplateColumn>
+
+					<TemplateColumn Title="ย้ายข้อมูล" CellStyle="text-align:center;">
+						<CellTemplate>
+							<MudStack Row="true" Spacing="2" >
+								<MudButton Variant="Variant.Outlined"  Color="Color.Success" Size="Size.Small"
+										   OnClick="@(() => ConfirmMoveToTeacher(context.Item.Id))">
+									ย้ายเป็นผู้สอน
+								</MudButton>
+							</MudStack>
+						</CellTemplate>
+					</TemplateColumn>
+
+					<TemplateColumn Title="การจัดการ">
+						<CellTemplate>
+							<MudStack Row="true" Spacing="2">
+								<MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small"
+										   OnClick="@(() => ShowEditModal(context.Item))">
+									แก้ไข
+								</MudButton>
+								<MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small"
+										   OnClick="@(() => Delete(context.Item.Id))">
+									ลบ
+								</MudButton>
+							</MudStack>
+						</CellTemplate>
+					</TemplateColumn>
+				</Columns>
+
+				<PagerContent>
+					<MudDataGridPager T="Students" />
+				</PagerContent>
+			</MudDataGrid>
 
 		</div>
 	</div>
@@ -373,6 +407,19 @@ else
 	private List<Students> StudenslList = new();
 	private List<Initial> _initial = new();
 	private List<ClassStudied> _ClassStudie = new();
+	private HashSet<Students> _selectedStudents = new();
+	private int? SelectedClassId;
+
+	private HashSet<Students> selectedStudents
+	{
+		get => _selectedStudents;
+		set
+		{
+			_selectedStudents = value;
+			UpdateSelectedItems(); // เรียกเมื่อ selectedStudents เปลี่ยน
+		}
+	}
+
 	private bool IsProcessing { get; set; } = true;
 
 	private Modals StudensModal;
@@ -383,11 +430,7 @@ else
 	private string? _directoryPath { get; set; }
 	private IBrowserFile? _selectedFile { get; set; }
 	private string? _previewImage { get; set; }
-
-	private int? SelectedClassId { get; set; } = null;
 	private bool isSelectAll = false;
-
-
 
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -407,6 +450,7 @@ else
 	}
 
 
+
 	private async Task ConfirmMoveToTeacher(int studentId)
 	{
 		var isConfirmed = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจว่าต้องการย้ายเป็นผู้สอนหรือไม่?");
@@ -419,12 +463,7 @@ else
 
 	private async Task DownloadSelectedStudents()
 	{
-		var selectedIds = StudenslList
-			.Where(s => s.IsSelected)
-			.Select(s => s.Id)
-			.ToList();
-
-		if (!selectedIds.Any())
+		if (!selectedStudents.Any())
 		{
 			await JSRuntime.InvokeVoidAsync("showToastr", "warning", "กรุณาเลือกนักเรียนอย่างน้อย 1 คน");
 			return;
@@ -432,6 +471,7 @@ else
 
 		try
 		{
+			var selectedIds = selectedStudents.Select(s => s.Id).ToList();
 			var fileBytes = _StudentService.GenerateStudentCards(selectedIds);
 			var base64 = Convert.ToBase64String(fileBytes);
 			var fileName = $"StudentCards_{DateTime.Now:yyyyMMddHHmmss}.pdf";
@@ -442,6 +482,16 @@ else
 		{
 			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
 		}
+	}
+
+	private void UpdateSelectedItems()
+	{
+		// อัปเดต IsSelected ให้สอดคล้องกับ selectedStudents
+		foreach (var student in StudenslList)
+		{
+			student.IsSelected = selectedStudents.Contains(student);
+		}
+		StateHasChanged();
 	}
 
 	private async Task LoadStudent()
@@ -463,18 +513,10 @@ else
 		}
 	}
 
-	private async Task OnClassFilterChanged(ChangeEventArgs e)
+	private async Task OnClassFilterChanged(int? value)
 	{
-		if (int.TryParse(e.Value?.ToString(), out int classId))
-		{
-			SelectedClassId = classId;
-		}
-		else
-		{
-			SelectedClassId = null;
-		}
-
-		await LoadStudent(); // reload ตามรุ่นที่เลือก
+		SelectedClassId = value;
+		await LoadStudent();
 	}
 
 	private void ToggleSelectAll(ChangeEventArgs e)

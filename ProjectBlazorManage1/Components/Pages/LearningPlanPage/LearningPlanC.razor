@@ -119,67 +119,99 @@ else
 			</div>
 		</div>
 		<div class="card-body p-4">
-			<div class="row pb-3">
-				<!-- Container to align form elements properly -->
-				<div class="col-12 d-flex justify-content-between align-items-center">
-					<!-- Select Dropdown for Class -->
-					<div class="col-md-4">
-						<label for="classStudiedFilter">เลือกรุ่น:</label>
-						<select id="classStudiedFilter" class="form-select" @bind="selectedClassStudiedId">
-							<option value="">ทั้งหมด</option>
-							@foreach (var classStudied in learningPlansList.OrderByDescending(p => p.ClassStudiedId).Select(b => b.ClassStudied).Distinct())
-							{
-								<option value="@classStudied?.Id">@classStudied?.Id</option>
-							}
-						</select>
-					</div>
+			<MudDataGrid T="LearningPlan"
+             Items="@FilteredLearningPlans"
+             SortMode="SortMode.Multiple"
+             Filterable="true"
+             Hover="true"
+             Dense="true"
+             Bordered="true"
+             Striped="true"
+             Elevation="2"
+             Class="custom-datagrid mt-4"
+             RowClick="@(args => ShowEditModal(args.Item))">
 
-					<!-- Buttons -->
-					<div class="d-flex gap-3">
-						<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
-							<i class="bi bi-plus-square"></i> เพิ่มข้อมูลสาขา
-						</button>
-						<a class="btn btn-lg btn-success" style="width:250px;" href="/upload-excel">
-							<i class="bi bi-file-earmark-excel"></i> อัพโหลด Excel
-						</a>
-					</div>
-				</div>
-			</div>
+    <ToolBarContent>
+        <MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">
+            ระบบจัดการข้อมูลสาขา
+        </MudText>
+        <MudSpacer />
+        
+        <!-- Dropdown กรองตามรุ่น -->
+					<MudSelect T="int?" Label="เลือกรุ่น" @bind-Value="selectedClassStudiedId" Dense="true" Class="me-3">
+						<MudSelectItem T="int?" Value="@(null)">ทั้งหมด</MudSelectItem>
+						@foreach (var classStudied in learningPlansList
+											.OrderByDescending(p => p.ClassStudiedId)
+											.Select(p => p.ClassStudied)
+											.Where(p => p != null)
+											.Distinct())
+						{
+							<MudSelectItem T="int?" Value="@classStudied.Id">@classStudied.Id</MudSelectItem>
+						}
+					</MudSelect>
 
+        <!-- ปุ่ม -->
+        <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="ShowAddModal" StartIcon="@Icons.Material.Filled.Add">
+            เพิ่มข้อมูลสาขา
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Success" Href="/upload-excel" Class="ms-2" StartIcon="@Icons.Material.Filled.UploadFile">
+            อัพโหลด Excel
+        </MudButton>
+    </ToolBarContent>
 
+    <Columns>
+        <TemplateColumn Title="วันที่เรียน">
+            <CellTemplate>
+                @(context.Item.Date.HasValue 
+                    ? context.Item.Date.Value.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH")) 
+                    : "")
+            </CellTemplate>
+        </TemplateColumn>
 
+        <PropertyColumn Property="x => x.Time"
+                        Title="เวลาเรียน"
+                        Filterable="true"
+                        Sortable="true"
+                        CellStyle="font-size: 14px;" />
 
-			<table class="table">
-				<thead>
-					<tr>
-						<th>วันที่เรียน</th>
-						<th>เวลาเรียน</th>
-						<th>หัวข้อการเรียน</th>
-						<th>ผู้สอน</th>
-						<th>รุ่นที่เรียน</th>
-						<th></th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var b in FilteredLearningPlans.OrderBy(p => p.Date).OrderByDescending(b => b.ClassStudiedId))
-					{
-						<tr>
-							<td>@(b.Date.HasValue ? b.Date.Value.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH")) : "")</td>
-							<td>@b.Time</td>
-							<td>@b.Name</td>
-							<td>@($"{b.teacher?.Teacher_Name} {b.teacher?.Teacher_LastName}" ?? "")</td>
-							<td>@b.ClassStudiedId</td>
+        <PropertyColumn Property="x => x.Name"
+                        Title="หัวข้อการเรียน"
+                        Filterable="true"
+                        Sortable="true"
+                        CellStyle="font-size: 14px;" />
 
-							<td>
-								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
-								<button class="btn btn-sm btn-danger" @onclick="() => Delete(b.Id)">ลบ</button>
-							</td>
+        <TemplateColumn Title="ผู้สอน">
+            <CellTemplate>
+                @($"{context.Item.teacher?.Teacher_Name} {context.Item.teacher?.Teacher_LastName}")
+            </CellTemplate>
+        </TemplateColumn>
 
-						</tr>
-					}
-				</tbody>
-			</table>
+        <PropertyColumn Property="x => x.ClassStudiedId"
+                        Title="รุ่นที่เรียน"
+                        Filterable="true"
+                        Sortable="true"
+                        CellStyle="font-size: 14px;" />
+
+        <TemplateColumn Title="การจัดการ" Sortable="false">
+            <CellTemplate>
+                <MudStack Row="true" Spacing="2">
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small" StartIcon="@Icons.Material.Filled.Edit"
+                               OnClick="@(() => ShowEditModal(context.Item))">
+                        แก้ไข
+                    </MudButton>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Error" Size="Size.Small" StartIcon="@Icons.Material.Filled.Delete"
+                               OnClick="@(() => Delete(context.Item.Id))">
+                        ลบ
+                    </MudButton>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+
+    <PagerContent>
+        <MudDataGridPager T="LearningPlan" />
+    </PagerContent>
+</MudDataGrid>
 
 		</div>
 	</div>

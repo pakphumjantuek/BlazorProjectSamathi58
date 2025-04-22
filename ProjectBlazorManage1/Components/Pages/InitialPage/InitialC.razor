@@ -17,7 +17,7 @@
 			{
 				<InputNumber hidden class="form-control" @bind-Value="currentInitial.Initial_Id" />
 				<div class="form-group mb-3">
-					<label>ชื่อสาขา</label>
+					<label>ชื่อคำนำหน้า</label>
 					<InputText class="form-control" @bind-Value="currentInitial.Initial_Name" />
 					<ValidationMessage For="@(() => currentInitial.Initial_Name)" />
 				</div>
@@ -41,7 +41,7 @@
 else
 {
 	<div class="card shadow border-0 mt-4">
-		<div class="card-header bg-black bg-gradient ml-0 py-3">
+		<div class="card-header bg-dark bg-gradient ml-0 py-3">
 			<div class="row">
 				<div class="col-12 text-center">
 					<h2 class="text-white py-2">ระบบจัดการข้อมูลคำนำหน้าชื่อ</h2>
@@ -49,40 +49,66 @@ else
 			</div>
 		</div>
 		<div class="card-body p-4">
-			<div class="row pb-3">
-				<div class="col-12 text-end">
-					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
-						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลคำนำหน้าชื่อ
-					</button>
-				</div>
-			</div>
+	<MudDataGrid T="Initial"
+				 Items="@initialList"
+				 SortMode="SortMode.Multiple"
+				 Filterable="true"
+				 Hover="true"
+				 Elevation="2"
+				 Dense="true"
+				 Bordered="true"
+				 Striped="true"
+				 RowClick="@(args => ShowEditModal(args.Item))"
+				 Class="custom-datagrid">
+		<ToolBarContent>
+			<MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">ระบบจัดการข้อมูลคำนำหน้าชื่อ</MudText>
+			<MudSpacer />
+			<MudButton Variant="Variant.Filled"
+					   Color="Color.Secondary"
+					   StartIcon="@Icons.Material.Filled.Add"
+					   OnClick="ShowAddModal"
+					   Size="Size.Medium"
+					   Class="add-button">
+				เพิ่มข้อมูลคำนำหน้าชื่อ
+			</MudButton>
+		</ToolBarContent>
 
-			<table class="table">
-				<thead>
-					<tr>
-						<th>ชื่อคำนำหน้าชื่อ</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var b in initialList)
-					{
-						<tr>
-	
-							<td>@b.Initial_Name</td>
-							<td>
-								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
-								<button class="btn btn-sm btn-danger" @onclick="() => DeleteInnitail(b.Initial_Id)">ลบ</button>
-							</td>
+		<Columns>
+			<PropertyColumn Property="x => x.Initial_Name"
+							Title="ชื่อคำนำหน้าชื่อ"
+							Filterable="true"
+							Sortable="true"
+							CellStyle="font-size: 14px;" />
+			<TemplateColumn Title="การจัดการ"
+							CellClass="action-column"
+							Sortable="false">
+				<CellTemplate>
+					<MudStack Row="true" Spacing="2">
+						<MudButton Variant="Variant.Outlined"
+								   Color="Color.Primary"
+								   Size="Size.Small"
+								   StartIcon="@Icons.Material.Filled.Edit"
+								   OnClick="@(() => ShowEditModal(context.Item))">
+							แก้ไข
+						</MudButton>
+						<MudButton Variant="Variant.Outlined"
+								   Color="Color.Error"
+								   Size="Size.Small"
+								   StartIcon="@Icons.Material.Filled.Delete"
+								   OnClick="@(() => DeleteInnitail(context.Item.Initial_Id))">
+							ลบ
+						</MudButton>
+					</MudStack>
+				</CellTemplate>
+			</TemplateColumn>
+		</Columns>
 
-						</tr>
-					}
-				</tbody>
-			</table>
-
+		<PagerContent>
+			<MudDataGridPager T="Initial" />
+		</PagerContent>
+	</MudDataGrid>
 		</div>
 	</div>
-
 }
 
 @code {

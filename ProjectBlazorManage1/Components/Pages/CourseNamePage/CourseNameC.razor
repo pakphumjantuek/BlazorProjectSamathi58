@@ -53,52 +53,88 @@ else
 			</div>
 		</div>
 		<div class="card-body p-4">
-			<div class="row pb-3">
-				<div class="col-12 text-end">
-					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
-						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลหลักสูตร
-					</button>
-				</div>
-			</div>
+			<MudDataGrid T="CourseName"
+						 Items="@courseNameList"
+						 SortMode="SortMode.Multiple"
+						 Filterable="true"
+						 Hover="true"
+						 Elevation="2"
+						 Dense="true"
+						 Bordered="true"
+						 Striped="true"
+						 RowClick="@(args => ShowEditModal(args.Item))"
+						 Class="custom-datagrid mt-4">
 
-			<table class="table">
-				<thead>
-					<tr>
-						<th>ชื่อหลักสูตร</th>
-						<th>ลำดับชั้น</th>
-						<th></th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var b in courseNameList)
-					{
-						<tr>
+				<ToolBarContent>
+					<MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">ระบบจัดการข้อมูลหลักสูตร</MudText>
+					<MudSpacer />
+					<MudButton Variant="Variant.Filled"
+							   Color="Color.Secondary"
+							   StartIcon="@Icons.Material.Filled.Add"
+							   OnClick="ShowAddModal"
+							   Size="Size.Medium"
+							   Class="add-button">
+						เพิ่มข้อมูลหลักสูตร
+					</MudButton>
+				</ToolBarContent>
 
-							<td>@b.Name</td>
-							<td>@b.Level</td>
-							<td>
-								<div class="form-check form-switch">
-									<input class="form-check-input custom-switch"
-										   type="checkbox"
-										   id="switch-@b.Id"
-										   checked="@b.Status"
-										   @onclick="() => ToggleStatus(b)"
-										   disabled="@(IsProcessing ? true : false)">
-									<label class="form-check-label" for="switch-@b.Id">
-										<span class="visually-hidden">Toggle status</span>
-									</label>
-								</div>
-							</td>
-							<td>
-								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
-								<button class="btn btn-sm btn-danger" @onclick="() => DeleteInnitail(b.Id)">ลบ</button>
-							</td>
+				<Columns>
+					<PropertyColumn Property="x => x.Name"
+									Title="ชื่อหลักสูตร"
+									Filterable="true"
+									Sortable="true"
+									CellStyle="font-size: 14px;" />
 
-						</tr>
-					}
-				</tbody>
-			</table>
+					<PropertyColumn Property="x => x.Level"
+									Title="ลำดับชั้น"
+									Filterable="true"
+									Sortable="true"
+									CellStyle="font-size: 14px;" />
+
+					<TemplateColumn Title="สถานะ"
+									CellClass="status-column"
+									Sortable="false">
+						<CellTemplate>
+							<div @onclick:stopPropagation>
+								<MudSwitch Value="@context.Item.Status"
+										   ValueChanged="@(async (bool newValue) => await ToggleStatus(context.Item))"
+										   ThumbIcon="@(context.Item.Status ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+										   ThumbIconColor="@(context.Item.Status ? Color.Success : Color.Error)"
+										   Disabled="@IsProcessing"
+										   Class="custom-switch">
+								</MudSwitch>
+							</div>
+						</CellTemplate>
+					</TemplateColumn>
+
+					<TemplateColumn Title="การจัดการ"
+									CellClass="action-column"
+									Sortable="false">
+						<CellTemplate>
+							<MudStack Row="true" Spacing="2">
+								<MudButton Variant="Variant.Outlined"
+										   Color="Color.Primary"
+										   Size="Size.Small"
+										   StartIcon="@Icons.Material.Filled.Edit"
+										   OnClick="@(() => ShowEditModal(context.Item))">
+									แก้ไข
+								</MudButton>
+								<MudButton Variant="Variant.Outlined"
+										   Color="Color.Error"
+										   Size="Size.Small"
+										   StartIcon="@Icons.Material.Filled.Delete"
+										   OnClick="@(() => DeleteInnitail(context.Item.Id))">
+									ลบ
+								</MudButton>
+							</MudStack>
+						</CellTemplate>
+					</TemplateColumn>
+				</Columns>
+
+				<PagerContent>
+					<MudDataGridPager T="CourseName" />
+				</PagerContent>
+			</MudDataGrid>
 
 		</div>
 	</div>

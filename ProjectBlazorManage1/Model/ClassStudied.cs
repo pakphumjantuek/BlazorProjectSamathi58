@@ -34,13 +34,16 @@
         public List<string> GetStudyMonths()
         {
             List<string> months = new List<string>();
-            DateTime current = StartDate;
-            while (current <= EndDate && months.Count < 6)
+            DateTime current = new DateTime(StartDate.Year, StartDate.Month, 1); // เริ่มที่ต้นเดือน
+            DateTime end = new DateTime(EndDate.Year, EndDate.Month, 1);         // จบที่ต้นเดือนของ EndDate
+
+            while (current <= end && months.Count < 6)
             {
-                // แสดงชื่อเดือนและปีในรูปแบบ "เดือน YYYY" (ภาษาไทย)
-                months.Add(current.ToString("MMMM", new System.Globalization.CultureInfo("th-TH")));
+                // แสดงชื่อเดือนและปีในรูปแบบ "MMMM yyyy" ภาษาไทย เช่น "มกราคม 2566"
+                months.Add(current.ToString("MMMM yyyy", new System.Globalization.CultureInfo("th-TH")));
                 current = current.AddMonths(1);
             }
+
             return months;
         }
     }

@@ -68,7 +68,7 @@
 else
 {
 	<div class="card shadow border-0 mt-4">
-		<div class="card-header bg-black bg-gradient ml-0 py-3">
+		<div class="card-header bg-dark bg-gradient ml-0 py-3">
 			<div class="row">
 				<div class="col-12 text-center">
 					<h2 class="text-white py-2">ระบบจัดการข้อมูลสาขา</h2>
@@ -76,56 +76,95 @@ else
 			</div>
 		</div>
 		<div class="card-body p-4">
-			<div class="row pb-3">
-				<div class="col-12 text-end">
-					<button class="btn btn-lg btn-secondary" style="width:250px;" @onclick="() => ShowAddModal()">
-						<i class="bi bi-plus-square"></i> เพิ่มข้อมูลสาขา
-					</button>
-				</div>
-			</div>
+			<MudDataGrid T="Branch"
+						 Items="@branchesList"
+						 SortMode="SortMode.Multiple"
+						 Filterable="true"
+						 Hover="true"
+						 Elevation="2"
+						 Dense="true"
+						 Bordered="true"
+						 Striped="true"
+						 RowClick="@(args => ShowEditModal(args.Item))"
+						 Class="custom-datagrid">
+				<ToolBarContent>
+					<MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">ระบบจัดการข้อมูลสาขา</MudText>
+					<MudSpacer />
+					<MudButton Variant="Variant.Filled"
+							   Color="Color.Secondary"
+							   StartIcon="@Icons.Material.Filled.Add"
+							   OnClick="ShowAddModal"
+							   Size="Size.Medium"
+							   Class="add-button">
+						เพิ่มข้อมูลสาขา
+					</MudButton>
+				</ToolBarContent>
 
-			<table class="table">
-				<thead>
-					<tr>
-						<th>รหัสสาขา</th>
-						<th>ชื่อสาขา</th>
-						<th>เบอร์โทรศํพท์</th>
-						<th>อีเมล</th>
-						<th>สถานะ</th>
-						<th></th>
-					</tr>
-				</thead>
-				<tbody>
-					@foreach (var b in branchesList)
-					{
-						<tr>
-							<td>@b.Branch_Id</td>
-							<td>@b.Branch_Name</td>
-							<td>@b.Branch_Phone</td>
-							<td>@b.Branch_Email</td>
-							<td>
-								<div class="form-check form-switch">
-									<input class="form-check-input custom-switch"
-										   type="checkbox"
-										   id="switch-@b.Branch_Id"
-										   checked="@b.Status"
-										   @onclick="() => ToggleStatus(b)"
-										   disabled="@(IsProcessing ? true : false)">
-									<label class="form-check-label" for="switch-@b.Branch_Id">
-										<span class="visually-hidden">Toggle status</span>
-									</label>
-								</div>
-							</td>
-							<td>
-								<button class="btn btn-sm btn-primary" @onclick="() => ShowEditModal(b)">แก้ไข</button>
-								<button class="btn btn-sm btn-danger" @onclick="() => DeleteProduct(b.Branch_Id)">ลบ</button>
-							</td>
+				<Columns>
+					<PropertyColumn Property="x => x.Branch_Id"
+									Title="รหัสสาขา"
+									Filterable="true"
+									Sortable="true"
+									CellStyle="font-size: 14px;" />
+					<PropertyColumn Property="x => x.Branch_Name"
+									Title="ชื่อสาขา"
+									Filterable="true"
+									Sortable="true"
+									CellStyle="font-size: 14px;" />
+					<PropertyColumn Property="x => x.Branch_Phone"
+									Title="เบอร์โทรศัพท์"
+									Filterable="true"
+									Sortable="true"
+									CellStyle="font-size: 14px;" />
+					<PropertyColumn Property="x => x.Branch_Email"
+									Title="อีเมล"
+									Filterable="true"
+									Sortable="true"
+									CellStyle="font-size: 14px;" />
+					<TemplateColumn Title="สถานะ"
+									CellClass="status-column"
+									Sortable="false">
+						<CellTemplate>
+							<div @onclick:stopPropagation>
+								<MudSwitch Value="@context.Item.Status"
+										   ValueChanged="@(async (bool newValue) => await ToggleStatus(context.Item))"
+										   ThumbIcon="@(context.Item.Status ? Icons.Material.Filled.Done : Icons.Material.Filled.Close)"
+										   ThumbIconColor="@(context.Item.Status ? Color.Success : Color.Error)"
+										   Disabled="@IsProcessing"
+										   Class="custom-switch">
+									
+								</MudSwitch>
+							</div>
+						</CellTemplate>
+					</TemplateColumn>
+					<TemplateColumn Title="การจัดการ"
+									CellClass="action-column"
+									Sortable="false">
+						<CellTemplate>
+							<MudStack Row="true" Spacing="2">
+								<MudButton Variant="Variant.Outlined"
+										   Color="Color.Primary"
+										   Size="Size.Small"
+										   StartIcon="@Icons.Material.Filled.Edit"
+										   OnClick="@(() => ShowEditModal(context.Item))">
+									แก้ไข
+								</MudButton>
+								<MudButton Variant="Variant.Outlined"
+										   Color="Color.Error"
+										   Size="Size.Small"
+										   StartIcon="@Icons.Material.Filled.Delete"
+										   OnClick="@(() => DeleteProduct(context.Item.Branch_Id))">
+									ลบ
+								</MudButton>
+							</MudStack>
+						</CellTemplate>
+					</TemplateColumn>
+				</Columns>
 
-						</tr>
-					}
-				</tbody>
-			</table>
-
+				<PagerContent>
+					<MudDataGridPager T="Branch" />
+				</PagerContent>
+			</MudDataGrid>
 		</div>
 	</div>
 
@@ -205,13 +244,12 @@ else
 			{
 				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ปิดสถานะสำเร็จ");
 			}
-
 		}
 		catch (Exception ex)
 		{
-
 			Console.WriteLine($"Error toggling status: {ex.Message}");
-			branch.Status = !branch.Status;
+			branch.Status = !branch.Status; 
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", "เกิดข้อผิดพลาดในการเปลี่ยนสถานะ");
 		}
 		finally
 		{
