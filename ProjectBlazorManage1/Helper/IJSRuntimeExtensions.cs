@@ -13,5 +13,10 @@ namespace LearnBlazor.Helper
         {
             await jsRuntime.InvokeVoidAsync("showToastr", "error", message);
         }
+        public static async Task ToastrInfo(this IJSRuntime jsRuntime, string message)
+        {
+            await jsRuntime.InvokeVoidAsync("showToastr", "warning", message);
+        }
+
     }
 }

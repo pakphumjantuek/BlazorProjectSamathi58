@@ -6,6 +6,9 @@
     if (type == "error") {
         toastr.error(message);
     }
+    if (type == "warning") {
+        toastr.warning(message);
+    } 
 }
 
 toastr.options = {

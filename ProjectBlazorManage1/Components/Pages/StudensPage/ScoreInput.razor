@@ -21,19 +21,6 @@ else{
 		หลักสูตรครูสมาธิ รุ่นที่ @ClassId ทฺวิปญฺญาสโม (วิริยมงคล) ความเพียรนำไปสู่ความเจริญ
 	</h6>
 
-	<div class="mb-4">
-		<label for="classSelect" class="form-label fw-semibold">เลือกรุ่น:</label>
-		<select class="form-select shadow-sm w-50"
-				@onchange="HandleClassChanged">
-			@foreach (var cls in ClassList)
-			{
-				<option value="@cls.Id" selected="@((SelectedClassId == cls.Id) ? "selected" : null)">
-					รุ่นที่ @cls.Id
-				</option>
-			}
-		</select>
-	</div>
-
 	<EditForm Model="@this" OnValidSubmit="SaveScores">
 		<div class="card shadow-lg p-4">
 			<div class="table-responsive">
@@ -77,13 +64,12 @@ else{
 				</table>
 			</div>
 			<div class="text-end mt-3">
+				<a href="/ClassStudie/Timetable/@ClassId" class="btn btn-outline-secondary px-4 py-2 shadow-sm me-2">ย้อนกลับ</a>
 				<button type="submit" class="btn btn-success px-4 py-2 shadow-sm">บันทึกคะแนน</button>
 			</div>
 		</div>
 	</EditForm>
 }
-
-
 
 @code {
 	[Parameter] public int? ClassId { get; set; }
@@ -114,15 +100,7 @@ else{
 		}
 	}
 
-	private async Task HandleClassChanged(ChangeEventArgs e)
-	{
-		if (int.TryParse(e.Value?.ToString(), out int classId))
-		{
-			SelectedClassId = classId;
-			NavigationManager.NavigateTo($"/scores/{classId}", forceLoad: false);
-			await LoadStudentsAsync();
-		}
-	}
+	
 
 	private async Task LoadStudentsAsync()
 	{

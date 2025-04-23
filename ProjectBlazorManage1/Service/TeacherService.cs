@@ -26,7 +26,7 @@ namespace ProjectBlazorManage1.Service
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _environment = environment ?? throw new ArgumentNullException(nameof(environment));
         }
-        
+
         public async Task<List<Teacher>> GetAllTeachers()
         {
             return await _context.Teachers
@@ -45,7 +45,7 @@ namespace ProjectBlazorManage1.Service
                 .Where(c => c.Status == true) // แสดงเฉพาะหลักสูตรที่เปิดใช้งาน
                 .ToListAsync();
         }
- 
+
         public async Task<Teacher> GetTeacherById(int id)
         {
             if (id <= 0)
@@ -136,7 +136,132 @@ namespace ProjectBlazorManage1.Service
                 throw new InvalidOperationException("ไม่สามารถลบอาจารย์ได้ ข้อมูลอาจถูกใช้งานอยู่", ex);
             }
         }
-      
+
+        public async Task<byte[]> GenerateCourse()
+        {
+            var Course1 = await GetAllTeachers();
+
+            using var ms = new MemoryStream();
+            var writer = new PdfWriter(ms);
+            var pdf = new PdfDocument(writer);
+            var document = new Document(pdf);
+
+            // โหลดฟอนต์
+            var fontPath = Path.Combine(_environment.WebRootPath, "fonts", "THSarabunNew.ttf");
+            var fontBoldPath = Path.Combine(_environment.WebRootPath, "fonts", "THSarabunNew-Bold.ttf");
+
+            var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+            var fontBold = PdfFontFactory.CreateFont(fontBoldPath, PdfEncodings.IDENTITY_H);
+
+            // หัวเรื่อง
+            document.Add(new Paragraph("รายชื่อผู้เข้าอบรมหลักสูตร")
+                .SetFont(fontBold)
+                .SetFontSize(18)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(20));
+
+            // จัดกลุ่มตามชื่อหลักสูตรที่ Status == true
+            var groupedByCourse = Course1
+                .SelectMany(t => t.DhamaHistories
+                    .Where(d => d.CourseName.Status == true)
+                    .OrderBy(p => p.CourseName.Level)
+                    .Select(d => new { CourseName = d.CourseName.Name, Teacher = t }))
+                .GroupBy(x => x.CourseName);
+
+            foreach (var group in groupedByCourse)
+            {
+                // ชื่อหลักสูตร = หัวเรื่อง
+                document.Add(new Paragraph($"หลักสูตร: {group.Key}")
+                    .SetFont(fontBold)
+                    .SetFontSize(16)
+                    .SetMarginTop(10)
+                    .SetMarginBottom(0));
+
+                float[] colWidths = { 1f, 2f };
+                Table table = new Table(UnitValue.CreatePercentArray(colWidths)).UseAllAvailableWidth();
+
+                table.AddHeaderCell(new Cell().Add(new Paragraph("ชื่อ-นามสกุล").SetFont(fontBold).SetFontSize(14)));
+                table.AddHeaderCell(new Cell().Add(new Paragraph("ประวัติทางธรรม").SetFont(fontBold).SetFontSize(14)));
+
+                foreach (var item in group.OrderBy(p => p.Teacher.Teacher_Name))
+                {
+                    var teacher = item.Teacher;
+                    string fullName = $"{teacher.Teacher_Name} {teacher.Teacher_LastName ?? ""}";
+
+                    string dharmaHistory = string.Join("\n", teacher.DhamaHistories
+                        .Where(d => d.CourseName.Status == false)
+                        .Select(d => d.CourseName.Name));
+
+
+                    table.AddCell(new Cell().Add(new Paragraph(fullName).SetFont(font).SetFontSize(13)));
+                    table.AddCell(new Cell().Add(new Paragraph(dharmaHistory).SetFont(font).SetFontSize(13)));
+                }
+               
+
+                document.Add(table);
+            }
+
+            document.Close();
+            return ms.ToArray();
+        }
+
+        public async Task<byte[]> GenerateCoursePdfByCourseId(int courseId)
+        {
+            var teachers = await _context.Teachers
+                .Include(t => t.Initial)
+                .Include(t => t.Branch)
+                .Include(t => t.DhamaHistories)
+                    .ThenInclude(h => h.CourseName)
+                .Where(t => t.DhamaHistories.Any(d => d.CourseName_Id == courseId && d.CourseName.Status == true))
+                .AsNoTracking()
+                .ToListAsync();
+
+            var courseName = await _context.CourseNames
+                .Where(c => c.Id == courseId)
+                .Select(c => c.Name)
+                .FirstOrDefaultAsync();
+
+            using var ms = new MemoryStream();
+            var writer = new PdfWriter(ms);
+            var pdf = new PdfDocument(writer);
+            var document = new Document(pdf);
+
+            var fontPath = Path.Combine(_environment.WebRootPath, "fonts", "THSarabunNew.ttf");
+            var fontBoldPath = Path.Combine(_environment.WebRootPath, "fonts", "THSarabunNew-Bold.ttf");
+            var fontBold = PdfFontFactory.CreateFont(fontBoldPath, PdfEncodings.IDENTITY_H);
+            var font = PdfFontFactory.CreateFont(fontPath, PdfEncodings.IDENTITY_H);
+
+            document.Add(new Paragraph($"รายชื่อผู้เข้าอบรมหลักสูตร: {courseName}")
+                .SetFont(font)
+                .SetFontSize(18)
+                .SetTextAlignment(TextAlignment.CENTER)
+                .SetMarginBottom(20));
+
+            Table table = new Table(UnitValue.CreatePercentArray(new float[] { 1f, 2f })).UseAllAvailableWidth();
+            table.AddHeaderCell(new Paragraph("ชื่อ-นามสกุล").SetFont(fontBold).SetFontSize(14));
+            table.AddHeaderCell(new Paragraph("ประวัติทางธรรม").SetFont(fontBold).SetFontSize(14));
+
+            foreach (var teacher in teachers.OrderBy(t => t.Teacher_Name))
+            {
+                string dharmaHistory = string.Join("\n", teacher.DhamaHistories
+                        .Where(d => d.CourseName.Status == false)
+                        .Select(d => d.CourseName.Name));
+                string fullName = $"{teacher.Teacher_Name} {teacher.Teacher_LastName}";
+
+
+                table.AddCell(new Paragraph(fullName).SetFont(font).SetFontSize(13));
+                table.AddCell(new Paragraph(dharmaHistory).SetFont(font).SetFontSize(13));
+            }
+             var count = teachers.Count();
+            table.AddFooterCell(new Cell(1, 2)
+                .Add(new Paragraph($"จำนวนผู้เข้าอบรมทั้งหมด: {count}").SetFont(font).SetFontSize(14))
+                .SetTextAlignment(TextAlignment.LEFT)
+                .SetBorder(Border.NO_BORDER));
+
+            document.Add(table);
+            document.Close();
+            return ms.ToArray();
+        }
         public async Task<byte[]> ExportToPdfSecurity(int id)
         {
             var teacher = await GetTeacherById(id);

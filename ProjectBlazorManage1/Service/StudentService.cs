@@ -37,7 +37,7 @@ namespace ProjectBlazorManage1.Service
             var student = await GetStudentId(studentId);
 
             var existingTeacher = await _context.Teachers
-                 .FirstOrDefaultAsync(t => t.Phone_Number == student.Phone_Number || t.Teacher_Name == student.FirstName && t.Teacher_LastName == student.LastName);
+                 .FirstOrDefaultAsync(t => t.Teacher_Name == student.FirstName && t.Teacher_LastName == student.LastName);
             
             if (existingTeacher != null)
                 throw new Exception("นักเรียนคนนี้ถูกแปลงเป็นผู้สอนแล้ว");

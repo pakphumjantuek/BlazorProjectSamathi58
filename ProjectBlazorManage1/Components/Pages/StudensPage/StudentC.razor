@@ -449,8 +449,6 @@ else
 		return base.OnInitializedAsync();
 	}
 
-
-
 	private async Task ConfirmMoveToTeacher(int studentId)
 	{
 		var isConfirmed = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจว่าต้องการย้ายเป็นผู้สอนหรือไม่?");
