@@ -17,13 +17,13 @@ namespace ProjectBlazorManage1.Service
             try
             {
                 return await _context.Branches
-                    .AsNoTracking()// เหมาะสำหรับการดำเนินการแบบอ่านอย่างเดียว
+                    .AsNoTracking()
                     .ToListAsync();
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "เกิดข้อผิดพลาดขณะดึงข้อมูลสาขาทั้งหมด");
-                throw; // ส่งข้อผิดพลาดต่อไปยังเลเยอร์ที่สูงกว่า
+                throw; 
             }
         }
 

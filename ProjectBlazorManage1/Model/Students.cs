@@ -35,7 +35,8 @@ namespace ProjectBlazorManage1.Model
             }
         }
         [DisplayName("เบอร์โทรศัพท์")]
-        [StringLength(10, MinimumLength = 10, ErrorMessage = "เบอร์โทรต้องมีความยาว 10 หลัก")]
+        [StringLength(10, MinimumLength = 10, ErrorMessage = "กรูณากรอกเบอร์โทร์ 10 หลัก")]
+        [RegularExpression(@"^0\d{9}$", ErrorMessage = "เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0")]
         public string Phone_Number { get; set; }
         [DisplayName("ชื่อภาษาอังกฤษ")]
         [Required(ErrorMessage = "กรุณากรอกชื่อภาษาอังกฤษ")]
@@ -73,7 +74,8 @@ namespace ProjectBlazorManage1.Model
         [Required(ErrorMessage = "กรุณากรอกชื่อบุคคลใกล้ชิด")]
         public string ClosePersonName { get; set; } // ชื่อ-สกุล                                          
         [DisplayName("เบอร์โทรศัพท์บุคคลใกล้ชิด")]
-        [StringLength(10, MinimumLength = 10, ErrorMessage = "เบอร์โทรต้องมีความยาว 10 หลัก")]
+        [StringLength(10, MinimumLength = 10, ErrorMessage = "กรูณากรอกเบอร์โทร์ 10 หลัก")]
+        [RegularExpression(@"^0\d{9}$", ErrorMessage = "เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0")]
         [Required(ErrorMessage = "กรุณากรอกเบอร์โทรศัพท์บุคคลใกล้ชิด")]
         public string ClosePersonPhone { get; set; } // โทรศัพท์
         // ข้อมูลเพิ่มเติม

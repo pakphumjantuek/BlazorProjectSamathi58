@@ -12,21 +12,15 @@ namespace ProjectBlazorManage1.Service
             _context = context;
         }
 
-        public async Task<(int classNumber, List<LearningPlan> learningPlans)> GetClassDetailsAsync(int classId)
-        {
-            var classDetails = await _context.ClassStudieds.FirstOrDefaultAsync(c => c.Id == classId);
-            if (classDetails == null)
-            {
-                return (0, new List<LearningPlan>());
-            }
-
+        public async Task<List<LearningPlan>> GetClassDetailsAsync(int classId)
+        {      
             var learningPlans = await _context.LearningPlans
                 .Include(p => p.teacher)
                 .Where(l => l.ClassStudiedId == classId)
                 .OrderBy(l => l.Date)
                 .ToListAsync();
 
-            return (classDetails.Id, learningPlans);
+            return (learningPlans);
         }
 
         public async Task<AttendanceViewModel?> LoadAttendanceViewModelAsync(int classId, int learningPlanId)

@@ -14,7 +14,7 @@ global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 global using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 global using static ProjectBlazorManage1.Utility.SD;
 global using ProjectBlazorManage1.Model.Dtos;
-using MudBlazor.Services;
+global using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 

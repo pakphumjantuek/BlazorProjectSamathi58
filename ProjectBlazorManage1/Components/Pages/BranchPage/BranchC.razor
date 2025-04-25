@@ -153,7 +153,7 @@ else
 										   Color="Color.Error"
 										   Size="Size.Small"
 										   StartIcon="@Icons.Material.Filled.Delete"
-										   OnClick="@(() => DeleteProduct(context.Item.Branch_Id))">
+										   OnClick="@(() => Delete(context.Item.Branch_Id))">
 									ลบ
 								</MudButton>
 							</MudStack>
@@ -173,7 +173,6 @@ else
 
 @code {
 	private List<Branch> branchesList = new();
-	private Branch branch = new();
 	private bool IsProcessing { get; set; } = true;
 
 	private Modals branchModal;
@@ -196,7 +195,6 @@ else
 		branchesList = await BranchService.GetBranches();
 	}
 
-	
 
 	private void ShowAddModal()
 	{
@@ -258,7 +256,7 @@ else
 		}
 	}
 
-	public async Task DeleteProduct(int id)
+	public async Task Delete(int id)
 	{
 		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบสินค้าหรือไม่?");
 

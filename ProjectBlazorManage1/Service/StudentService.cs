@@ -63,8 +63,6 @@ namespace ProjectBlazorManage1.Service
                 _context.Teachers.Add(teacher);
                 await _context.SaveChangesAsync();
             
-          
-
             return teacher;
         }
 
@@ -169,7 +167,6 @@ namespace ProjectBlazorManage1.Service
                 throw new InvalidOperationException("ไม่สามารถลบได้ ข้อมูลอาจถูกใช้งานอยู่", ex);
             }
         }
-
 
         public byte[] GenerateStudentCards(List<int> selectedIds)
         {
@@ -346,7 +343,7 @@ namespace ProjectBlazorManage1.Service
                     cardBranchNames.Go();
 
                     count++;
-                    if (count % 6 == 0) // 6 cards per page
+                    if (count % 10 == 0) // 6 cards per page
                     {
                         document.Add(table);
                         document.NewPage();

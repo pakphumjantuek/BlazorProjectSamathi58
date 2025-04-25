@@ -1,10 +1,10 @@
 ﻿@page "/attendance/menu/{ClassId:int}"
 @inject ApplicationDbContext _context
 @inject AttendanceService _attendanceService
-@using Microsoft.EntityFrameworkCore
+@inject LearningPlanService _learningPlanService
 
 <h2 class="text-center text-primary mt-4 mb-2">📝 ระบบบันทึกการเข้าเรียน</h2>
-<h4 class="text-center text-secondary mb-4">หลักสูตรครูสมาธิ รุ่นที่ <span class="fw-bold">@ClassNumber</span></h4>
+<h4 class="text-center text-secondary mb-4">หลักสูตรครูสมาธิ รุ่นที่ <span class="fw-bold">@ClassId</span></h4>
 
 @if (IsProcessing)
 {
@@ -30,7 +30,7 @@ else
                 <div class="card-body d-flex flex-column">
                     <div class="mt-auto">
                         <a class="list-group-item list-group-item-action"
-                           href="@($"/attendance/report/{ClassId}")">
+                        href="@($"/attendance/report/{ClassId}")">
                             รายงานการเข้าเรียนทั้งหมด
                         </a>
                     </div>
@@ -68,7 +68,7 @@ else
                                 <td>@($"{plan.teacher?.Teacher_Name} {plan.teacher?.Teacher_LastName}")</td>
                                 <td>
                                     <a class="btn btn-sm btn-outline-primary"
-                                       href="@($"/attendance/take/{ClassId}/{plan.Id}")">
+                                    href="@($"/attendance/take/{ClassId}/{plan.Id}")">
                                         <i class="bi bi-pencil-square me-1"></i>บันทึก
                                     </a>
                                 </td>
@@ -89,16 +89,14 @@ else
 
 @code {
     [Parameter] public int ClassId { get; set; }
-    public int ClassNumber { get; set; }
     public List<LearningPlan> LearningPlans { get; set; } = new();
     private bool IsProcessing = true;
 
     protected override async Task OnInitializedAsync()
     {
-        IsProcessing = true;
-        var result = await _attendanceService.GetClassDetailsAsync(ClassId);
-        ClassNumber = result.classNumber;
-        LearningPlans = result.learningPlans;
+        LearningPlans = await _attendanceService.GetClassDetailsAsync(ClassId);
         IsProcessing = false;
     }
+   
+
 }

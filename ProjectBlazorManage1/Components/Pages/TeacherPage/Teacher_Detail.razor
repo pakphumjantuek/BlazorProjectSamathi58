@@ -506,7 +506,7 @@
 			}
 
 			var base64 = Convert.ToBase64String(pdfBytes);
-			var fileName = $"ประวัติ {teacher.Teacher_Name}-{teacher.Teacher_LastName}.pdf";
+			var fileName = $"ประวัติส่วนตัว {teacher.Teacher_Name}-{teacher.Teacher_LastName}.pdf";
 
 			await JSRuntime.InvokeVoidAsync("downloadPdfFile", base64, fileName);		
 	}

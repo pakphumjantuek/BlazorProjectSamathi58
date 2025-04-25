@@ -54,8 +54,6 @@
 						</div>
 					</div>
 				</div>
-
-
 				<div class="row">
 					<div class="col-md-6">
 						<div class="form-group mb-3">
@@ -184,6 +182,23 @@ else
 			</div>
 		</div>
 		<div class="card-body p-4">
+			<div class="text-end">
+			@if (selectedCourseId == 0)
+			{
+				<button @onclick="ExportToPdf" class="btn btn-danger shadow-sm">
+					<i class="bi bi-file-earmark-pdf-fill me-2"></i>Export PDF ทั้งหมด
+				</button>
+			}
+			else
+			{
+				<button @onclick="ExportCoursePdf" disabled="@(selectedCourseId == 0 )" class="btn btn-danger shadow-sm">
+
+					<i class="bi bi-file-earmark-pdf-fill me-2"></i>
+					Export PDF หลักสูตร
+				</button>
+			}
+			</div>
+
 			<MudDataGrid T="Teacher"
 						 Items="@filteredTeachers"
 						 SortMode="SortMode.Multiple"
@@ -283,19 +298,6 @@ else
 			<!-- แสดงจำนวนอาจารย์ -->
 			<div class="mt-3">
 				<h5>จำนวนอาจารย์จริยา: @filteredTeachers.Count คน</h5>
-				@if (selectedCourseId == 0)
-				{
-					<button @onclick="ExportToPdf" class="btn btn-danger shadow-sm">
-						<i class="bi bi-file-earmark-pdf-fill me-2"></i>Export PDF ทั้งหมด
-					</button>
-				}
-				else{
-					<button @onclick="ExportCoursePdf" disabled="@(selectedCourseId == 0 )" class="btn btn-danger shadow-sm">
-						
-							<i class="bi bi-file-earmark-pdf-fill me-2"></i>
-							Export PDF หลักสูตร
-					</button>
-				}
 				
 				
 			</div>

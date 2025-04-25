@@ -1,6 +1,6 @@
 ﻿using ClosedXML.Excel;
 
-namespace ProjectBlazorManage1.Model
+namespace ProjectBlazorManage1.Service
 {
     public class ReportService
     {
@@ -30,6 +30,7 @@ namespace ProjectBlazorManage1.Model
 
             result.AttendanceRecords = await _context.Attendances
                 .Include(a => a.LearningPlan)
+                .Include(a => a.Students)
                 .Where(a => a.LearningPlan.ClassStudiedId == classId)
                 .ToListAsync();
 
@@ -111,14 +112,13 @@ namespace ProjectBlazorManage1.Model
             int row = 1;
             int col = 1;
 
-            // หัวตาราง
             string[] headers = {
-        "ที่", "รหัสประจำตัว", "ชื่อ-นามสกุล", "Name Title",
+        "ที่", "รหัสประจำตัว", "ชื่อ-นามสกุล", "ชื่อภาษาอังกฤษ",
         "เล่ม 1", "เล่ม 2", "เล่ม 3",
         "ปฐมนิเทศ", "กิจกรรมสัมพันธ์ 1", "กิจกรรมสัมพันธ์ 2", "กิจกรรมสัมพันธ์ 3 และปัจฉิมนิเทศ",
         "แสดงความรู้สึก", "สอบ",
         "เรียนต่างสาขา", "เรียนเสริม", "เรียนเสริมพิเศษ", "โอนหน่วยกิต",
-        "คะแนนรวม", "ชั่วโมงรวม", "รวมทั้งหมด",
+        "คะแนนรวม", "ชั่วโมงรวม", "การบ้าน","ชั่วโมงทั้งหมด",
         "สิทธิสอบ", "ใบขยัน"
     };
 
@@ -163,6 +163,7 @@ namespace ProjectBlazorManage1.Model
                 sheet.Cell(row, col++).Value = metrics.ExamScore;
                 sheet.Cell(row, col++).Value = metrics.TotalHourScore;
                 sheet.Cell(row, col++).Value = student.Total;
+                sheet.Cell(row, col++).Value = metrics.TotalScore;
                 sheet.Cell(row, col++).Value = metrics.ExamEligibility ? "มีสิทธิ์" : "ไม่มีสิทธิ์";
                 sheet.Cell(row, col++).Value = metrics.DiligenceCertificate ? "ได้รับ" : "ไม่ได้รับ";
             }

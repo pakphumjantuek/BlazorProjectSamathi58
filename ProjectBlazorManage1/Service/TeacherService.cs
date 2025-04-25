@@ -7,7 +7,6 @@ using iText.Layout;
 using iText.Layout.Borders;
 using iText.Layout.Element;
 using iText.Layout.Properties;
-using Microsoft.EntityFrameworkCore;
 
 namespace ProjectBlazorManage1.Service
 {
@@ -204,7 +203,6 @@ namespace ProjectBlazorManage1.Service
             document.Close();
             return ms.ToArray();
         }
-
         public async Task<byte[]> GenerateCoursePdfByCourseId(int courseId)
         {
             var teachers = await _context.Teachers
@@ -422,4 +420,4 @@ namespace ProjectBlazorManage1.Service
 }
 
 
-
+    

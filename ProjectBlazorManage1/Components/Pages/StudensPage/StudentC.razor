@@ -97,7 +97,7 @@
 					<div class="col-md-4">
 						<div class="form-group mb-3">
 							<label>เบอร์โทรศัพท์</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Phone_Number" placeholder="โปรดกรอกเบอร์โทรศัพท์" />
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Phone_Number" placeholder="โปรดกรอกเบอร์โทรศัพท์" MaxLength="10" onkeypress="return /[0-9]/.test(event.key)" />
 							<ValidationMessage For="@(() => currentStudents.Phone_Number)" />
 						</div>
 					</div>
@@ -179,7 +179,7 @@
 					<div class="col-md-4">
 						<div class="form-group mb-3">
 							<label>เบอร์โทรศัพท์บุคคลใกล้ชิด</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.ClosePersonPhone" placeholder="โปรดกรอกเบอร์โทรศัพท์บุคคลใกล้ชิด" />
+							<InputText class="form-control py-2" @bind-Value="currentStudents.ClosePersonPhone" MaxLength="10" placeholder="โปรดกรอกเบอร์โทรศัพท์บุคคลใกล้ชิด" onkeypress="return /[0-9]/.test(event.key)" />
 							<ValidationMessage For="@(() => currentStudents.ClosePersonPhone)" />
 						</div>
 					</div>
@@ -301,49 +301,56 @@ else
 		</div>
 		<div class="card-body p-4">
 
-			<MudGrid Class="p-4" GutterSize="3">
-				<MudItem xs="12" sm="6">
+
+			<MudDataGrid T="Students"
+						 Items="@StudenslList"
+						 SortMode="SortMode.Multiple"
+						 Filterable="true"
+						 Hover="true"
+						 Elevation="2"
+						 Dense="true"
+						 Bordered="true"
+						 Striped="true"
+						 MultiSelection="true"
+						 @bind-SelectedItems="selectedStudents"
+						 RowClick="@(args => ShowEditModal(args.Item))"
+						 Class="custom-datagrid mt-4">
+
+				<ToolBarContent>
+					<MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">ระบบจัดการข้อมูลนักศึกษา</MudText>
+					<MudSpacer />
+
+					<!-- Dropdown: เลือกรุ่น -->
 					<MudSelect T="int?" Label="เลือกรุ่น"
 							   Value="SelectedClassId"
-							   ValueChanged="OnClassFilterChanged"
-							   Dense="true"
-							   Class="me-3">
+							   ValueChanged="OnClassFilterChanged">
 						<MudSelectItem T="int?" Value="@(null)">ทั้งหมด</MudSelectItem>
 						@foreach (var classStudied in _ClassStudie.Where(p => p.Status).OrderByDescending(p => p.Id))
 						{
 							<MudSelectItem T="int?" Value="@classStudied.Id">รุ่นที่ @classStudied.Id</MudSelectItem>
 						}
 					</MudSelect>
-				</MudItem>
-			</MudGrid>
 
-			<MudGrid Class="px-4 pb-2">
-				<MudItem xs="12" sm="6">
-					<MudButton Color="Color.Success" Variant="Variant.Filled" OnClick="DownloadSelectedStudents">
+					<!-- Button: ดาวน์โหลดบัตรนักเรียน -->
+					<MudButton Color="Color.Success"
+							   Variant="Variant.Filled"
+							   StartIcon="@Icons.Material.Filled.Download"
+							   OnClick="DownloadSelectedStudents"
+							   Size="Size.Medium"
+							   Class="ms-2">
 						ดาวน์โหลดบัตรนักเรียน
 					</MudButton>
-				</MudItem>
-				<MudItem xs="12" sm="6" Class="d-flex justify-end">
+
+					<!-- Button: เพิ่มข้อมูลนักศึกษา -->
 					<MudButton Variant="Variant.Filled"
 							   Color="Color.Secondary"
 							   StartIcon="@Icons.Material.Filled.Add"
 							   OnClick="ShowAddModal"
 							   Size="Size.Medium"
-							   Class="add-button">
-						เพิ่มข้อมูลนักศุึกษา
+							   Class="ms-2">
+						เพิ่มข้อมูลนักศึกษา
 					</MudButton>
-				</MudItem>
-			</MudGrid>
-
-			<MudDataGrid T="Students"
-						 Items="@StudenslList"
-						 Hover="true"
-						 Dense="true"
-						 Bordered="true"
-						 Striped="true"
-						 MultiSelection="true"
-						 @bind-SelectedItems="selectedStudents"
-						 Class="custom-datagrid mt-4">
+				</ToolBarContent>
 
 				<Columns>
 					<SelectColumn />
@@ -367,8 +374,8 @@ else
 
 					<TemplateColumn Title="ย้ายข้อมูล" CellStyle="text-align:center;">
 						<CellTemplate>
-							<MudStack Row="true" Spacing="2" >
-								<MudButton Variant="Variant.Outlined"  Color="Color.Success" Size="Size.Small"
+							<MudStack Row="true" Spacing="2">
+								<MudButton Variant="Variant.Outlined" Color="Color.Success" Size="Size.Small"
 										   OnClick="@(() => ConfirmMoveToTeacher(context.Item.Id))">
 									ย้ายเป็นผู้สอน
 								</MudButton>
