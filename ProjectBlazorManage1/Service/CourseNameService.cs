@@ -6,11 +6,12 @@ namespace ProjectBlazorManage1.Service
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<BranchService> _logger;
-
+        public List<CourseName> CourseNameList { get; set; }
         public CourseNameService(ApplicationDbContext context, ILogger<BranchService> logger)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            CourseNameList = new List<CourseName>();
         }
 
         public async Task<List<CourseName>> GetAllCourseNames()
@@ -99,6 +100,7 @@ namespace ProjectBlazorManage1.Service
                 throw new InvalidOperationException("ไม่สามารถลบข้อได้ ข้อมูลอาจถูกใช้งานอยู่", ex);
             }
         }
-       
+
+      
     }
 }

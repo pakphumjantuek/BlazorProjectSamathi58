@@ -215,16 +215,27 @@ else
 					<MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">ระบบจัดการข้อมูลอาจารย์จริยา</MudText>
 					<MudSpacer />
 
-			
-					<!-- Dropdown: เลือกหลักสูตร -->
-					<MudSelect T="int" Label="เลือกหลักสูตร" Value="@selectedCourseId" ValueChanged="OnCourseSelected">
-						<MudSelectItem Value="0">ทั้งหมด</MudSelectItem>
-						@foreach (var course in courseList.Where(c => c.Status))
-						{
-							<MudSelectItem Value="@course.Id">@course.Name</MudSelectItem>
-						}
-					</MudSelect>
-
+					<div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 16px;">
+						<!-- Dropdown: เลือกหลักสูตร -->
+						<MudSelect T="int" Label="เลือกหลักสูตร" Value="@selectedCourseId" ValueChanged="OnCourseSelected"
+								   Style="min-width: 200px;">
+							<MudSelectItem Value="0">ทั้งหมด</MudSelectItem>
+							@foreach (var course in courseList.Where(c => c.Status))
+							{
+								<MudSelectItem Value="@course.Id">@course.Name</MudSelectItem>
+							}
+						</MudSelect>
+					<MudTextField @bind-Value="searchString"
+								  Placeholder="ค้นหา..."
+								  Variant="Variant.Outlined"
+								  Size="Size.Small"
+								  Adornment="Adornment.Start"
+								  AdornmentIcon="@Icons.Material.Filled.Search"
+								  Class="mr-2"
+								  Immediate="true"
+								  DebounceInterval="3000"
+								  Style="width: 300px; font-size: 0.875rem;"
+								  Margin="Margin.Dense" />
 					<MudButton Variant="Variant.Filled"
 							   Color="Color.Secondary"
 							   StartIcon="@Icons.Material.Filled.Add"
@@ -233,6 +244,7 @@ else
 							   Class="ms-2">
 						เพิ่มข้อมูลอาจารย์จริยา
 					</MudButton>
+					</div>
 				</ToolBarContent>
 
 				<Columns>
@@ -328,6 +340,20 @@ else
 	private IBrowserFile? _selectedFile { get; set; }
 	private string? _previewImage { get; set; }
 
+	private string _searchString = string.Empty;
+	private string searchString
+	{
+		get => _searchString;
+		set
+		{
+			if (_searchString != value)
+			{
+				_searchString = value;
+				UpdateFilteredTeachers();
+			}
+		}
+	}
+
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
@@ -354,7 +380,7 @@ else
 		_jobps = await jobPositionService.GetJobPS();
 
 		// แสดงอาจารย์ทั้งหมดเมื่อเริ่มต้น
-		filteredTeachers = teachersList;
+		UpdateFilteredTeachers();
 	}
 
 	private async Task ExportToPdf()
@@ -376,9 +402,17 @@ else
 	private async Task OnCourseSelected(int courseId)
 	{
 		selectedCourseId = courseId;
+		UpdateFilteredTeachers();
+	}
+
+	private void UpdateFilteredTeachers()
+	{
+		IEnumerable<Teacher> baseList;
+
+		// Step 1: กรองจากหลักสูตร
 		if (selectedCourseId == 0)
 		{
-			filteredTeachers = teachersList;
+			baseList = teachersList;
 		}
 		else
 		{
@@ -386,14 +420,25 @@ else
 				.Where(c => c.CourseName_Id == selectedCourseId)
 				.Select(c => c.TeacherId)
 				.Distinct()
-				.ToList();
+				.ToHashSet();
 
-			filteredTeachers = teachersList
-				.Where(t => teacherIds.Contains(t.Teacher_Id))
-				.ToList();
+			baseList = teachersList
+				.Where(t => teacherIds.Contains(t.Teacher_Id));
 		}
+
+		// Step 2: กรองจากคำค้นหา
+		filteredTeachers = baseList
+			.Where(x =>
+				string.IsNullOrWhiteSpace(searchString) ||
+				x.Teacher_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+				x.Teacher_LastName.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+				x.Phone_Number.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+			.OrderBy(x => x.Teacher_Id)
+			.ToList();
+
 		StateHasChanged();
 	}
+
 
 	private void ShowAddModal()
 	{

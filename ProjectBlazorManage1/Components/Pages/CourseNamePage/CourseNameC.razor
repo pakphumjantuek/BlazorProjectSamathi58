@@ -3,279 +3,287 @@
 @inject IJSRuntime JSRuntime
 
 <Modals @ref="courseNameModal"
-		Title="ระบบจัดการข้อมูลหลักสูตร"
-		IsVisible="showModal"
-		OnConfirm="HandleValidSubmit"
-		OnClose="CloseModal">
+        Title="ระบบจัดการข้อมูลหลักสูตร"
+        IsVisible="showModal"
+        OnConfirm="HandleValidSubmit"
+        OnClose="CloseModal">
 
-	<ChildContent>
-		<EditForm id="modalForm" Model="@currentCoureseName" OnValidSubmit="@HandleValidSubmit">
-			<DataAnnotationsValidator />
-			<ValidationSummary />
+    <ChildContent>
+        <EditForm id="modalForm" Model="@currentCoureseName" OnValidSubmit="@HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-			@if (currentCoureseName != null)
-			{
-				<div class="form-group mb-3">
-					<label>ชื่อหลักสูตร</label>
-					<InputText class="form-control" @bind-Value="currentCoureseName.Name" />
-					<ValidationMessage For="@(() => currentCoureseName.Name)" />
-				</div>
-				<div class="form-group mb-3">
-					<label>ลำดับหลักสูตร</label>
-					<InputNumber class="form-control" @bind-Value="currentCoureseName.Level" />
-					<ValidationMessage For="@(() => currentCoureseName.Level)" />
-				</div>
-				<div class="form-group mb-3">
-					<label>สถานะ</label>
-					<InputSelect class="form-select" @bind-Value="currentCoureseName.Status">
-						<option value="false">ประวัติทางธรรม</option>
-						<option value="true">ประวัติหลักสูตร</option>
-					</InputSelect>
-					<ValidationMessage For="@(() => currentCoureseName.Status)" />
-				</div>
-
-
-			}
-		</EditForm>
-	</ChildContent>
+            @if (currentCoureseName != null)
+            {
+                <div class="form-group mb-3">
+                    <label>ชื่อหลักสูตร</label>
+                    <InputText class="form-control" @bind-Value="currentCoureseName.Name" />
+                    <ValidationMessage For="@(() => currentCoureseName.Name)" />
+                </div>
+                <div class="form-group mb-3">
+                    <label>ลำดับหลักสูตร</label>
+                    <InputNumber class="form-control" @bind-Value="currentCoureseName.Level" />
+                    <ValidationMessage For="@(() => currentCoureseName.Level)" />
+                </div>
+                <div class="form-group mb-3">
+                    <label>สถานะ</label>
+                    <InputSelect class="form-select" @bind-Value="currentCoureseName.Status">
+                        <option value="false">ประวัติทางธรรม</option>
+                        <option value="true">ประวัติหลักสูตร</option>
+                    </InputSelect>
+                    <ValidationMessage For="@(() => currentCoureseName.Status)" />
+                </div>
+            }
+        </EditForm>
+    </ChildContent>
 </Modals>
 
 @if (IsProcessing)
 {
-	<div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
-		<div class="spinner">
-			<div class="rect1"></div>
-			<div class="rect2"></div>
-			<div class="rect3"></div>
-			<div class="rect4"></div>
-			<div class="rect5"></div>
-		</div>
-	</div>
+    <div class="position-absolute w-75 h-75 d-flex flex-column align-items-center bg-white justify-content-center">
+        <div class="spinner">
+            <div class="rect1"></div>
+            <div class="rect2"></div>
+            <div class="rect3"></div>
+            <div class="rect4"></div>
+            <div class="rect5"></div>
+        </div>
+    </div>
 }
 else
 {
-	<div class="card shadow border-0 mt-4">
-		<div class="card-header bg-black bg-gradient ml-0 py-3">
-			<div class="row">
-				<div class="col-12 text-center">
-					<h2 class="text-white py-2">ระบบจัดการข้อมูลหลักสูตร</h2>
-				</div>
-			</div>
-		</div>
-		<div class="card-body p-4">
-			<MudDataGrid T="CourseName"
-						 Items="@courseNameList.OrderBy(p => p.Status)"
-						 SortMode="SortMode.Multiple"
-						 Filterable="true"
-						 Hover="true"
-						 Elevation="2"
-						 Dense="true"
-						 Bordered="true"
-						 Striped="true"
-						 RowClick="@(args => ShowEditModal(args.Item))"
-						 Class="custom-datagrid mt-4">
+    <div class="card shadow border-0 mt-4">
+        <div class="card-header bg-black bg-gradient ml-0 py-3">
+            <div class="row">
+                <div class="col-12 text-center">
+                    <h2 class="text-white py-2">ระบบจัดการข้อมูลหลักสูตร</h2>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-4">
+            <MudDataGrid T="CourseName"
+                         Items="@FilteredCourseNameList"
+                         SortMode="SortMode.Multiple"
+                         Filterable="true"
+                         Hover="true"
+                         Elevation="2"
+                         Dense="true"
+                         Bordered="true"
+                         Striped="true"
+                         RowClick="@(args => ShowEditModal(args.Item))"
+                         Class="custom-datagrid mt-4">
 
-				<ToolBarContent>
-					<MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">ระบบจัดการข้อมูลหลักสูตร</MudText>
-					<MudSpacer />
-					<MudButton Variant="Variant.Filled"
-							   Color="Color.Secondary"
-							   StartIcon="@Icons.Material.Filled.Add"
-							   OnClick="ShowAddModal"
-							   Size="Size.Medium"
-							   Class="add-button">
-						เพิ่มข้อมูลหลักสูตร
-					</MudButton>
-				</ToolBarContent>
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">
+                        ระบบจัดการข้อมูลหลักสูตร
+                    </MudText>
+                    <MudSpacer />
 
-				<Columns>
-					<PropertyColumn Property="x => x.Name"
-									Title="ชื่อหลักสูตร"
-									Filterable="true"
-									Sortable="true"
-									CellStyle="font-size: 14px;" />
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                    <MudTextField @bind-Value="searchString"
+                                  Placeholder="ค้นหา..."
+                                  Variant="Variant.Outlined"
+                                  Size="Size.Small"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search"
+                                  Class="mr-2"
+                                  Immediate="true"
+                                  DebounceInterval="3000"
+                                  Style="width: 300px; font-size: 0.875rem;"
+                                  Margin="Margin.Dense" />
 
-					<PropertyColumn Property="x => x.Level"
-									Title="ลำดับชั้น"
-									Filterable="true"
-									Sortable="true"
-									CellStyle="font-size: 14px;" />
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Secondary"
+                               StartIcon="@Icons.Material.Filled.Add"
+                               OnClick="ShowAddModal"
+                               Size="Size.Medium"
+                               Class="add-button">
+                        เพิ่มข้อมูลหลักสูตร
+                    </MudButton>
+					</div>
 
-					<TemplateColumn Title="สถานะ"
-									CellClass="status-column"
-									Sortable="false">
-						<CellTemplate>
-							<div class="status-label">
-								@(context.Item.Status ? "ประวัติหลักสูตร" : "ประวัติทางธรรม")
-							</div>
-						</CellTemplate>
-					</TemplateColumn>
+                </ToolBarContent>
 
-					<TemplateColumn Title="การจัดการ"
-									CellClass="action-column"
-									Sortable="false">
-						<CellTemplate>
-							<MudStack Row="true" Spacing="2">
-								<MudButton Variant="Variant.Outlined"
-										   Color="Color.Primary"
-										   Size="Size.Small"
-										   StartIcon="@Icons.Material.Filled.Edit"
-										   OnClick="@(() => ShowEditModal(context.Item))">
-									แก้ไข
-								</MudButton>
-								<MudButton Variant="Variant.Outlined"
-										   Color="Color.Error"
-										   Size="Size.Small"
-										   StartIcon="@Icons.Material.Filled.Delete"
-										   OnClick="@(() => DeleteInnitail(context.Item.Id))">
-									ลบ
-								</MudButton>
-							</MudStack>
-						</CellTemplate>
-					</TemplateColumn>
-				</Columns>
+                <Columns>
+                    <PropertyColumn Property="x => x.Name"
+                                    Title="ชื่อหลักสูตร"
+                                    Filterable="true"
+                                    Sortable="true"
+                                    CellStyle="font-size: 14px;" />
 
-				<PagerContent>
-					<MudDataGridPager T="CourseName" />
-				</PagerContent>
-			</MudDataGrid>
+                    <PropertyColumn Property="x => x.Level"
+                                    Title="ลำดับชั้น"
+                                    Filterable="true"
+                                    Sortable="true"
+                                    CellStyle="font-size: 14px;" />
 
-		</div>
-	</div>
+                    <TemplateColumn Title="สถานะ"
+                                    CellClass="status-column"
+                                    Sortable="false">
+                        <CellTemplate>
+                            <div class="status-label">
+                                @(context.Item.Status ? "ประวัติหลักสูตร" : "ประวัติทางธรรม")
+                            </div>
+                        </CellTemplate>
+                    </TemplateColumn>
 
+                    <TemplateColumn Title="การจัดการ"
+                                    CellClass="action-column"
+                                    Sortable="false">
+                        <CellTemplate>
+                            <MudStack Row="true" Spacing="2">
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           StartIcon="@Icons.Material.Filled.Edit"
+                                           OnClick="@(() => ShowEditModal(context.Item))">
+                                    แก้ไข
+                                </MudButton>
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Error"
+                                           Size="Size.Small"
+                                           StartIcon="@Icons.Material.Filled.Delete"
+                                           OnClick="@(() => DeleteInnitail(context.Item.Id))">
+                                    ลบ
+                                </MudButton>
+                            </MudStack>
+                        </CellTemplate>
+                    </TemplateColumn>
+                </Columns>
+
+                <PagerContent>
+                    <MudDataGridPager T="CourseName" />
+                </PagerContent>
+            </MudDataGrid>
+        </div>
+    </div>
 }
 
-
-
 @code {
-	private List<CourseName> courseNameList = new();
-	private CourseName courseName = new();
-	private bool IsProcessing { get; set; } = true;
+    private List<CourseName> courseNameList = new();
+    private CourseName courseName = new();
+    private bool IsProcessing { get; set; } = true;
 
-	private Modals courseNameModal;
-	private bool showModal = false;
-	private CourseName currentCoureseName = new();
-	private bool isEditMode = false;
+    private Modals courseNameModal;
+    private bool showModal = false;
+    private CourseName currentCoureseName = new();
+    private bool isEditMode = false;
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			await LoadCourseName();
-			IsProcessing = false;
-			StateHasChanged();
-		}
-	}
+    private string searchString = string.Empty;
+    private IEnumerable<CourseName> FilteredCourseNameList => courseNameList
+              .Where(x => string.IsNullOrWhiteSpace(searchString) ||
+                x.Name.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
+                x.Level.ToString().Contains(searchString) ||
+                (x.Status ? "ประวัติหลักสูตร" : "ประวัติทางธรรม")
+                    .Contains(searchString, StringComparison.OrdinalIgnoreCase))
+    .OrderBy(p => p.Status);
 
-	private async Task LoadCourseName()
-	{
-		courseNameList = await CourseNameService.GetAllCourseNames();
-	}
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadCourseName();
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
 
-	private void ShowAddModal()
-	{
-		currentCoureseName = new CourseName();
-		isEditMode = false;
-		showModal = true;
-		StateHasChanged();
-	}
+    private async Task LoadCourseName()
+    {
+        courseNameList = await CourseNameService.GetAllCourseNames();
+    }
 
-	private void ShowEditModal(CourseName courseName)
-	{
-		currentCoureseName = new CourseName
-			{
-				Id = courseName.Id,
-				Name = courseName.Name,
-				Level = courseName.Level,
-				Status = courseName.Status,
+    private void ShowAddModal()
+    {
+        currentCoureseName = new CourseName();
+        isEditMode = false;
+        showModal = true;
+        StateHasChanged();
+    }
 
-			};
-		isEditMode = true;
-		showModal = true;
-		StateHasChanged();
-	}
+    private void ShowEditModal(CourseName courseName)
+    {
+        currentCoureseName = new CourseName
+        {
+            Id = courseName.Id,
+            Name = courseName.Name,
+            Level = courseName.Level,
+            Status = courseName.Status,
+        };
+        isEditMode = true;
+        showModal = true;
+        StateHasChanged();
+    }
 
-	private void CloseModal()
-	{
-		showModal = false;
-		StateHasChanged();
-	}
+    private void CloseModal()
+    {
+        showModal = false;
+        StateHasChanged();
+    }
 
-	private async Task ToggleStatus(CourseName courseName)
-	{
-		try
-		{
-			IsProcessing = true;
-			StateHasChanged();
-			courseName.Status = !courseName.Status;
-			await CourseNameService.UpdateCourseName(courseName);
-			await LoadCourseName();
-			if (courseName.Status)
-			{
-				await JSRuntime.InvokeVoidAsync("showToastr", "success", "เปิดสถานะสำเร็จ");
-			}
-			else
-			{
-				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ปิดสถานะสำเร็จ");
-			}
+    private async Task ToggleStatus(CourseName courseName)
+    {
+        try
+        {
+            IsProcessing = true;
+            StateHasChanged();
+            courseName.Status = !courseName.Status;
+            await CourseNameService.UpdateCourseName(courseName);
+            await LoadCourseName();
+            await JSRuntime.InvokeVoidAsync("showToastr", "success", courseName.Status ? "เปิดสถานะสำเร็จ" : "ปิดสถานะสำเร็จ");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error toggling status: {ex.Message}");
+            courseName.Status = !courseName.Status;
+        }
+        finally
+        {
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
 
-		}
-		catch (Exception ex)
-		{
+    public async Task DeleteInnitail(int id)
+    {
+        bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบหรือไม่?");
+        if (confirmDelete)
+        {
+            await CourseNameService.DeleteCourseName(id);
+            await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสำเร็จ");
+        }
+        await LoadCourseName();
+    }
 
-			Console.WriteLine($"Error toggling status: {ex.Message}");
-			courseName.Status = !courseName.Status;
-		}
-		finally
-		{
-			IsProcessing = false;
-			StateHasChanged();
-		}
-	}
+    private async Task HandleValidSubmit()
+    {
+        try
+        {
+            IsProcessing = true;
+            StateHasChanged();
 
-	public async Task DeleteInnitail(int id)
-	{
-		bool confirmDelete = await JSRuntime.InvokeAsync<bool>("ShowSwal", "success", "คุณแน่ใจที่จะลบหรือไม่?");
+            if (isEditMode)
+            {
+                await CourseNameService.UpdateCourseName(currentCoureseName);
+                await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "อัพเดทสำเร็จ");
+            }
+            else
+            {
+                await CourseNameService.AddCourseNames(currentCoureseName);
+                await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
+            }
 
-		if (confirmDelete)
-		{
-			await CourseNameService.DeleteCourseName(id);
-
-			await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสำเร็จ");
-		}
-		await LoadCourseName();
-	}
-
-	private async Task HandleValidSubmit()
-	{
-		try
-		{
-			IsProcessing = true;
-			StateHasChanged();
-
-			if (isEditMode)
-			{
-				await CourseNameService.UpdateCourseName(currentCoureseName);
-				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "อัพเดทสำเร็จ");
-			}
-			else
-			{
-				await CourseNameService.AddCourseNames(currentCoureseName);
-				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
-			}
-
-			await LoadCourseName();
-			showModal = false;
-		}
-		catch (Exception ex)
-		{
-			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
-		}
-		finally
-		{
-			IsProcessing = false;
-			StateHasChanged();
-		}
-
-	}
+            await LoadCourseName();
+            showModal = false;
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+        }
+        finally
+        {
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
 }
