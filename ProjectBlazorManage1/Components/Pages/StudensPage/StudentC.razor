@@ -126,9 +126,9 @@
 					</div>
 					<div class="col-md-4">
 						<div class="form-group mb-3">
-							<label>โรคประจำตัว</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.MedicalCondition" placeholder="โปรดกรอกโรคประจำตัว" />
-							<ValidationMessage For="@(() => currentStudents.MedicalCondition)" />
+							<label>วันเกิด</label>
+							<InputDate class="form-control py-2" @bind-Value="currentStudents.BirthDate" placeholder="โปรดกรอกสถาบันการศึกษา" />
+							<ValidationMessage For="@(() => currentStudents.BirthDate)" />
 						</div>
 					</div>
 
@@ -198,18 +198,25 @@
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-md-6">
+					<div class="col-md-4">
 						<div class="form-group mb-3">
 							<label>อีเมล</label>
 							<InputText class="form-control py-2" @bind-Value="currentStudents.Email" placeholder="โปรดกรอกอีเมล" />
 							<ValidationMessage For="@(() => currentStudents.Email)" />
 						</div>
 					</div>
-					<div class="col-md-6">
+					<div class="col-md-4">
 						<div class="form-group mb-3">
 							<label>ไอดีไลน์</label>
 							<InputText class="form-control py-2" @bind-Value="currentStudents.LineId" placeholder="โปรดกรอกไอดีไลน์" />
 							<ValidationMessage For="@(() => currentStudents.LineId)" />
+						</div>
+					</div>
+					<div class="col-md-4">
+						<div class="form-group mb-3">
+							<label>โรคประจำตัว</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.MedicalCondition" placeholder="โปรดกรอกโรคประจำตัว" />
+							<ValidationMessage For="@(() => currentStudents.MedicalCondition)" />
 						</div>
 					</div>
 				</div>
@@ -303,7 +310,7 @@ else
 
 
 			<MudDataGrid T="Students"
-						 Items="@StudenslList"
+						 Items="@FilteredBranchList"
 						 SortMode="SortMode.Multiple"
 						 Filterable="true"
 						 Hover="true"
@@ -319,10 +326,12 @@ else
 				<ToolBarContent>
 					<MudText Typo="Typo.h6" Color="Color.Primary" Class="font-weight-bold">ระบบจัดการข้อมูลนักศึกษา</MudText>
 					<MudSpacer />
+					 <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;">
 
 					<!-- Dropdown: เลือกรุ่น -->
 					<MudSelect T="int?" Label="เลือกรุ่น"
 							   Value="SelectedClassId"
+								   Style="min-width: 150px;"
 							   ValueChanged="OnClassFilterChanged">
 						<MudSelectItem T="int?" Value="@(null)">ทั้งหมด</MudSelectItem>
 						@foreach (var classStudied in _ClassStudie.Where(p => p.Status).OrderByDescending(p => p.Id))
@@ -330,7 +339,16 @@ else
 							<MudSelectItem T="int?" Value="@classStudied.Id">รุ่นที่ @classStudied.Id</MudSelectItem>
 						}
 					</MudSelect>
-
+						<MudTextField T="string" @bind-Value="searchString"
+									  Placeholder="ค้นหา..."
+									  Variant="Variant.Outlined"
+									  Size="Size.Small"
+									  Adornment="Adornment.Start"
+									  AdornmentIcon="@Icons.Material.Filled.Search"
+									  Immediate="true"
+									  DebounceInterval="5000"
+									  Style="width: 250px; font-size: 0.875rem;"
+									  Margin="Margin.Dense" />
 					<!-- Button: ดาวน์โหลดบัตรนักเรียน -->
 					<MudButton Color="Color.Success"
 							   Variant="Variant.Filled"
@@ -350,6 +368,7 @@ else
 							   Class="ms-2">
 						เพิ่มข้อมูลนักศึกษา
 					</MudButton>
+					</div>
 				</ToolBarContent>
 
 				<Columns>
@@ -426,6 +445,14 @@ else
 			UpdateSelectedItems(); // เรียกเมื่อ selectedStudents เปลี่ยน
 		}
 	}
+
+	private string searchString = string.Empty;
+	private IEnumerable<Students> FilteredBranchList => StudenslList
+			.Where(x => string.IsNullOrWhiteSpace(searchString.Trim()) ||
+					x.FirstName.Contains(searchString.Trim(), StringComparison.OrdinalIgnoreCase) ||
+					x.LastName.Contains(searchString.Trim(), StringComparison.OrdinalIgnoreCase) ||
+			       	x.Phone_Number.ToString().Contains(searchString))
+					.OrderBy(p => p.Id);
 
 	private bool IsProcessing { get; set; } = true;
 

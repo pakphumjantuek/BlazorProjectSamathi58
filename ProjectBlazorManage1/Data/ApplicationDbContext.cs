@@ -15,6 +15,7 @@ namespace ProjectBlazorManage1.Data
         public DbSet<ClassStudied> ClassStudieds { get; set; }
         public DbSet<Students> students { get; set; }
         public DbSet<Attendance> Attendances { get; set; }
+        public DbSet<News> News { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);

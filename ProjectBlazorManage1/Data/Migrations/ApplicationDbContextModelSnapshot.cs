@@ -487,6 +487,41 @@ namespace ProjectBlazorManage1.Migrations
                     b.ToTable("LearningPlans");
                 });
 
+            modelBuilder.Entity("ProjectBlazorManage1.Model.News", b =>
+                {
+                    b.Property<int>("News_Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("News_Id"));
+
+                    b.Property<DateTime>("DateStart")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Images")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("News_Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("YouTubeUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("News_Id");
+
+                    b.ToTable("News");
+                });
+
             modelBuilder.Entity("ProjectBlazorManage1.Model.Students", b =>
                 {
                     b.Property<int>("Id")
