@@ -15,7 +15,7 @@ namespace ProjectBlazorManage1.Service
         }
         public async Task<List<News>> GetAllNews()
         {
-           return  await _context.News.AsNoTracking().ToListAsync();
+            return await _context.News.AsNoTracking().ToListAsync();
         }
         public async Task<News> FindIdNews(int id)
         {
@@ -26,7 +26,7 @@ namespace ProjectBlazorManage1.Service
             try
             {
                 var FindNews = await _context.News.FindAsync(id);
-      
+
                 return FindNews ?? throw new KeyNotFoundException($"ไม่พบคำนำหน้าชื่อด้วยรหัส {id}");
             }
             catch (Exception ex)
@@ -133,4 +133,6 @@ namespace ProjectBlazorManage1.Service
         }
 
     }
+
 }
+

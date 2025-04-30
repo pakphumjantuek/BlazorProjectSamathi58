@@ -31,13 +31,13 @@
 								<InputNumber class="form-control" @bind-Value="currentStudents.Id" readonly />
 							</div>
 						</div>
-						<div class="col-md-4">
-							<div class="form-group mb-3">
-								<label>รหัสผู้เรียน</label>
-								<InputText class="form-control" @bind-Value="currentStudents.PersonalId" />
-								<ValidationMessage For="@(() => currentStudents.PersonalId)" />
-							</div>
-						</div>
+						 <div class="col-md-4"> 
+					 	<div class="form-group mb-3"> 
+								<label>รหัสนักศึกษาส่วนกลาง</label> 
+							<InputText class="form-control" @bind-Value="currentStudents.Student_Id"  />
+								<ValidationMessage For="@(() => currentStudents.Student_Id)" />
+							</div> 
+						 </div> 
 						<div class="col-md-4">
 							<div class="form-group mb-3">
 								<label>โอนหน่วยกิต</label>
@@ -197,26 +197,37 @@
 						</div>
 					</div>
 				</div>
+
 				<div class="row">
-					<div class="col-md-4">
+					<div class="col-md-6">
 						<div class="form-group mb-3">
 							<label>อีเมล</label>
 							<InputText class="form-control py-2" @bind-Value="currentStudents.Email" placeholder="โปรดกรอกอีเมล" />
 							<ValidationMessage For="@(() => currentStudents.Email)" />
 						</div>
 					</div>
-					<div class="col-md-4">
+					<div class="col-md-6">
 						<div class="form-group mb-3">
 							<label>ไอดีไลน์</label>
 							<InputText class="form-control py-2" @bind-Value="currentStudents.LineId" placeholder="โปรดกรอกไอดีไลน์" />
 							<ValidationMessage For="@(() => currentStudents.LineId)" />
 						</div>
-					</div>
-					<div class="col-md-4">
+					</div>					
+				</div>
+
+				<div class="row">			
+					<div class="col-md-6">
 						<div class="form-group mb-3">
 							<label>โรคประจำตัว</label>
 							<InputText class="form-control py-2" @bind-Value="currentStudents.MedicalCondition" placeholder="โปรดกรอกโรคประจำตัว" />
 							<ValidationMessage For="@(() => currentStudents.MedicalCondition)" />
+						</div>			
+					</div>
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label>สถานะโรคประจำตัว</label>
+							<InputText class="form-control py-2" @bind-Value="currentStudents.Status_Medical" placeholder="โปรดกรอกสถานะโรคประจำตัว" />
+							<ValidationMessage For="@(() => currentStudents.Status_Medical)" />
 						</div>
 					</div>
 				</div>
@@ -267,15 +278,16 @@
 
 				</div>
 
-				@if (!string.IsNullOrEmpty(_previewImage) || !string.IsNullOrEmpty(currentStudents.Images))
+				@if (!string.IsNullOrEmpty(GetImageUrl()))
 				{
-					<div class="row pt-3">
-						<div class="col-3">
-							<img src="@GetImageUrl()" alt="preview" class="img-thumbnail" style="width: 150px; height: 150px;" />
-						</div>
-						<div class="col-md-9">
-							<i class="bi bi-trash btn btn-outline-danger" @onclick="DeleteImage">Remove</i>
-						</div>
+					<div class="mt-1 position-relative" style="width:100px; height:100px;">
+						<img src="@GetImageUrl()"
+							 style="width:100%; height:100%; object-fit:cover; border:1px solid #ccc; padding:5px; border-radius:5px;" />
+						<MudIconButton Icon="@Icons.Material.Filled.Delete"
+									   Color="Color.Error"
+									   Class="position-absolute top-0 end-0"
+									   Size="Size.Small"
+									   OnClick="@(() => DeleteImage())" />
 					</div>
 				}
 
@@ -374,6 +386,11 @@ else
 				<Columns>
 					<SelectColumn />
 
+					<TemplateColumn Title="รหัสประจำตัว">
+						<CellTemplate>
+							@context.Item.PersonalId
+						</CellTemplate>
+					</TemplateColumn>
 					<TemplateColumn Title="ชื่อ-นามสกุล">
 						<CellTemplate>
 							@($"{context.Item.FirstName} - {context.Item.LastName}")
@@ -516,6 +533,7 @@ else
 		}
 	}
 
+
 	private void UpdateSelectedItems()
 	{
 		// อัปเดต IsSelected ให้สอดคล้องกับ selectedStudents
@@ -578,7 +596,7 @@ else
 				Id = student.Id,
 				FirstName = student.FirstName,
 				LastName = student.LastName,
-				PersonalId = student.PersonalId,
+				// PersonalId = student.PersonalId,
 				Initial_Id = student.Initial_Id,
 				Nickname = student.Nickname,
 				Phone_Number = student.Phone_Number,
@@ -602,6 +620,7 @@ else
 				Images = student.Images,
 				ClassStudie_Id = student.ClassStudie_Id,
 				credit = student.credit,
+				Status_Medical = student.Status_Medical,
 			};
 		isEditMode = true;
 		showModal = true;
@@ -637,32 +656,7 @@ else
 			if (_selectedFile != null)
 			{
 
-				if (!string.IsNullOrWhiteSpace(currentStudents.Images))
-				{
-					var oldFile = Path.GetFileName(currentStudents.Images);
-					var oldFilePath = Path.Combine(_directoryPath, oldFile);
-					if (File.Exists(oldFilePath))
-					{
-						File.Delete(oldFilePath);
-					}
-				}
-
-				var extension = Path.GetExtension(_selectedFile.Name);
-				var newFileName = $"{Guid.NewGuid()}{extension}";
-				var fullPath = Path.Combine(_directoryPath, newFileName);
-
-
-				if (!Directory.Exists(_directoryPath))
-				{
-					Directory.CreateDirectory(_directoryPath);
-				}
-
-
-				long maxAllowedSize = 10 * 1024 * 1024;
-				await using FileStream fileStream = new(fullPath, FileMode.Create);
-				await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(fileStream);
-
-				currentStudents.Images = $"/images/Students/{newFileName}";
+				await SaveImages();
 			}
 
 			if (isEditMode)
@@ -690,6 +684,36 @@ else
 		}
 
 	}
+
+	public async Task SaveImages()
+	{
+		if (!string.IsNullOrWhiteSpace(currentStudents.Images))
+		{
+			var oldFile = Path.GetFileName(currentStudents.Images);
+			var oldFilePath = Path.Combine(_directoryPath, oldFile);
+			if (File.Exists(oldFilePath))
+			{
+				File.Delete(oldFilePath);
+			}
+		}
+
+		var extension = Path.GetExtension(_selectedFile.Name);
+		var newFileName = $"{Guid.NewGuid()}{extension}";
+		var fullPath = Path.Combine(_directoryPath, newFileName);
+
+
+		if (!Directory.Exists(_directoryPath))
+		{
+			Directory.CreateDirectory(_directoryPath);
+		}
+
+		long maxAllowedSize = 10 * 1024 * 1024;
+		await using FileStream fileStream = new(fullPath, FileMode.Create);
+		await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(fileStream);
+
+		currentStudents.Images = $"/images/Students/{newFileName}";
+	}
+
 
 	private string GetImageUrl()
 	{

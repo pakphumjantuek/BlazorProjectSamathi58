@@ -1,11 +1,14 @@
 ﻿@page "/News"
 @inject NewsService _NewsService
 @inject IJSRuntime JSRuntime
+@inject IDialogService DialogService
+
 
 <Modals @ref="NewsModal"
         Title="จัดการข่าวสาร"
         IsVisible="showModal"
         OnConfirm="HandleValidSubmit"
+        Size="modal-lg"
         OnClose="CloseModal">
 
     <ChildContent>
@@ -13,49 +16,61 @@
             <DataAnnotationsValidator />
             <ValidationSummary />
 
-            <MudTextField T="string"
-                          Label="หัวข้อข่าว"
-                          @bind-Value="Currentnews.Title"
-                          For="@(() => Currentnews.Title)"
-                          RequiredError="กรุณากรอกหัวข้อข่าว" />
+            <div class="d-flex flex-column gap-3">
 
-            <MudTextField T="string"
-                          Label="เนื้อหาข่าว"
-                          @bind-Value="Currentnews.News_Content"
-                          For="@(() => Currentnews.News_Content)"
-                          RequiredError="กรุณากรอกเนื้อหาข่าว" />
+                <MudTextField T="string"
+                              Label="หัวข้อข่าว"
+                              @bind-Value="Currentnews.Title"
+                              For="@(() => Currentnews.Title)"
+                              RequiredError="กรุณากรอกหัวข้อข่าว" />
 
-            <MudTextField T="string"
-                          Label="วิดีโอ YouTube(ถ้ามี)"
-                          @bind-Value="Currentnews.YouTubeUrl" />
+                <MudTextField T="string"
+                              Label="เนื้อหาข่าว"
+                              @bind-Value="Currentnews.News_Content"
+                              Lines="5"
+                              For="@(() => Currentnews.News_Content)"
+                              RequiredError="กรุณากรอกเนื้อหาข่าว" />
 
-            <MudFileUpload T="IReadOnlyList<IBrowserFile>" FilesChanged="UploadFiles" Accept=".jpg,.jpeg,.png" Multiple="true">
-                <ActivatorContent>
-                    <MudButton Variant="Variant.Filled"
-                               Color="Color.Primary"
-                               StartIcon="@Icons.Material.Filled.CloudUpload">
-                        อัพโหลดรูปภาพ (สูงสุด 5 รูป)
-                    </MudButton>
-                </ActivatorContent>
-            </MudFileUpload>
+                <MudTextField T="string"
+                              Label="วิดีโอ YouTube (ถ้ามี)"
+                              @bind-Value="Currentnews.YouTubeUrl" />
 
-            @if (GetImageUrls().Any())
-            {
-                <div class="d-flex flex-wrap mt-4">
-                    @foreach (var img in GetImageUrls())
-                    {
-                        <div class="m-2 position-relative">
-                            <img src="@img" style="width:150px;height:auto;border:1px solid #ccc;padding:5px;" />
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete"
-                                           Color="Color.Error"
-                                           Class="position-absolute top-0 end-0"
-                                           OnClick="@(() => DeleteImage(img))" />
-                        </div>
-                    }
-                </div>
-            }
+                <MudFileUpload T="IReadOnlyList<IBrowserFile>"
+                               FilesChanged="UploadFiles"
+                               Accept=".jpg,.jpeg,.png"
+                               MaxFiles="30"
+                               Multiple="true">
+                    <ActivatorContent>
+                        <MudButton Variant="Variant.Filled"
+                                   Color="Color.Primary"
+                                   StartIcon="@Icons.Material.Filled.CloudUpload">
+                            อัพโหลดรูปภาพ (สูงสุด 30 รูป)
+                        </MudButton>
+                    </ActivatorContent>
+                </MudFileUpload>
+
+                @if (GetImageUrls().Any())
+                {
+                    <div class="d-flex flex-wrap mt-4 gap-3">
+                        @foreach (var img in GetImageUrls())
+                        {
+                            <div class="position-relative" style="width:100px; height:100px">
+                                <img src="@img" style="width:100%;height:100%;border:1px solid #ccc;padding:5px;border-radius:5px;" />
+                                <MudIconButton Icon="@Icons.Material.Filled.Delete"
+                                               Color="Color.Error"
+                                               Class="position-absolute top-0 end-0"
+                                               Size="Size.Small"
+                                               OnClick="@(() => DeleteImage(img))" />
+                            </div>
+                        }
+                    </div>
+                }
+
+            </div>
+
         </EditForm>
     </ChildContent>
+
 </Modals>
 
 @if (IsProcessing)
@@ -121,8 +136,35 @@ else
                 </ToolBarContent>
 
                 <Columns>
-                    <PropertyColumn Property="x => x.Title" Title="หัวข้อข่าว" Filterable="true" Sortable="true" CellStyle="font-size: 14px;" />
-                    <PropertyColumn Property="x => x.News_Content" Title="เนื้อหาข่าว" Filterable="true" Sortable="true" CellStyle="font-size: 14px;" />
+                    <PropertyColumn Property="x => x.Title"
+                                    Title="หัวข้อข่าว"
+                                    Filterable="true"
+                                    Sortable="true"
+                                    CellStyle="font-size: 14px;">
+                        <CellTemplate Context="context">
+                            @if (!string.IsNullOrEmpty(context.Item.Title))
+                            {
+                                @context.Item.Title.Substring(0, Math.Min(30, context.Item.Title.Length))
+
+                                @(context.Item.Title.Length > 30 ? "..." : "")
+                            }
+                        </CellTemplate>
+                    </PropertyColumn>
+
+                    <PropertyColumn Property="x => x.News_Content"
+                                    Title="เนื้อหาข่าว"
+                                    Filterable="true"
+                                    Sortable="true"
+                                    CellStyle="font-size: 14px;">
+                        <CellTemplate Context="context">
+                            @if (!string.IsNullOrEmpty(context.Item.News_Content))
+                            {
+                                @context.Item.News_Content.Substring(0, Math.Min(30, context.Item.News_Content.Length))
+
+                                @(context.Item.News_Content.Length > 30 ? "..." : "")
+                            }                        
+                        </CellTemplate>
+                    </PropertyColumn> 
                     <PropertyColumn Property="x => x.DateStart" Title="วันที่เผยเเพร่" Filterable="true" Sortable="true" CellStyle="font-size: 14px;" />
 
                     <TemplateColumn Title="สถานะ" CellClass="status-column" Sortable="false">
@@ -138,7 +180,22 @@ else
                             </div>
                         </CellTemplate>
                     </TemplateColumn>
+                    <TemplateColumn Title="รายละเอียด"
+                                    Sortable="false"
+                                    CellStyle="text-align:center;">
+                        <CellTemplate>
+                            <div @onclick:stopPropagation>
 
+                                <MudButton Variant="Variant.Outlined"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           Href="@($"News/NewsDetails/{context.Item.News_Id}")">
+                                    รายละเอียด
+                                </MudButton>
+                            </div>
+
+                        </CellTemplate>
+                    </TemplateColumn>
                     <TemplateColumn Title="การจัดการ" CellClass="action-column" Sortable="false">
                         <CellTemplate>
                             <MudStack Row="true" Spacing="2">
@@ -200,6 +257,7 @@ else
         }
     }
 
+
     private async Task LoadNews()
     {
         NewsList = await _NewsService.GetAllNews();
@@ -243,7 +301,7 @@ else
     private async Task UploadFiles(IReadOnlyList<IBrowserFile> files)
     {
         const long MaxAllowedSize = 10 * 1024 * 1024; // 10MB
-        const int MaxAllowedFiles = 5; // จำกัดจำนวนไฟล์สูงสุดต่อข่าว
+        const int MaxAllowedFiles = 30; // จำกัดจำนวนไฟล์สูงสุดต่อข่าว
         IsProcessing = true;
 
         try
@@ -296,6 +354,8 @@ else
         allImages.AddRange(ExistingImages.Where(img => !string.IsNullOrEmpty(img))); // Server URLs
         return allImages;
     }
+
+
 
     private async Task DeleteImage(string imageUrl)
     {

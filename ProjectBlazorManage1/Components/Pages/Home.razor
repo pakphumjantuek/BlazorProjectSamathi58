@@ -1,7 +1,68 @@
 ﻿@page "/"
 
-<PageTitle>Home</PageTitle>
+@inject NewsService NewsService
+@inject NavigationManager NavigationManager
 
-<h1>Hello, world!</h1>
+<PageTitle>หน้าเเรก</PageTitle>
 
-Welcome to your new app.
+<h1 class="text-center my-4">หน้าเเรก</h1>
+
+@if (newsList == null)
+{
+    <p class="text-center">กำลังโหลดข้อมูลข่าว...</p>
+}
+else
+{
+    <div class="container mt-5">
+        <div class="row">
+            @foreach (var news in newsList)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm">
+                        @if (!string.IsNullOrEmpty(news.Images))
+                        {
+                            var firstImage = news.Images.Split(';').FirstOrDefault();
+                            if (!string.IsNullOrEmpty(firstImage))
+                            {
+                                <img src="@firstImage" class="card-img-top" style="height: 250px; object-fit: cover;" alt="ข่าว @news.Title" />
+                            }
+                        }
+
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold mb-3 text-muted fs-5" style="border-bottom: 2px solid #C0C0C0; padding-bottom: 5px;">@news.Title</h5>
+                            <p class="card-text text-muted mb-2">
+                                วันที่โพสต์: @news.DateStart.ToString("d MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))
+                            </p>
+                            <p class="card-text mb-3 text-truncate">
+                                @((MarkupString)news.News_Content)
+                            </p>
+                            <button class="btn btn-outline-success btn-sm mt-auto" @onclick="() => GoToDetails(news.News_Id)">อ่านเพิ่มเติม</button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    private List<News> newsList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        newsList = await NewsService.GetAllNews();
+
+        // อยากให้โชว์แค่ข่าวล่าสุด เช่น 6 ข่าวแรก
+        newsList = newsList
+            .OrderByDescending(x => x.DateStart)
+            .Take(6)
+            .ToList();
+    }
+
+    private void GoToDetails(int newsId)
+    {
+        NavigationManager.NavigateTo($"/News/NewsDetails/{newsId}");
+    }
+
+
+}

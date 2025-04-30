@@ -80,7 +80,7 @@
                         <option value="0" disabled selected>-- โปรดเลือกรุ่น --</option>
                         @foreach (var t in _ClassStudied.Where(x => x.Status))
                         {
-                            <option value="@t.Id">@t.ClassName</option>
+                            <option value="@t.Id">@t.Id</option>
                         }
                     </InputSelect>
                     <ValidationMessage For="@(() => currentLearningPlan.ClassStudiedId)" />

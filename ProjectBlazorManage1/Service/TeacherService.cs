@@ -1,4 +1,5 @@
 ﻿
+using ClosedXML.Excel;
 using iText.IO.Font;
 using iText.IO.Image;
 using iText.Kernel.Font;
@@ -180,20 +181,19 @@ namespace ProjectBlazorManage1.Service
                 Table table = new Table(UnitValue.CreatePercentArray(colWidths)).UseAllAvailableWidth();
 
                 table.AddHeaderCell(new Cell().Add(new Paragraph("ชื่อ-นามสกุล").SetFont(fontBold).SetFontSize(14)));
-                table.AddHeaderCell(new Cell().Add(new Paragraph("ประวัติทางธรรม").SetFont(fontBold).SetFontSize(14)));
+                table.AddHeaderCell(new Cell().Add(new Paragraph("เบอร์โทรศัพท์").SetFont(fontBold).SetFontSize(14)));
 
                 foreach (var item in group.OrderBy(p => p.Teacher.Teacher_Name))
                 {
                     var teacher = item.Teacher;
-                    string fullName = $"{teacher.Teacher_Name} {teacher.Teacher_LastName ?? ""}";
+                    string fullName = $"{teacher.Initial.Initial_Name} {teacher.Teacher_Name} {teacher.Teacher_LastName ?? ""}";
+                    string phoneNumber = $"{teacher.Phone_Number}";
 
-                    string dharmaHistory = string.Join("\n", teacher.DhamaHistories
-                        .Where(d => d.CourseName.Status == false)
-                        .Select(d => d.CourseName.Name));
+                   
 
 
                     table.AddCell(new Cell().Add(new Paragraph(fullName).SetFont(font).SetFontSize(13)));
-                    table.AddCell(new Cell().Add(new Paragraph(dharmaHistory).SetFont(font).SetFontSize(13)));
+                    table.AddCell(new Cell().Add(new Paragraph(phoneNumber).SetFont(font).SetFontSize(13)));
                 }
                
 
@@ -237,18 +237,16 @@ namespace ProjectBlazorManage1.Service
 
             Table table = new Table(UnitValue.CreatePercentArray(new float[] { 1f, 2f })).UseAllAvailableWidth();
             table.AddHeaderCell(new Paragraph("ชื่อ-นามสกุล").SetFont(fontBold).SetFontSize(14));
-            table.AddHeaderCell(new Paragraph("ประวัติทางธรรม").SetFont(fontBold).SetFontSize(14));
+            table.AddHeaderCell(new Paragraph("เบอร์โทรศัพท์").SetFont(fontBold).SetFontSize(14));
 
             foreach (var teacher in teachers.OrderBy(t => t.Teacher_Name))
             {
-                string dharmaHistory = string.Join("\n", teacher.DhamaHistories
-                        .Where(d => d.CourseName.Status == false)
-                        .Select(d => d.CourseName.Name));
-                string fullName = $"{teacher.Teacher_Name} {teacher.Teacher_LastName}";
+                string phoneNumber = teacher.Phone_Number ;
+                string fullName = $"{teacher.Initial.Initial_Name} {teacher.Teacher_Name} {teacher.Teacher_LastName}";
 
 
                 table.AddCell(new Paragraph(fullName).SetFont(font).SetFontSize(13));
-                table.AddCell(new Paragraph(dharmaHistory).SetFont(font).SetFontSize(13));
+                table.AddCell(new Paragraph(phoneNumber).SetFont(font).SetFontSize(13));
             }
              var count = teachers.Count();
             table.AddFooterCell(new Cell(1, 2)
@@ -413,6 +411,63 @@ namespace ProjectBlazorManage1.Service
             {
                 _logger.LogError(ex, $"Error generating PDF for teacher {id}");
                 throw;
+            }
+        }
+        public async Task<byte[]> GenerateExcel(int courseId)
+        {
+          
+            var teachers = await _context.Teachers
+                .Include(t => t.Initial)
+                .Include(t => t.Branch)
+                .Include(t => t.DhamaHistories)
+                    .ThenInclude(h => h.CourseName)
+                .Where(t => t.DhamaHistories.Any(d => d.CourseName_Id == courseId && d.CourseName.Status == true))
+                .AsNoTracking()
+                .ToListAsync();
+
+            var courseName = await _context.CourseNames
+                .Where(c => c.Id == courseId)
+                .Select(c => c.Name)
+                .FirstOrDefaultAsync();
+
+          
+            using (var workbook = new XLWorkbook())
+            {
+                var worksheet = workbook.Worksheets.Add("รายงานตารางเรียน");
+
+                // ตั้งค่าหัวตาราง
+                worksheet.Cell(1, 1).Value = "ชื่อ-นามสกุล";
+                worksheet.Cell(1, 2).Value = "เบอร์โทร";
+             
+
+                // ทำให้หัวข้อเป็นตัวหนา
+                worksheet.Row(1).Style.Font.Bold = true;
+
+                // ดึงข้อมูลจาก Studies และใส่ลงใน Excel
+                var filteredStudies = teachers ?? new List<Teacher>();
+                int row = 2;
+                foreach (var study in filteredStudies)
+                {
+                    worksheet.Cell(row, 1).Value =
+                    (study.Initial.Initial_Name ?? "") + " " +
+                    (study.Teacher_Name ?? "") + " " +
+                    (study.Teacher_LastName ?? "");
+                    worksheet.Cell(row, 2).Value = study.Phone_Number ?? "";
+
+                  
+
+                    row++;
+                }
+
+                // ปรับขนาดคอลัมน์อัตโนมัติ
+                worksheet.Columns().AdjustToContents();
+
+                // บันทึกไฟล์ Excel ลงใน MemoryStream
+                using (var stream = new MemoryStream())
+                {
+                    workbook.SaveAs(stream);
+                    return stream.ToArray();
+                }
             }
         }
 

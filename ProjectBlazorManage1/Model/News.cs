@@ -9,6 +9,7 @@
         [Required(ErrorMessage = "กรุณากรอกหัวข้อข่าว")]
         public string Title { get; set; }
         [DisplayName("เนื้อหาข่าว")]
+        [Required(ErrorMessage = "กรุณากรอกเนื้อหาข่าว")]
         public string News_Content { get; set; }
         [DisplayName("วันที่เผยเเพร่")]
         [DataType(DataType.Date)]
@@ -20,5 +21,7 @@
         public string? YouTubeUrl { get; set; }
         [DisplayName("สถานะข่าว")]
         public bool Status { get; set; }
+
+
     }
 }

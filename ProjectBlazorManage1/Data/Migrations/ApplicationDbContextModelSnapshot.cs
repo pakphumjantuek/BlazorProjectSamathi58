@@ -522,6 +522,59 @@ namespace ProjectBlazorManage1.Migrations
                     b.ToTable("News");
                 });
 
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Personnel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Initial_Id")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Personnel_Address")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Personnel_Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Personnel_LastName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Personnel_Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phone_Number")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("images")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("jobPosition_ID")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Initial_Id");
+
+                    b.HasIndex("jobPosition_ID");
+
+                    b.ToTable("Personnel");
+                });
+
             modelBuilder.Entity("ProjectBlazorManage1.Model.Students", b =>
                 {
                     b.Property<int>("Id")
@@ -544,6 +597,9 @@ namespace ProjectBlazorManage1.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("ClassStudie_Id")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ClassStudie_RunningId")
                         .HasColumnType("int");
 
                     b.Property<string>("ClosePersonName")
@@ -604,9 +660,6 @@ namespace ProjectBlazorManage1.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PersonalId")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Phone_Number")
                         .IsRequired()
                         .HasMaxLength(10)
@@ -614,6 +667,13 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.Property<string>("Remarks")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status_Medical")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Student_Id")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Workplace")
@@ -846,6 +906,25 @@ namespace ProjectBlazorManage1.Migrations
                     b.Navigation("ClassStudied");
 
                     b.Navigation("teacher");
+                });
+
+            modelBuilder.Entity("ProjectBlazorManage1.Model.Personnel", b =>
+                {
+                    b.HasOne("ProjectBlazorManage1.Model.Initial", "initial")
+                        .WithMany()
+                        .HasForeignKey("Initial_Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectBlazorManage1.Model.JobPosition", "jobPosition")
+                        .WithMany()
+                        .HasForeignKey("jobPosition_ID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("initial");
+
+                    b.Navigation("jobPosition");
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.Students", b =>

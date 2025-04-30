@@ -67,6 +67,7 @@ builder.Services.AddScoped<ReportService>();
 builder.Services.AddScoped<RoleService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<NewsService>();
+builder.Services.AddScoped<PersonnelService>();
 
 builder.Services.AddMudServices();
 

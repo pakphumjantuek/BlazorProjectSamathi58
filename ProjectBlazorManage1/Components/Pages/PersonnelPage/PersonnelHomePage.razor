@@ -1,0 +1,208 @@
+﻿@page "/personnel-list"
+@inject PersonnelService PersonnelService
+
+<div class="page-content" style="min-height: 70vh; display: flex; flex-direction: column;">
+<div class="container-fluid py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <h1 class="text-center mb-5 fw-bold position-relative">
+                <span class="position-relative">
+                    คณะผู้บริหาร
+                    <span class="position-absolute start-0 bottom-0 w-100 bg-primary" style="height: 4px; opacity: 0.6;"></span>
+                </span>
+            </h1>
+
+            @if (personnelList == null)
+            {
+                <div class="d-flex justify-content-center my-5">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">กำลังโหลดข้อมูล...</span>
+                    </div>
+                </div>
+                <p class="text-center text-muted">กำลังโหลดข้อมูล...</p>
+            }
+            else if (!personnelList.Any(p => p.Status))
+            {
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle me-2"></i>ไม่พบข้อมูลคณะผู้บริหาร
+                </div>
+            }
+            else
+            {
+                <div class="row g-4">
+                    @foreach (var item in personnelList.Where(p => p.Status).OrderBy(p =>p.jobPosition.Position_Level))
+                    {
+                        <div class="col-md-6 col-lg-4 col-xl-3">
+                            <div class="card h-100 shadow-sm border-0 personnel-card">
+                                <div class="card-body text-center p-4">
+                                    <div class="position-relative mb-4 profile-image-container">
+                                        @if (!string.IsNullOrWhiteSpace(item.images))
+                                        {
+                                            var firstImage = item.images.Split(',')[0].Trim();
+                                            <img src="@firstImage"
+                                                 class="rounded-circle shadow profile-image"
+                                                 style="width: 180px; height: 180px; object-fit: cover;"
+                                                 alt="@item.Personnel_Name" />
+                                        }
+                                        else
+                                        {
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                                                 style="width: 180px; height: 180px; margin: 0 auto;">
+                                                <i class="bi bi-person" style="font-size: 5rem; color: #adb5bd;"></i>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="position-badge">
+                                        <span class="badge bg-primary text-white py-2 px-3 rounded-pill">
+                                            @item.jobPosition.Position_Name
+                                        </span>
+                                    </div>
+                                    <h4 class="mt-4 mb-3 fw-bold">@item.initial.Initial_Name @item.Personnel_Name @item.Personnel_LastName</h4>
+
+                                    @if (!string.IsNullOrWhiteSpace(item.images) && item.images.Split(',').Length > 1)
+                                    {
+                                        <div class="mt-3">
+                                            <button class="btn btn-sm btn-outline-primary view-more-photos" type="button"
+                                                    data-bs-toggle="modal" data-bs-target="#photoModal-@item.Id">
+                                                <i class="bi bi-images me-1"></i> รูปภาพเพิ่มเติม
+                                            </button>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(item.images) && item.images.Split(',').Length > 1)
+                        {
+                            <div class="modal fade" id="photoModal-@item.Id" tabindex="-1" aria-labelledby="photoModalLabel-@item.Id" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-lg">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="photoModalLabel-@item.Id">
+                                                รูปภาพของ @item.initial.Initial_Name @item.Personnel_Name @item.Personnel_LastName
+                                            </h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div id="photoCarousel-@item.Id" class="carousel slide" data-bs-ride="carousel">
+                                                <div class="carousel-inner">
+                                                    @{
+                                                        var imageUrls = item.images.Split(',');
+                                                        for (var i = 0; i < imageUrls.Length; i++)
+                                                        {
+                                                            var imageUrl = imageUrls[i].Trim();
+                                                            <div class="carousel-item @(i == 0 ? "active" : "")">
+                                                                <img src="@imageUrl" class="d-block w-100" style="height: 400px; object-fit: contain;"
+                                                                     alt="@item.Personnel_Name @(i + 1)">
+                                                            </div>
+                                                        }
+                                                    }
+                                                </div>
+                                                @if (imageUrls.Length > 1)
+                                                {
+                                                    <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel-@item.Id" data-bs-slide="prev">
+                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Previous</span>
+                                                    </button>
+                                                    <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel-@item.Id" data-bs-slide="next">
+                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                                        <span class="visually-hidden">Next</span>
+                                                    </button>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+</div>
+
+<style>
+    .personnel-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        border-radius: 12px;
+    }
+
+        .personnel-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important;
+        }
+
+    .profile-image-container {
+        margin: 0 auto;
+        width: 180px;
+        height: 180px;
+    }
+
+    .profile-image {
+        border: 5px solid rgba(255, 255, 255, 0.8);
+        transition: transform 0.3s ease;
+    }
+
+    .personnel-card:hover .profile-image {
+        transform: scale(1.05);
+    }
+
+    .position-badge {
+        margin-top: -15px;
+    }
+
+    .view-more-photos {
+        transition: all 0.2s ease;
+    }
+
+        .view-more-photos:hover {
+            transform: scale(1.05);
+        }
+
+    /* Adding animation for page load */
+  
+
+    .col-md-6 {
+        animation: fadeInUp 0.5s ease forwards;
+    }
+
+        .col-md-6:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .col-md-6:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .col-md-6:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        .col-md-6:nth-child(5) {
+            animation-delay: 0.4s;
+        }
+
+        .col-md-6:nth-child(6) {
+            animation-delay: 0.5s;
+        }
+
+        .col-md-6:nth-child(7) {
+            animation-delay: 0.6s;
+        }
+
+        .col-md-6:nth-child(8) {
+            animation-delay: 0.7s;
+        }
+</style>
+
+@code {
+    private List<Personnel> personnelList;
+
+    protected override async Task OnInitializedAsync()
+    {
+        personnelList = await PersonnelService.GetAllPersonels();
+    }
+}

@@ -141,15 +141,16 @@
 
 				</div>
 
-				@if (!string.IsNullOrEmpty(_previewImage) || !string.IsNullOrEmpty(currentTeacher.Images))
+				@if (!string.IsNullOrEmpty(GetImageUrl()))
 				{
-					<div class="row pt-3">
-						<div class="col-3">
-							<img src="@GetImageUrl()" alt="preview" class="img-thumbnail" style="width: 150px; height: 150px;" />
-						</div>
-						<div class="col-md-9">
-							<i class="bi bi-trash btn btn-outline-danger" @onclick="DeleteImage">Remove</i>
-						</div>
+					<div class="mt-1 position-relative" style="width:100px; height:100px;">
+						<img src="@GetImageUrl()"
+							 style="width:100%; height:100%; object-fit:cover; border:1px solid #ccc; padding:5px; border-radius:5px;" />
+						<MudIconButton Icon="@Icons.Material.Filled.Delete"
+									   Color="Color.Error"
+									   Class="position-absolute top-0 end-0"
+									   Size="Size.Small"
+									   OnClick="@(() => DeleteImage())" />
 					</div>
 				}
 
@@ -185,6 +186,7 @@ else
 			<div class="text-end">
 			@if (selectedCourseId == 0)
 			{
+
 				<button @onclick="ExportToPdf" class="btn btn-danger shadow-sm">
 					<i class="bi bi-file-earmark-pdf-fill me-2"></i>Export PDF ทั้งหมด
 				</button>
@@ -196,6 +198,11 @@ else
 					<i class="bi bi-file-earmark-pdf-fill me-2"></i>
 					Export PDF หลักสูตร
 				</button>
+					<button @onclick="ExportToExcel" disabled="@(selectedCourseId == 0 )" class="btn btn-success shadow-sm">
+
+						<i class="bi bi-file-earmark-pdf-fill me-2"></i>
+						Export Excel หลักสูตร
+					</button>
 			}
 			</div>
 
@@ -390,6 +397,20 @@ else
 		await JSRuntime.InvokeVoidAsync("downloadPdfFile", base64, "ประวัติหลักสูตร.pdf");
 	}
 
+	private async Task ExportToExcel()
+	{
+		try
+		{
+			var excelData = await teacherService.GenerateExcel(selectedCourseId);
+			var base64ExcelData = Convert.ToBase64String(excelData);
+			await JSRuntime.InvokeVoidAsync("downloadExcelFile", excelData, $"ตารางเรียนEXCELรุ่นที่ {selectedCourseId}.xlsx");
+		}
+		catch (Exception ex)
+		{
+			Console.Error.WriteLine($"Error exporting Excel: {ex.Message}");
+		}
+	}
+
 	private async Task ExportCoursePdf()
 	{
 		if (selectedCourseId == 0) return;
@@ -473,6 +494,8 @@ else
 	private void CloseModal()
 	{
 		showModal = false;
+		_selectedFile = null;
+		_previewImage = null;
 		StateHasChanged();
 	}
 
@@ -485,32 +508,7 @@ else
 			if (_selectedFile != null)
 			{
 
-				if (!string.IsNullOrWhiteSpace(currentTeacher.Images))
-				{
-					var oldFile = Path.GetFileName(currentTeacher.Images);
-					var oldFilePath = Path.Combine(_directoryPath, oldFile);
-					if (File.Exists(oldFilePath))
-					{
-						File.Delete(oldFilePath);
-					}
-				}
-
-				var extension = Path.GetExtension(_selectedFile.Name);
-				var newFileName = $"{Guid.NewGuid()}{extension}";
-				var fullPath = Path.Combine(_directoryPath, newFileName);
-
-
-				if (!Directory.Exists(_directoryPath))
-				{
-					Directory.CreateDirectory(_directoryPath);
-				}
-
-
-				long maxAllowedSize = 10 * 1024 * 1024;
-				await using FileStream fileStream = new(fullPath, FileMode.Create);
-				await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(fileStream);
-
-				currentTeacher.Images = $"/images/Teacher/{newFileName}";
+				await SaveImages();
 			}
 
 			if (isEditMode)
@@ -538,6 +536,36 @@ else
 		}
 	}
 
+
+	public async Task SaveImages()
+	{
+		if (!string.IsNullOrWhiteSpace(currentTeacher.Images))
+		{
+			var oldFile = Path.GetFileName(currentTeacher.Images);
+			var oldFilePath = Path.Combine(_directoryPath, oldFile);
+			if (File.Exists(oldFilePath))
+			{
+				File.Delete(oldFilePath);
+			}
+		}
+
+		var extension = Path.GetExtension(_selectedFile.Name);
+		var newFileName = $"{Guid.NewGuid()}{extension}";
+		var fullPath = Path.Combine(_directoryPath, newFileName);
+
+
+		if (!Directory.Exists(_directoryPath))
+		{
+			Directory.CreateDirectory(_directoryPath);
+		}
+
+
+		long maxAllowedSize = 10 * 1024 * 1024;
+		await using FileStream fileStream = new(fullPath, FileMode.Create);
+		await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(fileStream);
+
+		currentTeacher.Images = $"/images/Teacher/{newFileName}";
+	}
 
 	public async Task DeleteTeacher(int id)
 	{

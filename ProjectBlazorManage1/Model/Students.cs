@@ -7,7 +7,21 @@ namespace ProjectBlazorManage1.Model
         [DisplayName("ลำดับที่")]  
         public int Id { get; set; } // ลำดับที่
         [DisplayName("รหัสประจำตัว")]
-        public string? PersonalId { get; set; } // รหัสประจำตัว
+        public string? PersonalId
+        {
+            get
+            {
+                if (ClassStudie_Id.HasValue)
+                    return $"{ClassStudie_Id}-58-{ClassStudie_RunningId.ToString("D3")}";
+                else
+                    return null;
+            }
+        }
+        public int ClassStudie_RunningId { get; set; }
+
+        [DisplayName("รหัสนักศึกษา")]
+        public string? Student_Id { get; set; } // รหัสนักเรียน
+
         [DisplayName("คำนำหน้า")]
         public int Initial_Id { get; set; } // คำนำหน้า
         [ForeignKey("Initial_Id")]
@@ -82,7 +96,10 @@ namespace ProjectBlazorManage1.Model
         [DisplayName("โรคประจำตัว")]
         [Required(ErrorMessage = "กรุณากรอกโรคประจำตัว")]
         public string MedicalCondition { get; set; } // โรคประจำตัว
-        
+        [DisplayName("สถานะโรคประจำตัว")]
+        [Required(ErrorMessage = "กรุณากรอกสถานะโรคประจำตัว")]
+        public string Status_Medical { get; set; } // โรคประจำตัว
+
         [DisplayName("อีเมล")]
         [EmailAddress(ErrorMessage = "กรุณากรอกอีเมลให้ถูกต้อง")]
         [Required(ErrorMessage = "กรุณากรอกอีเมล")]
@@ -128,6 +145,6 @@ namespace ProjectBlazorManage1.Model
         [DisplayName("โอนหน่วยกิต")]
         public double? credit { get; set; } = 0;// หน่วยกิต
         public bool IsSelected { get; set; } = false;
-
+       
     }
 }

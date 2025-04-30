@@ -2,6 +2,8 @@
 using iTextSharp.text.pdf;
 using iTextSharp.text;
 using Microsoft.AspNetCore.Hosting;
+using ProjectBlazorManage1.Model;
+using Microsoft.EntityFrameworkCore;
 
 namespace ProjectBlazorManage1.Service
 {
@@ -96,8 +98,14 @@ namespace ProjectBlazorManage1.Service
 
             try
             {
+                var lastRunningId = _context.students
+                .Where(x => x.ClassStudie_Id == student.ClassStudie_Id)
+                .Max(x => (int?)x.ClassStudie_RunningId) ?? 0;
+
+                student.ClassStudie_RunningId = lastRunningId + 1;
                 await _context.students.AddAsync(student);
                 await _context.SaveChangesAsync();
+
             }
             catch (DbUpdateException ex)
             {
@@ -107,37 +115,52 @@ namespace ProjectBlazorManage1.Service
         }
         public async Task UpdateStudent(Students student)
         {
-            var existingBranch = _context.students.FirstOrDefault(b => b.Id == student.Id);
-            if (existingBranch != null)
+            var existingStudent = _context.students.FirstOrDefault(b => b.Id == student.Id);
+            if (existingStudent != null)
             {
-                existingBranch.Id = student.Id;
-                existingBranch.FirstName = student.FirstName;
-                existingBranch.LastName = student.LastName;
-                existingBranch.PersonalId = student.PersonalId;
-                existingBranch.Initial_Id = student.Initial_Id;
-                existingBranch.Nickname = student.Nickname;
-                existingBranch.Phone_Number = student.Phone_Number;
-                existingBranch.EnglishName = student.EnglishName;
-                existingBranch.BirthDate = student.BirthDate;
-                existingBranch.degreeType = student.degreeType;
-                existingBranch.relationshipType = student.relationshipType;
-                existingBranch.Institution = student.Institution;
-                existingBranch.CitizenCardAddress = student.CitizenCardAddress;
-                existingBranch.ContactAddress = student.ContactAddress;
-                existingBranch.Occupation = student.Occupation;
-                existingBranch.Workplace = student.Workplace;
-                existingBranch.ClosePersonPhone = student.ClosePersonPhone;
-                existingBranch.MedicalCondition = student.MedicalCondition;
-                existingBranch.Email = student.Email;
-                existingBranch.LineId = student.LineId;
-                existingBranch.ApplicationDate = student.ApplicationDate;
-                existingBranch.Remarks = student.Remarks;
-                existingBranch.adviser = student.adviser;
-                existingBranch.Images = student.Images;
-                existingBranch.ClassStudie_Id = student.ClassStudie_Id;
-                existingBranch.ClosePersonName = student.ClosePersonName;
-                existingBranch.credit = student.credit;
 
+                bool isClassStudieChanged = existingStudent.ClassStudie_Id != student.ClassStudie_Id;
+
+                existingStudent.Id = student.Id;
+                existingStudent.FirstName = student.FirstName;
+                existingStudent.LastName = student.LastName;
+                existingStudent.Student_Id = student.Student_Id;
+                existingStudent.Initial_Id = student.Initial_Id;
+                existingStudent.Nickname = student.Nickname;
+                existingStudent.Phone_Number = student.Phone_Number;
+                existingStudent.EnglishName = student.EnglishName;
+                existingStudent.BirthDate = student.BirthDate;
+                existingStudent.degreeType = student.degreeType;
+                existingStudent.relationshipType = student.relationshipType;
+                existingStudent.Institution = student.Institution;
+                existingStudent.CitizenCardAddress = student.CitizenCardAddress;
+                existingStudent.ContactAddress = student.ContactAddress;
+                existingStudent.Occupation = student.Occupation;
+                existingStudent.Workplace = student.Workplace;
+                existingStudent.ClosePersonPhone = student.ClosePersonPhone;
+                existingStudent.MedicalCondition = student.MedicalCondition;
+                existingStudent.Email = student.Email;
+                existingStudent.LineId = student.LineId;
+                existingStudent.ApplicationDate = student.ApplicationDate;
+                existingStudent.Remarks = student.Remarks;
+                existingStudent.adviser = student.adviser;
+                existingStudent.Images = student.Images;
+                existingStudent.ClassStudie_Id = student.ClassStudie_Id;
+                existingStudent.ClosePersonName = student.ClosePersonName;
+                existingStudent.credit = student.credit;
+                existingStudent.Status_Medical = student.Status_Medical;
+
+                if (isClassStudieChanged)
+                {
+                    existingStudent.ClassStudie_Id = student.ClassStudie_Id;
+
+                    // หา RunningId สูงสุดใน Class ใหม่
+                    var lastRunningIdInNewClass = await _context.students
+                        .Where(x => x.ClassStudie_Id == student.ClassStudie_Id)
+                        .MaxAsync(x => (int?)x.ClassStudie_RunningId) ?? 0;
+
+                    existingStudent.ClassStudie_RunningId = lastRunningIdInNewClass + 1;
+                }
 
                 await _context.SaveChangesAsync();
             }
