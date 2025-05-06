@@ -138,14 +138,23 @@
     {
         if (SelectedClassId == null) return;
 
-        var selectedClass = await _context.ClassStudieds.FirstOrDefaultAsync(c => c.Id == SelectedClassId);
-        Months = selectedClass?.GetStudyMonths() ??
-                    new List<string> { "เดือนที่ 1", "เดือนที่ 2", "เดือนที่ 3", "เดือนที่ 4", "เดือนที่ 5", "เดือนที่ 6" };
+        var selectedClass = await _context.ClassStudieds
+            .FirstOrDefaultAsync(c => c.Id == SelectedClassId);
+
+        if (selectedClass?.StartDate != null && selectedClass?.EndDate != null)
+        {
+            Months = selectedClass.GetStudyMonths(selectedClass.StartDate, selectedClass.EndDate);
+        }
+        else
+        {
+            Months = new List<string> { "เดือนที่ 1", "เดือนที่ 2", "เดือนที่ 3", "เดือนที่ 4", "เดือนที่ 5", "เดือนที่ 6" };
+        }
 
         Students = await _context.students
             .Where(s => s.ClassStudie_Id == SelectedClassId)
             .OrderBy(s => s.FirstName)
             .ToListAsync();
+
     }
 
     private async Task SaveScores()

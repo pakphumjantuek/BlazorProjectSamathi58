@@ -1,127 +1,287 @@
 ﻿@page "/personnel-list"
 @inject PersonnelService PersonnelService
+@inject CourseNameService courseNameService
+@inject DhammaCourseService dhammaCourseService
 
-<div class="page-content" style="min-height: 70vh; display: flex; flex-direction: column;">
-<div class="container-fluid py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <h1 class="text-center mb-5 fw-bold position-relative">
-                <span class="position-relative">
-                    คณะผู้บริหาร
-                    <span class="position-absolute start-0 bottom-0 w-100 bg-primary" style="height: 4px; opacity: 0.6;"></span>
-                </span>
-            </h1>
+<PageTitle>บุคลากร</PageTitle>
 
-            @if (personnelList == null)
-            {
-                <div class="d-flex justify-content-center my-5">
-                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
-                        <span class="visually-hidden">กำลังโหลดข้อมูล...</span>
-                    </div>
+<Modals @ref="PersonelModal"
+        Title=""
+        IsVisible="showModal"
+        Size="modal-lg"
+        ShowHeader="false"
+        ShowFooter="false"
+        OnClose="CloseModal"
+        ShowConfirmButton="false">
+
+    <ChildContent>
+        <div class="p-0">
+            <!-- Modal Header -->
+            <div class="d-flex align-items-center p-3 border-bottom">
+                <div class="bg-gradient-primary p-2 rounded-circle me-3">
+                    <i class="bi bi-person-badge-fill text-white fs-5"></i>
                 </div>
-                <p class="text-center text-muted">กำลังโหลดข้อมูล...</p>
-            }
-            else if (!personnelList.Any(p => p.Status))
-            {
-                <div class="alert alert-info text-center">
-                    <i class="bi bi-info-circle me-2"></i>ไม่พบข้อมูลคณะผู้บริหาร
-                </div>
-            }
-            else
-            {
-                <div class="row g-4">
-                    @foreach (var item in personnelList.Where(p => p.Status).OrderBy(p =>p.jobPosition.Position_Level))
-                    {
-                        <div class="col-md-6 col-lg-4 col-xl-3">
-                            <div class="card h-100 shadow-sm border-0 personnel-card">
-                                <div class="card-body text-center p-4">
-                                    <div class="position-relative mb-4 profile-image-container">
-                                        @if (!string.IsNullOrWhiteSpace(item.images))
+                <h5 class="fw-bold mb-0 text-gradient-primary">รายละเอียดบุคลากร</h5>
+                <button class="btn btn-sm btn-icon ms-auto" @onclick="CloseModal">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content -->
+            <div class="modal-body p-0">
+                @if (currentPersonnel != null)
+                {
+                    <!-- ข้อมูลส่วนตัว -->
+                    <div class="card border-0 mb-3">
+                        <div class="card-body p-0">
+                            <div class="row g-0">
+                                <!-- รูปภาพและตำแหน่ง -->
+                                <div class="col-md-4 bg-light-primary p-3 text-center">
+                                    <div class="mb-3">
+                                        @if (!string.IsNullOrWhiteSpace(currentPersonnel.images))
                                         {
-                                            var firstImage = item.images.Split(',')[0].Trim();
-                                            <img src="@firstImage"
-                                                 class="rounded-circle shadow profile-image"
-                                                 style="width: 180px; height: 180px; object-fit: cover;"
-                                                 alt="@item.Personnel_Name" />
+                                            var firstImage = currentPersonnel.images.Split(',')[0].Trim();
+                                            <img src="@firstImage" class="img-thumbnail rounded-circle border-3 border-white shadow-sm" style="width: 140px; height: 140px; object-fit: cover;" alt="Profile" />
                                         }
                                         else
                                         {
-                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
-                                                 style="width: 180px; height: 180px; margin: 0 auto;">
-                                                <i class="bi bi-person" style="font-size: 5rem; color: #adb5bd;"></i>
+                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto shadow-sm" style="width: 140px; height: 140px; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);">
+                                                <i class="bi bi-person text-muted" style="font-size: 4rem;"></i>
                                             </div>
                                         }
                                     </div>
-                                    <div class="position-badge">
-                                        <span class="badge bg-primary text-white py-2 px-3 rounded-pill">
-                                            @item.jobPosition.Position_Name
-                                        </span>
-                                    </div>
-                                    <h4 class="mt-4 mb-3 fw-bold">@item.initial.Initial_Name @item.Personnel_Name @item.Personnel_LastName</h4>
+                                    <span class="badge bg-gradient-primary rounded-pill px-3 py-2 fs-7 mb-2">@currentPersonnel.jobPosition?.Position_Name</span>
+                                </div>
 
-                                    @if (!string.IsNullOrWhiteSpace(item.images) && item.images.Split(',').Length > 1)
-                                    {
-                                        <div class="mt-3">
-                                            <button class="btn btn-sm btn-outline-primary view-more-photos" type="button"
-                                                    data-bs-toggle="modal" data-bs-target="#photoModal-@item.Id">
-                                                <i class="bi bi-images me-1"></i> รูปภาพเพิ่มเติม
-                                            </button>
+                                <!-- ข้อมูลส่วนตัว -->
+                                <div class="col-md-8 p-3">
+                                    <h4 class="fw-bold mb-2">@currentPersonnel.initial?.Initial_Name @currentPersonnel.Personnel_Name @currentPersonnel.Personnel_LastName</h4>
+
+                                    <div class="row g-2 mb-3">
+                                        <div class="col-lg-6">
+                                            <div class="d-flex align-items-center text-muted">
+                                                <i class="bi bi-envelope me-2"></i>
+                                                <span class="text-truncate">email@example.com</span>
+                                            </div>
                                         </div>
-                                    }
+                                        <div class="col-lg-6">
+                                            <div class="d-flex align-items-center text-muted">
+                                                <i class="bi bi-telephone me-2"></i>
+                                                <span>012-345-6789</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="border-top pt-2 mt-2">
+                                        <h6 class="fw-semibold text-muted mb-2 fs-6">ข้อมูลเพิ่มเติม</h6>
+                                        <p class="text-muted small mb-0">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore.</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                    </div>
 
-                        @if (!string.IsNullOrWhiteSpace(item.images) && item.images.Split(',').Length > 1)
-                        {
-                            <div class="modal fade" id="photoModal-@item.Id" tabindex="-1" aria-labelledby="photoModalLabel-@item.Id" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered modal-lg">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="photoModalLabel-@item.Id">
-                                                รูปภาพของ @item.initial.Initial_Name @item.Personnel_Name @item.Personnel_LastName
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div id="photoCarousel-@item.Id" class="carousel slide" data-bs-ride="carousel">
-                                                <div class="carousel-inner">
-                                                    @{
-                                                        var imageUrls = item.images.Split(',');
-                                                        for (var i = 0; i < imageUrls.Length; i++)
-                                                        {
-                                                            var imageUrl = imageUrls[i].Trim();
-                                                            <div class="carousel-item @(i == 0 ? "active" : "")">
-                                                                <img src="@imageUrl" class="d-block w-100" style="height: 400px; object-fit: contain;"
-                                                                     alt="@item.Personnel_Name @(i + 1)">
-                                                            </div>
-                                                        }
-                                                    }
+                    <!-- ประวัติหลักสูตร -->
+                    <div class="card border-0 shadow-sm mb-3 mx-3">
+                        <div class="card-header bg-transparent border-bottom py-2">
+                            <h6 class="fw-bold mb-0 d-flex align-items-center fs-6">
+                                <i class="bi bi-journal-bookmark-fill text-primary me-2"></i>
+                                ประวัติหลักสูตร
+                            </h6>
+                        </div>
+                        <div class="card-body py-2">
+                            @if (currentPersonnel.DhamaHistories?.Any(h => h.CourseName?.Status == true) == true)
+                            {
+                                <div class="timeline mt-2">
+                                    @foreach (var history in currentPersonnel.DhamaHistories.Where(h => h.CourseName?.Status == true))
+                                    {
+                                        <div class="timeline-item pb-3">
+                                            <div class="timeline-badge bg-gradient-primary"></div>
+                                            <div class="timeline-content ps-3">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h6 class="fw-semibold mb-0 fs-6">@history.CourseName?.Name</h6>
+                                                    <span class="badge bg-light text-dark fs-7">รุ่นที่ @history.generation</span>
                                                 </div>
-                                                @if (imageUrls.Length > 1)
-                                                {
-                                                    <button class="carousel-control-prev" type="button" data-bs-target="#photoCarousel-@item.Id" data-bs-slide="prev">
-                                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                                        <span class="visually-hidden">Previous</span>
-                                                    </button>
-                                                    <button class="carousel-control-next" type="button" data-bs-target="#photoCarousel-@item.Id" data-bs-slide="next">
-                                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                                        <span class="visually-hidden">Next</span>
-                                                    </button>
-                                                }
                                             </div>
                                         </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-3">
+                                    <i class="bi bi-journal-x text-muted fs-2 mb-2"></i>
+                                    <p class="text-muted mb-0 small">ไม่มีประวัติหลักสูตร</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                    <!-- ประวัติทางธรรม -->
+                    <div class="card border-0 shadow-sm mx-3 mb-3">
+                        <div class="card-header bg-transparent border-bottom py-2">
+                            <h6 class="fw-bold mb-0 d-flex align-items-center fs-6">
+                                <i class="bi bi-book-half text-success me-2"></i>
+                                ประวัติทางธรรม
+                            </h6>
+                        </div>
+                        <div class="card-body py-2">
+                            @if (currentPersonnel.DhamaHistories?.Any(h => h.CourseName?.Status == false) == true)
+                            {
+                                <div class="d-flex flex-column gap-2 mt-2">
+                                    @foreach (var history in currentPersonnel.DhamaHistories.Where(h => h.CourseName?.Status == false))
+                                    {
+                                       <div class="timeline-item pb-3">
+                                            <div class="timeline-badge bg-gradient-primary"></div>
+                                            <div class="timeline-content ps-3">
+                                                <div class="d-flex justify-content-between align-items-center">
+                                                    <h6 class="fw-semibold mb-0 fs-6">@history.CourseName?.Name</h6>
+                                                    <span class="badge bg-light text-dark fs-7">รุ่นที่ @history.generation</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="text-center py-3">
+                                    <i class="bi bi-book text-muted fs-2 mb-2"></i>
+                                    <p class="text-muted mb-0 small">ไม่มีประวัติทางธรรม</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card border-0 shadow-sm text-center py-4 m-3">
+                        <i class="bi bi-exclamation-octagon-fill text-warning fs-1 mb-2"></i>
+                        <h5 class="fw-bold mb-2">ไม่พบข้อมูลบุคลากร</h5>
+                        <p class="text-muted mb-0">กรุณาตรวจสอบอีกครั้งหรือติดต่อผู้ดูแลระบบ</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </ChildContent>
+</Modals>
+
+
+<div class="page-content" style="min-height: 70vh; display: flex; flex-direction: column;">
+    <div class="container-fluid py-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="text-center mb-5 fw-bold position-relative">
+                    <span class="position-relative">
+                        คณะผู้บริหาร
+                        <span class="position-absolute start-0 bottom-0 w-100 bg-primary" style="height: 4px; opacity: 0.6;"></span>
+                    </span>
+                </h1>
+
+                @if (personnelList == null)
+                {
+                    <div class="d-flex justify-content-center my-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">กำลังโหลดข้อมูล...</span>
+                        </div>
+                    </div>
+                    <p class="text-center text-muted">กำลังโหลดข้อมูล...</p>
+                }
+                else if (!personnelList.Any(p => p.Status))
+                {
+                    <div class="alert alert-info text-center">
+                        <i class="bi bi-info-circle me-2"></i>ไม่พบข้อมูลคณะผู้บริหาร
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-4">
+                        @foreach (var item in personnelList.Where(p => p.Status).OrderBy(p => p.jobPosition.Position_Level))
+                        {
+                            <div class="col-md-6 col-lg-4 col-xl-3">
+                                <div class="card h-100 shadow-sm border-0 personnel-card">
+                                    <div class="card-body text-center p-4">
+                                        <div class="position-relative mb-4 profile-image-container">
+                                            @if (!string.IsNullOrWhiteSpace(item.images))
+                                            {
+                                                var firstImage = item.images.Contains(",")
+                                                ? item.images.Split(',')[0].Trim()
+                                                : item.images.Trim();
+
+                                                <img src="@firstImage"
+                                                     class="rounded-circle shadow profile-image"
+                                                     style="width: 180px; height: 180px; object-fit: cover;"
+                                                     alt="@item.Personnel_Name" />
+                                            }
+                                            else
+                                            {
+                                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center"
+                                                     style="width: 180px; height: 180px; margin: 0 auto;">
+                                                    <i class="bi bi-person" style="font-size: 5rem; color: #adb5bd;"></i>
+                                                </div>
+                                            }
+                                        </div>
+
+                                        <div class="position-badge">
+                                            <span class="badge bg-primary text-white py-2 px-3 rounded-pill">
+                                                @item.jobPosition.Position_Name
+                                            </span>
+                                        </div>
+
+                                        <h4 class="mt-4 mb-3 fw-bold">
+                                            @item.initial.Initial_Name @item.Personnel_Name @item.Personnel_LastName
+                                        </h4>
+                                        <button class="btn btn-outline-primary mt-3"
+                                                @onclick="() => ShowDetailModal(item)">
+                                            <i class="bi bi-eye-fill me-1"></i> ดูรายละเอียด
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                         }
-                    }
-                </div>
-            }
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
-</div>
+
+
+@code {
+    private List<Personnel> personnelList;
+
+    private Modals PersonelModal;
+    private bool showModal = false;
+    private Personnel currentPersonnel = new();
+    private List<CourseName> _CourseName = new();
+    private List<DhammaCourse> _dhammaCourses = new();
+
+
+    protected override async Task OnInitializedAsync()
+    {
+		await LoadPersonnel();
+    }
+
+    private async Task LoadPersonnel()
+    {
+        personnelList = await PersonnelService.GetAllPersonels();
+        _CourseName = await courseNameService.GetAllCourseNames();
+        _dhammaCourses = await dhammaCourseService.GetallCourse();
+    }
+    private void CloseModal()
+    {
+        showModal = false;
+        StateHasChanged();
+    }
+    private void ShowDetailModal(Personnel personnel)
+    {
+        currentPersonnel = personnel;
+        showModal = true;
+        StateHasChanged();
+    }
+}
+
+
 
 <style>
     .personnel-card {
@@ -163,7 +323,7 @@
         }
 
     /* Adding animation for page load */
-  
+
 
     .col-md-6 {
         animation: fadeInUp 0.5s ease forwards;
@@ -196,13 +356,6 @@
         .col-md-6:nth-child(8) {
             animation-delay: 0.7s;
         }
+
+
 </style>
-
-@code {
-    private List<Personnel> personnelList;
-
-    protected override async Task OnInitializedAsync()
-    {
-        personnelList = await PersonnelService.GetAllPersonels();
-    }
-}

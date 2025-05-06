@@ -13,11 +13,12 @@
 
             @if (currentRoleDto != null)
             {
-                <div class="form-group mb-3">
-                    <label>ชื่อบทบบาท</label>
-                    <InputText class="form-control" @bind-Value="currentRoleDto.Name" />
-                    <ValidationMessage For="@(() => currentRoleDto.Name)" />
-                </div>
+            
+                <MudTextField T="string"
+                              Label="ชื่อบทบบาท"
+                              @bind-Value="currentRoleDto.Name"
+                              For="@(() => currentRoleDto.Name)"
+                              RequiredError="กรุณากรอกชื่อบทบบาท" />
             }
         </EditForm>
     </ChildContent>

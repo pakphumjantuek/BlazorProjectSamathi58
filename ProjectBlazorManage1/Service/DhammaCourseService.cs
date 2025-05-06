@@ -20,6 +20,7 @@ namespace ProjectBlazorManage1.Service
            return  await _context.DhammaCourses
                 .Include(p=> p.Teacher)
                 .Include(p=> p.CourseName)
+                .Include(p => p.Personnel)
                 .ToListAsync();
         }
         public async Task<List<DhammaCourse>> GetallCourse()
@@ -27,6 +28,7 @@ namespace ProjectBlazorManage1.Service
             return await _context.DhammaCourses
                  .Include(p => p.Teacher)
                  .Include(p => p.CourseName)
+                 .Include(p => p.Personnel)
                  .ToListAsync();
         }
 
@@ -55,7 +57,8 @@ namespace ProjectBlazorManage1.Service
                 existingeDhamma.generation = dhammaCourse.generation;
                 existingeDhamma.CourseName_Id = dhammaCourse.CourseName_Id;
                 existingeDhamma.TeacherId = dhammaCourse.TeacherId;
-         
+                existingeDhamma.Personnel_Id = dhammaCourse.Personnel_Id;
+
                 await _context.SaveChangesAsync();
             }
         }

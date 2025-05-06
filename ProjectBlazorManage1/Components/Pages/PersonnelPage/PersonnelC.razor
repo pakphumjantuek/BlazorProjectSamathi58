@@ -5,6 +5,7 @@
 @inject IWebHostEnvironment _webHostEnvironment
 @inject IJSRuntime JSRuntime
 
+
 <Modals @ref="PersonnelModal"
 		Title="ระบบจัดการบุคลากร"
 		IsVisible="showModal"
@@ -81,7 +82,7 @@
 							  MaxLength="10"
 							  Lines="3"
 							  RequiredError="ที่อยู่" />
-				<MudDatePicker Label="วันที่เริ่มงาน"
+				<MudDatePicker Label="วันที่"
 							   @bind-Date="currentPersonnel.Date"
 							   DateFormat="dd/MM/yyyy"
 							   Placeholder="เลือกวันที่"
@@ -90,6 +91,7 @@
 							   InputIcon="@Icons.Material.Filled.CalendarToday"
 							   Clearable="true"
 							   Class="w-100" />
+
 				<MudItem xs="12" md="12">
 					<MudSelect T="int"
 							   Label="ตำแหน่งงานในสถาบัน"
@@ -186,7 +188,7 @@ else
 								   OnClick="ShowAddModal"
 								   Size="Size.Medium"
 								   Class="ms-2">
-							เพิ่มข้อมูลอาจารย์จริยา
+						เพิ่มข้อมูลบุคลการ
 						</MudButton>
 
 				</ToolBarContent>
@@ -221,6 +223,22 @@ else
 							</div>
 						</CellTemplate>
 					</TemplateColumn>
+						<TemplateColumn Title="รายละเอียด"
+										Sortable="false"
+										CellStyle="text-align:center;">
+							<CellTemplate>
+								<div @onclick:stopPropagation>
+
+									<MudButton Variant="Variant.Outlined"
+											   Color="Color.Primary"
+											   Size="Size.Small"
+											   Href="@($"personnel/details/{context.Item.Id}")">
+										รายละเอียด
+									</MudButton>
+								</div>
+
+							</CellTemplate>
+						</TemplateColumn>
 					<TemplateColumn Title="การจัดการ"
 									Sortable="false"
 									CellClass="action-column">
@@ -246,7 +264,7 @@ else
 				</Columns>
 
 				<PagerContent>
-					<MudDataGridPager T="Teacher" />
+					<MudDataGridPager T="Personnel" />
 				</PagerContent>
 			</MudDataGrid>
 	

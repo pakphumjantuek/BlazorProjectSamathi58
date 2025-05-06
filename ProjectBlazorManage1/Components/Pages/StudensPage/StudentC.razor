@@ -14,7 +14,6 @@
 		OnClose="CloseModal"
 		Size="modal-xl">
 
-
 	<ChildContent>
 		<EditForm id="modalForm" Model="@currentStudents" OnValidSubmit="@HandleValidSubmit">
 			<DataAnnotationsValidator />
@@ -22,279 +21,249 @@
 
 			@if (currentStudents != null)
 			{
-				@if (currentStudents.Id != 0)
-				{
-					<div class="row">
-						<div class="col-md-4">
-							<div class="form-group mb-3">
-								<label>ลำดับที่</label>
-								<InputNumber class="form-control" @bind-Value="currentStudents.Id" readonly />
-							</div>
-						</div>
-						 <div class="col-md-4"> 
-					 	<div class="form-group mb-3"> 
-								<label>รหัสนักศึกษาส่วนกลาง</label> 
-							<InputText class="form-control" @bind-Value="currentStudents.Student_Id"  />
-								<ValidationMessage For="@(() => currentStudents.Student_Id)" />
-							</div> 
-						 </div> 
-						<div class="col-md-4">
-							<div class="form-group mb-3">
-								<label>โอนหน่วยกิต</label>
-								<InputNumber class="form-control" @bind-Value="currentStudents.credit" />
-								<ValidationMessage For="@(() => currentStudents.credit)" />
-							</div>
-						</div>
+				<MudGrid> 
 
-					</div>
-
-				}
-				<div class="row">
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label for="initial">คำนำหน้าชื่อ</label>
-							<InputSelect @bind-Value="currentStudents.Initial_Id" class="form-control py-2 form-select" id="initial">
-								<option value="0" disabled selected>--โปรดเลือกคำนำหน้าชื่อ--</option>
-								@foreach (var initial in _initial)
-								{
-									<option value="@initial.Initial_Id">@initial.Initial_Name</option>
-								}
-							</InputSelect>
-							<ValidationMessage For="@(() => currentStudents.Initial_Id)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>ชื่อ</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.FirstName" placeholder="โปรดกรอกชื่อ" />
-							<ValidationMessage For="@(() => currentStudents.FirstName)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>นามสกุล</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.LastName" placeholder="โปรดกรอกนามสกุล" />
-							<ValidationMessage For="@(() => currentStudents.LastName)" />
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>ชื่อเล่น</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Nickname" placeholder="โปรดกรอกชื่อเล่น" />
-							<ValidationMessage For="@(() => currentStudents.Nickname)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>ชื่อภาษาอังกฤษ</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.EnglishName" placeholder="โปรดกรอกชื่อภาษาอังกฤษ" />
-							<ValidationMessage For="@(() => currentStudents.EnglishName)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>เบอร์โทรศัพท์</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Phone_Number" placeholder="โปรดกรอกเบอร์โทรศัพท์" MaxLength="10" onkeypress="return /[0-9]/.test(event.key)" />
-							<ValidationMessage For="@(() => currentStudents.Phone_Number)" />
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>วุฒิการศึกษา</label>
-							<InputSelect class="form-select py-2" @bind-Value="currentStudents.degreeType">
-								<option value="0" disabled selected>--โปรดเลือกวุฒิการศึกษา--</option>
-								@foreach (var gender in Enum.GetValues(typeof(DegreeType)))
-								{
-									<option value="@gender">@gender</option>
-								}
-							</InputSelect>
-							<ValidationMessage For="@(() => currentStudents.degreeType)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>สถาบันการศึกษา</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Institution" placeholder="โปรดกรอกสถาบันการศึกษา" />
-							<ValidationMessage For="@(() => currentStudents.Institution)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>วันเกิด</label>
-							<InputDate class="form-control py-2" @bind-Value="currentStudents.BirthDate" placeholder="โปรดกรอกสถาบันการศึกษา" />
-							<ValidationMessage For="@(() => currentStudents.BirthDate)" />
-						</div>
-					</div>
-
-				</div>
-
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>ที่อยู่ตามบัตรประจำตัวประชาชน</label>
-							<InputTextArea class="form-control" @bind-Value="currentStudents.CitizenCardAddress" placeholder="โปรดกรอกที่อยู่ตามบัตรประจำตัวประชาชน" />
-							<ValidationMessage For="@(() => currentStudents.CitizenCardAddress)" />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>ที่อยู่ที่ติดต่อได้</label>
-							<InputTextArea class="form-control" @bind-Value="currentStudents.ContactAddress" placeholder="โปรดกรอกที่อยู่ที่ติดต่อได้" />
-							<ValidationMessage For="@(() => currentStudents.ContactAddress)" />
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>อาชีพปัจจุบัน</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Occupation" placeholder="โปรดกรอกอาชีพปัจจุบัน" />
-							<ValidationMessage For="@(() => currentStudents.Occupation)" />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>สถานที่ทำงาน</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Workplace" placeholder="โปรดกรอกสถานที่ทำงาน" />
-							<ValidationMessage For="@(() => currentStudents.Workplace)" />
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>บุคคลใกล้ชิด</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.ClosePersonName" placeholder="โปรดกรอกบุคคลใกล้ชิด" />
-							<ValidationMessage For="@(() => currentStudents.ClosePersonName)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>เบอร์โทรศัพท์บุคคลใกล้ชิด</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.ClosePersonPhone" MaxLength="10" placeholder="โปรดกรอกเบอร์โทรศัพท์บุคคลใกล้ชิด" onkeypress="return /[0-9]/.test(event.key)" />
-							<ValidationMessage For="@(() => currentStudents.ClosePersonPhone)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>ความสัมพันธ์</label>
-							<InputSelect class="form-select py-2" @bind-Value="currentStudents.relationshipType">
-								<option value="0" disabled selected>--โปรดเลือกความสัมพันธ์--</option>
-								@foreach (var gender in Enum.GetValues(typeof(RelationshipType)))
-								{
-									<option value="@gender">@gender</option>
-								}
-							</InputSelect>
-							<ValidationMessage For="@(() => currentStudents.relationshipType)" />
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>อีเมล</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Email" placeholder="โปรดกรอกอีเมล" />
-							<ValidationMessage For="@(() => currentStudents.Email)" />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>ไอดีไลน์</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.LineId" placeholder="โปรดกรอกไอดีไลน์" />
-							<ValidationMessage For="@(() => currentStudents.LineId)" />
-						</div>
-					</div>					
-				</div>
-
-				<div class="row">			
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>โรคประจำตัว</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.MedicalCondition" placeholder="โปรดกรอกโรคประจำตัว" />
-							<ValidationMessage For="@(() => currentStudents.MedicalCondition)" />
-						</div>			
-					</div>
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>สถานะโรคประจำตัว</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Status_Medical" placeholder="โปรดกรอกสถานะโรคประจำตัว" />
-							<ValidationMessage For="@(() => currentStudents.Status_Medical)" />
-						</div>
-					</div>
-				</div>
-
-				<div class="row">
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>ผู้เเนะนำ</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.adviser" />
-							<ValidationMessage For="@(() => currentStudents.adviser)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>หมายเหตู</label>
-							<InputText class="form-control py-2" @bind-Value="currentStudents.Remarks" />
-							<ValidationMessage For="@(() => currentStudents.Remarks)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label for="initial">รุ่นที่เรียน</label>
-							<InputSelect @bind-Value="currentStudents.ClassStudie_Id" class="form-control py-2 form-select" id="initial">
-								<option value="0" disabled selected>--โปรดเลือกรุ่นที่เรียน--</option>
-								@foreach (var classStu in _ClassStudie)
-								{
-									@if (classStu.Status == true)
-									{
-										<option value="@classStu.Id">@classStu.Id</option>
-									}
-								}
-							</InputSelect>
-							<ValidationMessage For="@(() => currentStudents.ClassStudie_Id)" />
-						</div>
-					</div>
-				</div>
-				<div class="form-floating py-3 col-12">
-					@if (currentStudents.Images == null)
+					@if (currentStudents.Id != 0)
 					{
-
-						<InputFile OnChange="LoadFiles"
-								   accept="image/*"
-								   class="form-control py-2"
-								   id="customFile" />
-						<label for="customFile">Upload Image</label>
+						<MudItem xs="12" sm="6" md="4">
+							<MudTextField T="int" Label="ลำดับที่"
+										  @bind-Value="currentStudents.Id"
+										  For="@(() => currentStudents.Id)"
+										  Disabled="true" />
+						</MudItem>
+						<MudItem xs="12" sm="6" md="4">
+							<MudTextField T="string" Label="รหัสนักศึกษาส่วนกลาง"
+										  @bind-Value="currentStudents.Student_Id"
+										  For="@(() => currentStudents.Student_Id)"
+										  RequiredError="กรุณากรอกรหัสนักศึกษา" />
+						</MudItem>
+						<MudItem xs="12" sm="6" md="4">
+							<MudTextField T="double?" Label="โอนหน่วยกิต"
+										  @bind-Value="currentStudents.credit"
+										  For="@(() => currentStudents.credit)" />
+						</MudItem>
 					}
-					<label for="customFile">Upload Image</label>
 
-				</div>
+					<MudItem xs="12" sm="6" md="4">
+						<MudSelect T="int"
+								   Label="คำนำหน้าชื่อ"
+								   @bind-Value="currentStudents.Initial_Id"
+								   For="@(() => currentStudents.Initial_Id)"
+								   Required="true"
+								   RequiredError="โปรดเลือกคำนำหน้าชื่อ"
+								   Dense="true"
+								   Variant="Variant.Text"
+								   Class="my-2">
+							<MudSelectItem Value="0" Disabled="true">--โปรดเลือกคำนำหน้าชื่อ--</MudSelectItem>
+							@foreach (var initial in _initial)
+							{
+								<MudSelectItem Value="@initial.Initial_Id">@initial.Initial_Name</MudSelectItem>
+							}
+						</MudSelect>
+					</MudItem>
 
-				@if (!string.IsNullOrEmpty(GetImageUrl()))
-				{
-					<div class="mt-1 position-relative" style="width:100px; height:100px;">
-						<img src="@GetImageUrl()"
-							 style="width:100%; height:100%; object-fit:cover; border:1px solid #ccc; padding:5px; border-radius:5px;" />
-						<MudIconButton Icon="@Icons.Material.Filled.Delete"
-									   Color="Color.Error"
-									   Class="position-absolute top-0 end-0"
-									   Size="Size.Small"
-									   OnClick="@(() => DeleteImage())" />
-					</div>
-				}
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="ชื่อ"
+									  @bind-Value="currentStudents.FirstName"
+									  For="@(() => currentStudents.FirstName)"
+									  RequiredError="กรุณากรอกชื่อ" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="นามสกุล"
+									  @bind-Value="currentStudents.LastName"
+									  For="@(() => currentStudents.LastName)"
+									  RequiredError="กรุณากรอกนามสกุล" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="ชื่อเล่น"
+									  @bind-Value="currentStudents.Nickname"
+									  For="@(() => currentStudents.Nickname)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="ชื่อภาษาอังกฤษ"
+									  @bind-Value="currentStudents.EnglishName"
+									  For="@(() => currentStudents.EnglishName)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="เบอร์โทรศัพท์"
+									  @bind-Value="currentStudents.Phone_Number"
+									  For="@(() => currentStudents.Phone_Number)"
+									  MaxLength="10"
+									  Pattern="^[0-9]*$"
+									  Placeholder="เช่น 0812345678" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudSelect T="DegreeType"
+								   @bind-Value="currentStudents.degreeType"
+								   For="@(() => currentStudents.degreeType)">
+							<MudSelectItem T="DegreeType" Disabled="true">--โปรดเลือกวุฒิ--</MudSelectItem>
+							@foreach (DegreeType degree in Enum.GetValues(typeof(DegreeType)))
+							{
+								<MudSelectItem T="DegreeType" Value="@degree">@degree</MudSelectItem>
+							}
+						</MudSelect>
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="สถาบันการศึกษา"
+									  @bind-Value="currentStudents.Institution"
+									  For="@(() => currentStudents.Institution)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudDatePicker Label="วันเกิด"
+									   @bind-Date="currentStudents.BirthDate"
+									   For="@(() => currentStudents.BirthDate)"
+									   DateFormat="dd/MM/yyyy"
+									   OpenTo="OpenTo.Date" />
+					</MudItem>
+
+					<MudItem xs="12">
+						<MudTextField T="string" Label="ที่อยู่ตามบัตรประชาชน"
+									  @bind-Value="currentStudents.CitizenCardAddress"
+									  For="@(() => currentStudents.CitizenCardAddress)"
+									  Lines="4" />
+					</MudItem>
+
+					<MudItem xs="12">
+						<MudTextField T="string" Label="ที่อยู่ที่ติดต่อได้"
+									  @bind-Value="currentStudents.ContactAddress"
+									  For="@(() => currentStudents.ContactAddress)"
+									  Lines="4" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="อาชีพปัจจุบัน"
+									  @bind-Value="currentStudents.Occupation"
+									  For="@(() => currentStudents.Occupation)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="สถานที่ทำงาน"
+									  @bind-Value="currentStudents.Workplace"
+									  For="@(() => currentStudents.Workplace)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="บุคคลใกล้ชิด"
+									  @bind-Value="currentStudents.ClosePersonName"
+									  For="@(() => currentStudents.ClosePersonName)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="เบอร์โทรบุคคลใกล้ชิด"
+									  @bind-Value="currentStudents.ClosePersonPhone"
+									  For="@(() => currentStudents.ClosePersonPhone)"
+									  MaxLength="10"
+									  Pattern="^[0-9]*$" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudSelect T="RelationshipType"
+								   Label="ความสัมพันธ์"
+								   @bind-Value="currentStudents.relationshipType"
+								   For="@(() => currentStudents.relationshipType)"
+								   Required="true">
+							<MudSelectItem T="RelationshipType" Disabled="true">--โปรดเลือกวุฒิ--</MudSelectItem>
+							@foreach (var relation in Enum.GetValues<RelationshipType>())
+							{
+								<MudSelectItem T="RelationshipType" Value="@relation">@relation.ToString()</MudSelectItem>
+							}
+						</MudSelect>
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="อีเมล"
+									  @bind-Value="currentStudents.Email"
+									  For="@(() => currentStudents.Email)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="ไอดีไลน์"
+									  @bind-Value="currentStudents.LineId"
+									  For="@(() => currentStudents.LineId)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="โรคประจำตัว"
+									  @bind-Value="currentStudents.MedicalCondition"
+									  For="@(() => currentStudents.MedicalCondition)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="สถานะโรคประจำตัว"
+									  @bind-Value="currentStudents.Status_Medical"
+									  For="@(() => currentStudents.Status_Medical)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="ผู้แนะนำ"
+									  @bind-Value="currentStudents.adviser"
+									  For="@(() => currentStudents.adviser)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudTextField T="string" Label="หมายเหตุ"
+									  @bind-Value="currentStudents.Remarks"
+									  For="@(() => currentStudents.Remarks)" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6" md="4">
+						<MudSelect T="int?" Label="รุ่นที่เรียน"
+								   @bind-Value="currentStudents.ClassStudie_Id"
+								   For="@(() => currentStudents.ClassStudie_Id)"
+								   Required="true">
+							<MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกรุ่น--</MudSelectItem>
+							@foreach (var classStu in _ClassStudie.Where(x => x.Status))
+							{
+								<MudSelectItem T="int?" Value="@( (int?)classStu.Id )">@classStu.Id</MudSelectItem>
+							}
+						</MudSelect>
+					</MudItem>
+
+					<!-- ส่วนของอัพโหลดรูปภาพ -->
+					<MudItem xs="12">
+						<MudFileUpload T="IBrowserFile"
+									   FilesChanged="LoadFiles"
+									   Accept=".jpg,.jpeg,.png"
+									   MaxFiles="1"
+									   Multiple="false">
+							<ActivatorContent>
+								<MudButton Variant="Variant.Filled"
+										   Color="Color.Primary"
+										   StartIcon="@Icons.Material.Filled.CloudUpload">
+									อัพโหลดรูปภาพ
+								</MudButton>
+							</ActivatorContent>
+						</MudFileUpload>
+
+						@if (!string.IsNullOrEmpty(GetImageUrl()))
+						{
+							<div class="mt-1 position-relative" style="width:100px; height:100px;">
+								<img src="@GetImageUrl()"
+									 style="width:100%; height:100%; object-fit:cover; border:1px solid #ccc; padding:5px; border-radius:5px;" />
+								<MudIconButton Icon="@Icons.Material.Filled.Delete"
+											   Color="Color.Error"
+											   Class="position-absolute top-0 end-0"
+											   Size="Size.Small"
+											   OnClick="@(() => DeleteImage())" />
+							</div>
+						}
+					</MudItem>
+
+				</MudGrid>
 
 			}
 		</EditForm>
 	</ChildContent>
 </Modals>
+
+
 
 @if (IsProcessing)
 {
@@ -653,9 +622,8 @@ else
 			IsProcessing = true;
 			StateHasChanged();
 
-			if (_selectedFile != null)
+			if (!string.IsNullOrEmpty(_previewImage) && _selectedFile != null)
 			{
-
 				await SaveImages();
 			}
 
@@ -669,7 +637,8 @@ else
 				await _StudentService.AddStudent(currentStudents);
 				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
 			}
-
+			_selectedFile = null;
+			_previewImage = null;
 			await LoadStudent();
 			showModal = false;
 		}
@@ -724,24 +693,30 @@ else
 		return currentStudents.Images ?? string.Empty;
 	}
 
-	private async Task LoadFiles(InputFileChangeEventArgs e)
+	private async Task LoadFiles(IBrowserFile file)
 	{
-		IsProcessing = true;
-		_selectedFile = e.File;
-		long maxAllowedSize = 10 * 1024 * 1024;
+		if (file == null) return;
 
-		using (var memoryStream = new MemoryStream())
+		try
 		{
-			await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(memoryStream);
+			const long maxAllowedSize = 10 * 1024 * 1024;
+			_selectedFile = file;
+
+			using var memoryStream = new MemoryStream();
+			await file.OpenReadStream(maxAllowedSize).CopyToAsync(memoryStream);
+
 			byte[] buffer = memoryStream.ToArray();
-
 			string imageBase64Data = Convert.ToBase64String(buffer);
-			string imageDataUrl = $"data:{_selectedFile.ContentType};base64,{imageBase64Data}";
+			_previewImage = $"data:{file.ContentType};base64,{imageBase64Data}";
 
-			_previewImage = imageDataUrl;
-			IsProcessing = false;
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาดในการโหลดไฟล์: {ex.Message}");
 		}
 	}
+
 
 	void DeleteImage()
 	{

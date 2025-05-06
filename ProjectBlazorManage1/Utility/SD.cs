@@ -3,7 +3,7 @@
     public static class SD
     {
         public static string Role_Admin = "Admin";
-        public static string Role_Customer = "Customer";
+        public static string Role_Customer = "ผู้ใช้งานทั่วไป";
 
         public enum DegreeTypes
         {
@@ -64,6 +64,9 @@
             เพื่อน = 10, 
             ผู้ปกครอง = 11, 
             อื่นๆ = 12   
+
         }
+
     }
+
 }

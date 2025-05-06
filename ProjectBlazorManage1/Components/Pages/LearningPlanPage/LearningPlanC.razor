@@ -16,75 +16,80 @@
 
             @if (currentLearningPlan != null)
             {
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label>วันที่เรียน</label>
-                            <InputDate class="form-control" @bind-Value="currentLearningPlan.Date" />
-                            <ValidationMessage For="@(() => currentLearningPlan.Date)" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label>เวลาเรียน</label>
-                            <InputText class="form-control" @bind-Value="currentLearningPlan.Time" />
-                            <ValidationMessage For="@(() => currentLearningPlan.Time)" />
-                        </div>
-                    </div>
-                </div>
 
-                <div class="form-group mb-3">
-                    <label>หัวข้อการเรียน</label>
-                    <InputText class="form-control" @bind-Value="currentLearningPlan.Name" />
-                    <ValidationMessage For="@(() => currentLearningPlan.Name)" />
-                </div>
+                <MudDatePicker Label="วันที่เรียน"
+                                   @bind-Date="currentLearningPlan.Date"
+                                   DateFormat="dd/MM/yyyy"
+                                   Placeholder="เลือกวันที่"
+                                   Editable="true"
+                                   OpenTo="OpenTo.Date"
+                                   InputIcon="@Icons.Material.Filled.CalendarToday"
+                                   Clearable="true"
+                                   Class="w-100" />
+                <MudTextField T="string"
+                              Label="เวลาเรียน"
+                              @bind-Value="currentLearningPlan.Time"
+                              For="@(() => currentLearningPlan.Time)"
+                              RequiredError="เวลาเรียน" />
+                <MudTextField T="string"
+                              Label="หัวข้อการเรียน"
+                              @bind-Value="currentLearningPlan.Name"
+                              For="@(() => currentLearningPlan.Name)"
+                              RequiredError="หัวข้อการเรียน" />
+                <MudTextField T="string"
+                              Label="เทป"
+                              @bind-Value="currentLearningPlan.Tape"
+                              For="@(() => currentLearningPlan.Tape)"
+                              RequiredError="เทป" />
+                <MudTextField T="string"
+                              Label="เล่มที่"
+                              @bind-Value="currentLearningPlan.Book"
+                              For="@(() => currentLearningPlan.Book)"
+                              RequiredError="เล่มที่" />
 
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label>เทป</label>
-                            <InputText class="form-control" @bind-Value="currentLearningPlan.Tape" />
-                            <ValidationMessage For="@(() => currentLearningPlan.Tape)" />
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="form-group mb-3">
-                            <label>เล่มที่</label>
-                            <InputText class="form-control" @bind-Value="currentLearningPlan.Book" />
-                            <ValidationMessage For="@(() => currentLearningPlan.Book)" />
-                        </div>
-                    </div>
-                </div>
+                <MudTextField T="double?"
+                              Label="คะแนน"
+                              @bind-Value="currentLearningPlan.Score"
+                              For="@(() => currentLearningPlan.Score)"
+                              RequiredError="คะแนน" />
 
-                <div class="form-group mb-3">
-                    <label>คะแนน</label>
-                    <InputNumber class="form-control" @bind-Value="currentLearningPlan.Score" />
-                    <ValidationMessage For="@(() => currentLearningPlan.Score)" />
-                </div>
+                <MudItem xs="12" md="12">
+                    <MudSelect T="int?" Label="เลือกผู้สอน"
+                               @bind-Value="currentLearningPlan.Teacher_ID"
+                               Required="true"
+                               RequiredError="โปรดเลือกผู้สอน"
+                               Dense="true"
+                               Variant="Variant.Text"
+                               Class="my-2">
 
-                <div class="form-group mb-3">
-                    <label>เลือกผู้สอน</label>
-                    <InputSelect @bind-Value="currentLearningPlan.Teacher_ID" class="form-control form-select">
-                        <option value="0" disabled selected>-- โปรดเลือกผู้สอน --</option>
+                        <MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกผู้สอน--</MudSelectItem>
+
                         @foreach (var t in _teacher)
                         {
-                            <option value="@t.Teacher_Id">@t.Teacher_Name @t.Teacher_LastName</option>
+                            <MudSelectItem T="int?" Value="@( (int?)t.Teacher_Id )">
+                                @t.Teacher_Name @t.Teacher_LastName
+                            </MudSelectItem>
                         }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => currentLearningPlan.Teacher_ID)" />
-                </div>
+                    </MudSelect>
+                </MudItem>
 
-                <div class="form-group mb-3">
-                    <label>เลือกรุ่น</label>
-                    <InputSelect @bind-Value="currentLearningPlan.ClassStudiedId" class="form-control form-select">
-                        <option value="0" disabled selected>-- โปรดเลือกรุ่น --</option>
+                <MudItem xs="12" md="12">
+                    <MudSelect T="int?" Label="เลือกรุ่น"
+                               @bind-Value="currentLearningPlan.ClassStudiedId"
+                               Required="true"
+                               RequiredError="โปรดเลือกรุ่น"
+                               Dense="true"
+                               Variant="Variant.Text"
+                               Class="my-2">
+
+                        <MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกรุ่น--</MudSelectItem>
+
                         @foreach (var t in _ClassStudied.Where(x => x.Status))
                         {
-                            <option value="@t.Id">@t.Id</option>
+                            <MudSelectItem T="int?" Value="@( (int?)t.Id )">@t.Id</MudSelectItem>
                         }
-                    </InputSelect>
-                    <ValidationMessage For="@(() => currentLearningPlan.ClassStudiedId)" />
-                </div>
+                    </MudSelect>
+                </MudItem>
             }
         </EditForm>
     </ChildContent>

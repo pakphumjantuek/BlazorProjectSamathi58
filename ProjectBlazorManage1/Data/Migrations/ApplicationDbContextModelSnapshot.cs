@@ -252,7 +252,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Attendances");
+                    b.ToTable("Attendances", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.Branch", b =>
@@ -278,7 +278,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasKey("Branch_Id");
 
-                    b.ToTable("Branches");
+                    b.ToTable("Branches", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.ClassStudied", b =>
@@ -310,7 +310,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasIndex("Branch_Id");
 
-                    b.ToTable("ClassStudieds");
+                    b.ToTable("ClassStudieds", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.CourseName", b =>
@@ -333,7 +333,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("CourseNames");
+                    b.ToTable("CourseNames", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.DhammaCourse", b =>
@@ -347,7 +347,10 @@ namespace ProjectBlazorManage1.Migrations
                     b.Property<int>("CourseName_Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("TeacherId")
+                    b.Property<int?>("Personnel_Id")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TeacherId")
                         .HasColumnType("int");
 
                     b.Property<int>("generation")
@@ -357,9 +360,11 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasIndex("CourseName_Id");
 
+                    b.HasIndex("Personnel_Id");
+
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("DhammaCourses");
+                    b.ToTable("DhammaCourses", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.EducationHistory", b =>
@@ -395,7 +400,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("EducationHistories");
+                    b.ToTable("EducationHistories", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.Initial", b =>
@@ -412,7 +417,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasKey("Initial_Id");
 
-                    b.ToTable("Initials");
+                    b.ToTable("Initials", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.JobPosition", b =>
@@ -435,7 +440,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("JobPositions");
+                    b.ToTable("JobPositions", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.LearningPlan", b =>
@@ -484,7 +489,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasIndex("Teacher_ID");
 
-                    b.ToTable("LearningPlans");
+                    b.ToTable("LearningPlans", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.News", b =>
@@ -519,7 +524,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasKey("News_Id");
 
-                    b.ToTable("News");
+                    b.ToTable("News", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.Personnel", b =>
@@ -537,11 +542,9 @@ namespace ProjectBlazorManage1.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Personnel_Address")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Personnel_Email")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Personnel_LastName")
@@ -572,7 +575,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasIndex("jobPosition_ID");
 
-                    b.ToTable("Personnel");
+                    b.ToTable("Personnel", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.Students", b =>
@@ -717,7 +720,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasIndex("Initial_Id");
 
-                    b.ToTable("students");
+                    b.ToTable("students", (string)null);
                 });
 
             modelBuilder.Entity("ProjectBlazorManage1.Model.Teacher", b =>
@@ -777,7 +780,7 @@ namespace ProjectBlazorManage1.Migrations
 
                     b.HasIndex("JobPosition_Id");
 
-                    b.ToTable("Teachers");
+                    b.ToTable("Teachers", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -869,13 +872,17 @@ namespace ProjectBlazorManage1.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ProjectBlazorManage1.Model.Personnel", "Personnel")
+                        .WithMany()
+                        .HasForeignKey("Personnel_Id");
+
                     b.HasOne("ProjectBlazorManage1.Model.Teacher", "Teacher")
                         .WithMany("DhamaHistories")
-                        .HasForeignKey("TeacherId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("TeacherId");
 
                     b.Navigation("CourseName");
+
+                    b.Navigation("Personnel");
 
                     b.Navigation("Teacher");
                 });

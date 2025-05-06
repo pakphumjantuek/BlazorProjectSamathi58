@@ -38,16 +38,20 @@ namespace ProjectBlazorManage1.Model
         public string Nickname { get; set; } // ชื่อเล่น
         [DisplayName("อายุ")]
         [Required(ErrorMessage = "กรุณากรอกอายุ")]
-        public int Age
+        public int? Age
         {
             get
             {
+                if (BirthDate == null)
+                    return null;
+
                 var today = DateTime.Today;
-                var age = today.Year - BirthDate.Year;
-                if (BirthDate.Date > today.AddYears(-age)) age--; // ตรวจสอบว่าวันเกิดมาถึงหรือยัง
+                var age = today.Year - BirthDate.Value.Year;
+                if (BirthDate.Value.Date > today.AddYears(-age)) age--;
                 return age;
             }
         }
+
         [DisplayName("เบอร์โทรศัพท์")]
         [StringLength(10, MinimumLength = 10, ErrorMessage = "กรูณากรอกเบอร์โทร์ 10 หลัก")]
         [RegularExpression(@"^0\d{9}$", ErrorMessage = "เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0")]
@@ -58,7 +62,7 @@ namespace ProjectBlazorManage1.Model
         [DisplayName("วันเกิด")]
         [DataType(DataType.Date)]
         [Required(ErrorMessage = "กรุณากรอกวันเกิด")]
-        public DateTime BirthDate { get; set; } = DateTime.Now.Date;// วันเกิด
+        public DateTime? BirthDate { get; set; } = DateTime.Today;// วันเกิด
         [DisplayName("วุฒิการศึกษา")]
         public DegreeType degreeType { get; set; } // วุฒิการศึกษา
         [DisplayName("ความสัมพันธ์")]

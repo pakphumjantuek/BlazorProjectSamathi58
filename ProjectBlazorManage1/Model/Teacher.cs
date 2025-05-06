@@ -24,7 +24,7 @@
         [Required(ErrorMessage = "กรุณากรอกอาชัพปัจจุบัน")]
         public string Occupation { get; set; }
         [Required(ErrorMessage = "กรุณาเลือกคำนำหน้าชื่อ")]
-        public int? Initial_Id { get; set; }
+        public int Initial_Id { get; set; }
         [ValidateNever]
         [ForeignKey("Initial_Id")]
         public Initial Initial { get; set; }

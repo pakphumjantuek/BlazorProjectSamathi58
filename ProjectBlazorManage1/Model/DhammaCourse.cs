@@ -12,9 +12,13 @@
         [ValidateNever]
         [ForeignKey("CourseName_Id")]
         public CourseName CourseName { get; set; }
-        public int TeacherId { get; set; }
+        public int? TeacherId { get; set; }
         [ValidateNever]
         [ForeignKey("TeacherId")]
         public virtual Teacher Teacher { get; set; }
+        public int? Personnel_Id { get; set; }
+        [ValidateNever]
+        [ForeignKey("Personnel_Id")]
+        public Personnel Personnel { get; set; }
     }
 }

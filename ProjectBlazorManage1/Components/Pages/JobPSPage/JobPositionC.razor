@@ -15,18 +15,16 @@
 
 			@if (currentJobPosition != null)
 			{
-				<input type="hidden" @bind="currentJobPosition.Status" />
-				<input type="hidden" @bind="currentJobPosition.Id" />
-				<div class="form-group mb-3">
-					<label>ชื่อตำเเหน่ง</label>
-					<InputText class="form-control" @bind-Value="currentJobPosition.Position_Name" />
-					<ValidationMessage For="@(() => currentJobPosition.Position_Name)" />
-				</div>
-				<div class="form-group mb-3">
-					<label>ลำดับขั้น</label>
-					<InputNumber class="form-control" @bind-Value="currentJobPosition.Position_Level" />
-					<ValidationMessage For="@(() => currentJobPosition.Position_Level)" />
-				</div>		
+				<MudTextField T="string"
+							  Label="ชื่อตำเเหน่ง"
+							  @bind-Value="currentJobPosition.Position_Name"
+							  For="@(() => currentJobPosition.Position_Name)"
+							  RequiredError="กรุณากรอกชื่อตำเเหน่ง" />
+				<MudTextField T="int"
+							  Label="ลำดับขั้น"
+							  @bind-Value="currentJobPosition.Position_Level"
+							  For="@(() => currentJobPosition.Position_Level)"
+							  RequiredError="กรุณากรอกลำดับขั้น" />
 			}
 		</EditForm>
 	</ChildContent>

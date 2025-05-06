@@ -1,5 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject NavigationManager NavigationManager
+
 <MudThemeProvider />
 <MudPopoverProvider />
 <div class="page">
@@ -10,7 +12,7 @@
     </AuthorizeView>
 
     <main>
-        @if (_navBarVisible)
+        @if (_navBarVisible && !_isAuthPage)
         {
             <NavBar></NavBar>
         }
@@ -20,7 +22,7 @@
             @Body
         </article>
 
-        @if (_navBarVisible)
+        @if (_navBarVisible && !_isAuthPage)
         {
             <Footer />
         }
@@ -35,33 +37,42 @@
     <span class="dismiss">🗙</span>
 </div>
 
-@code {
-    private bool _navBarVisible;
+@code {     
+        private bool _navBarVisible;
+        private bool _isAuthPage;
 
-    protected override async Task OnInitializedAsync()
-    {
-        _navBarVisible = await ShowNavBar();
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        _navBarVisible = await ShowNavBar();
-    }
-
-    private async Task<bool> ShowNavBar()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-        var authenticated = user.Identity is not null && user.Identity.IsAuthenticated;
-        if (!authenticated)
+        protected override async Task OnInitializedAsync()
         {
-            return true;
+            _navBarVisible = await ShowNavBar();
+            CheckIfAuthPage();
         }
-        if (!user.IsInRole(SD.Role_Admin))
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            return true;
+            if (firstRender)
+            {
+                _navBarVisible = await ShowNavBar();
+                CheckIfAuthPage();
+                StateHasChanged();
+            }
         }
-        return false;
-    }
+
+        private async Task<bool> ShowNavBar()
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var authenticated = user.Identity is not null && user.Identity.IsAuthenticated;
+            if (!authenticated || !user.IsInRole(SD.Role_Admin))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void CheckIfAuthPage()
+        {
+            var relativePath = NavigationManager.ToBaseRelativePath(NavigationManager.Uri).ToLower();
+            _isAuthPage = relativePath.Contains("login") || relativePath.Contains("register");
+        }
 }
 

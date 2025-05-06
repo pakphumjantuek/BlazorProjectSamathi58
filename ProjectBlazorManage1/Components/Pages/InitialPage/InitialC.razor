@@ -15,12 +15,11 @@
 
 			@if (currentInitial != null)
 			{
-				<InputNumber hidden class="form-control" @bind-Value="currentInitial.Initial_Id" />
-				<div class="form-group mb-3">
-					<label>ชื่อคำนำหน้า</label>
-					<InputText class="form-control" @bind-Value="currentInitial.Initial_Name" />
-					<ValidationMessage For="@(() => currentInitial.Initial_Name)" />
-				</div>
+				<MudTextField T="string"
+							  Label="ชื่อคำนำหน้า"
+							  @bind-Value="currentInitial.Initial_Name"
+							  For="@(() => currentInitial.Initial_Name)"
+							  RequiredError="กรุณากรอกชื่อคำนำหน้า" />
 			}
 		</EditForm>
 	</ChildContent>
@@ -136,7 +135,7 @@ else
 
 	private string searchString = string.Empty;
 	private IEnumerable<Initial> FilteredinItialList => initialList
-			.Where(x => string.IsNullOrWhiteSpace(searchString) |
+			.Where(x => string.IsNullOrWhiteSpace(searchString) ||
 					x.Initial_Name.Contains(searchString, StringComparison.OrdinalIgnoreCase))
 					.OrderBy(p => p.Initial_Id);
 

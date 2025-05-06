@@ -16,60 +16,71 @@
 @inject IdentityRedirectManager RedirectManager
 @inject RoleManager<IdentityRole> RoleManager
 
-<PageTitle>Register</PageTitle>
+<PageTitle>สมัครสมาชิก</PageTitle>
 
-<h1>Register</h1>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<style>
+    body {
+        font-family: 'Sarabun', sans-serif;
+        background-color: var(--bs-body-bg);
+        color: var(--bs-body-color);
+    }
 
-<div class="mt-5" style="height:100%">
-    <div class="h-100 d-flex align-items-center justify-content-center">
-        <div class="card bg-light" style="min-width: 28rem;">
-            <div class="card-body">
-                <h5 class="card-title text-center display-6">Sign Up</h5>
-                <StatusMessage Message="@Message" />
+    .card {
+        border-radius: 1rem;
+    }
+</style>
 
-                <EditForm Model="Input" asp-route-returnUrl="@ReturnUrl" method="post" OnValidSubmit="RegisterUser" FormName="register">
-                    <DataAnnotationsValidator />
-                    <hr />
-                    <ValidationSummary class="text-danger" role="alert" />
-                    <div class="form-floating mb-3">
-                        <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                        <label for="email">Email</label>
-                        <ValidationMessage For="() => Input.Email" class="text-danger" />
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow border-0 bg-light-subtle dark:bg-dark text-dark-subtle dark:text-light">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">📝 สมัครสมาชิก</h2>
+                    <StatusMessage Message="@Message" />
+
+                    <EditForm Model="Input" method="post" OnValidSubmit="RegisterUser" FormName="register">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger mb-3" />
+
+                        <div class="form-floating mb-3">
+                            <InputText @bind-Value="Input.Email" class="form-control" placeholder="name@example.com" autocomplete="username" />
+                            <label for="email">อีเมล</label>
+                            <ValidationMessage For="() => Input.Email" class="text-danger small" />
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <InputText type="password" @bind-Value="Input.Password" class="form-control" placeholder="password" autocomplete="new-password" />
+                            <label for="password">รหัสผ่าน</label>
+                            <ValidationMessage For="() => Input.Password" class="text-danger small" />
+                        </div>
+
+                        <div class="form-floating mb-3">
+                            <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" placeholder="password" autocomplete="new-password" />
+                            <label for="confirm-password">ยืนยันรหัสผ่าน</label>
+                            <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger small" />
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100 py-2">
+                            สร้างบัญชี
+                        </button>
+                    </EditForm>
+
+                    <hr class="my-4" />
+
+
+                    <div class="text-center mt-4">
+                        <p class="fw-semibold text-dark-emphasis fs-6">
+                            มีบัญชีอยู่แล้ว?
+                        </p>
+                        <a class="btn btn-outline-secondary btn-sm px-4" href="Account/Login">
+                            🔑 เข้าสู่ระบบ
+                        </a>
+                     
                     </div>
-                    <div class="form-floating mb-3">
-                        <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                        <label for="password">Password</label>
-                        <ValidationMessage For="() => Input.Password" class="text-danger" />
-                    </div>
-                    <div class="form-floating mb-3">
-                        <InputText type="password" @bind-Value="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                        <label for="confirm-password">Confirm Password</label>
-                        <ValidationMessage For="() => Input.ConfirmPassword" class="text-danger" />
-                    </div>
-                    @* <div class="form-floating mb-3"> *@
-                    @*     <InputSelect @bind-Value="Input.Role" class="form-select"> *@
-                    @*         @foreach (var role in AvailableRoles) *@
-                    @*         { *@
-                    @*             <option value="@role">@role</option> *@
-                    @*         } *@
-                    @*     </InputSelect> *@
-                    @*     <label for="role">Select Role</label> *@
-                    @*     <ValidationMessage For="() => Input.Role" class="text-danger" /> *@
-                    @* </div> *@
-                    <button type="submit" class="w-100 btn btn-lg btn-primary">Register</button>
-                </EditForm>
 
-                <br />
-                <ExternalLoginPicker />
-
-                <hr />
-                <p class="text-center mt-2">
-                    <small class="text-muted text-center">
-                        Already have an account yet?
-                        <a href="Account/Login">Sign In </a>
-                    </small>
-                </p>
-
+                </div>
             </div>
         </div>
     </div>
@@ -81,10 +92,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // โหลด Role ทั้งหมดจาก IdentityRole
         AvailableRoles = await RoleManager.Roles.Select(r => r.Name).ToListAsync();
 
-        // หากไม่มี Role ในระบบ (กรณีเริ่มต้น), สร้าง Role เบื้องต้น
         if (!AvailableRoles.Any())
         {
             var defaultRoles = new[] { "Admin", "Customer" };
@@ -92,7 +101,6 @@
             {
                 await RoleManager.CreateAsync(new IdentityRole(role));
             }
-
             AvailableRoles = defaultRoles.ToList();
         }
     }
@@ -103,7 +111,7 @@
     [SupplyParameterFromQuery]
     private string? ReturnUrl { get; set; }
 
-    private string? Message => identityErrors is null ? null : $"Error: {string.Join(", ", identityErrors.Select(error => error.Description))}";
+    private string? Message => identityErrors is null ? null : $"พบข้อผิดพลาด: {string.Join(", ", identityErrors.Select(e => e.Description))}";
 
     public async Task RegisterUser(EditContext editContext)
     {
@@ -120,8 +128,8 @@
             return;
         }
 
-        Logger.LogInformation("User created a new account with password.");
-       
+        Logger.LogInformation("สร้างบัญชีใหม่เรียบร้อย");
+
         if (Input.Role is null)
         {
             await UserManager.AddToRoleAsync(user, SD.Role_Customer);
@@ -155,8 +163,7 @@
         }
         catch
         {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor.");
+            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'.");
         }
     }
 
@@ -164,7 +171,7 @@
     {
         if (!UserManager.SupportsUserEmail)
         {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
+            throw new NotSupportedException("ต้องใช้ user store ที่รองรับ email");
         }
         return (IUserEmailStore<ApplicationUser>)UserStore;
     }
@@ -172,20 +179,21 @@
     private sealed class InputModel
     {
         public string? Role { get; set; }
-        [Required]
-        [EmailAddress]
+
+        [Required(ErrorMessage = "กรุณากรอกอีเมล")]
+        [EmailAddress(ErrorMessage = "รูปแบบอีเมลไม่ถูกต้อง")]
         [Display(Name = "Email")]
         public string Email { get; set; } = "";
 
-        [Required]
-        [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 1)]
+        [Required(ErrorMessage = "กรุณากรอกรหัสผ่าน")]
+        [StringLength(100, ErrorMessage = "รหัสผ่านต้องมีความยาวอย่างน้อย {2} ตัวอักษร", MinimumLength = 3)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
         public string Password { get; set; } = "";
 
         [DataType(DataType.Password)]
         [Display(Name = "Confirm password")]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
+        [Compare("Password", ErrorMessage = "รหัสผ่านและการยืนยันไม่ตรงกัน")]
         public string ConfirmPassword { get; set; } = "";
     }
 }

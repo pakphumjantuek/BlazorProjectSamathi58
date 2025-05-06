@@ -6,7 +6,7 @@
         [DisplayName("วันที่เรียน")]
         [DataType(DataType.Date)]
         [Required(ErrorMessage = "กรุณาเลือกวันที่เรียน")]
-        public DateTime? Date { get; set; }
+        public DateTime? Date { get; set; } = DateTime.Today; // วันที่เรียน
         [DisplayName("เวลาเรียน")]
         [Required(ErrorMessage = "กรุณาเลือกเวลาเรียน")]
         public string? Time { get; set; } = string.Empty; // เวลา

@@ -37,7 +37,7 @@ window.ShowSwal = function (type, message) {
         }
         else if (type == "error") {
             Swal.fire({
-                title: "Task Failed!",
+                title: "บันทึกล้มเหลว!",
                 text: message,
                 icon: "error"
             }).then(() => {

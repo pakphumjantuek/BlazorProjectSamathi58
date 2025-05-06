@@ -1,11 +1,17 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 
-<!-- Golden Navbar -->
+<!-- Enhanced Golden Navbar -->
 <nav class="navbar navbar-expand-lg golden-navbar">
     <div class="container">
         <a class="navbar-brand" href="">
-            <img src="/images/Logo.png" alt="Logo" width="60" height="60">
-            <div class="brand-text">สถาบันพลังจิตตานุภาพ<br>สาขาที่ 58 วัดสิริกาญจนาราม</div>
+            <div class="logo-container">
+                <img src="/images/Logo.png" alt="Logo" class="logo-img">
+                <div class="logo-glow"></div>
+            </div>
+            <div class="brand-text">
+                <span class="brand-title">สถาบันพลังจิตตานุภาพ</span>
+                <span class="brand-subtitle">สาขาที่ 58 วัดสิริกาญจนาราม</span>
+            </div>
         </a>
 
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
@@ -16,16 +22,24 @@
         <div class="collapse navbar-collapse" id="navbarMain">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">หน้าแรก</NavLink>
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                        <i class="bi bi-house-door"></i> หน้าแรก
+                    </NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="NewsPage">ข่าวสาร</NavLink>
+                    <NavLink class="nav-link" href="NewsPage">
+                        <i class="bi bi-newspaper"></i> ข่าวสาร
+                    </NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="personnel-list">บุคลากร</NavLink>
+                    <NavLink class="nav-link" href="personnel-list">
+                        <i class="bi bi-people"></i> บุคลากร
+                    </NavLink>
                 </li>
                 <li class="nav-item">
-                    <NavLink class="nav-link" href="about">เกี่ยวกับสถาบัน</NavLink>
+                    <NavLink class="nav-link" href="about">
+                        <i class="bi bi-info-circle"></i> เกี่ยวกับสถาบัน
+                    </NavLink>
                 </li>
                 <li class="nav-item">
                     <AuthorizeView>
@@ -49,4 +63,3 @@
         </div>
     </div>
 </nav>
-

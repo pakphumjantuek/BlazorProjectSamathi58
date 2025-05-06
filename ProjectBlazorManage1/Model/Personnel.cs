@@ -27,7 +27,7 @@
         [StringLength(10, MinimumLength = 10, ErrorMessage = "เบอร์โทรต้องมีความยาว 10 หลัก")]
         public string Phone_Number { get; set; }
         [DisplayName("วันที่เริ่มงาน")]
-        public DateTime? Date { get; set; } // nullable เพื่อรองรับค่าว่าง
+        public DateTime? Date { get; set; } = DateTime.Today;
         [DisplayName("รูปภาพ")]
         public string? images { get; set; }
         [DisplayName("สถานะ")]
@@ -39,7 +39,7 @@
         [ValidateNever]
         public JobPosition jobPosition { get; set; }
 
-       
-       
+        public virtual ICollection<DhammaCourse> DhamaHistories { get; set; }
+
     }
 }

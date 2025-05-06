@@ -1,22 +1,41 @@
 ﻿@namespace ProjectBlazorManage1.Components
 
-<div class="modal @(IsVisible ? "show d-block" : "d-none")" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+<div class="modal @(IsVisible ? "show d-block" : "d-none")"
+     tabindex="-1"
+     style="background-color: rgba(0,0,0,0.5);"
+     @onclick="HandleBackdropClick">
+
     <div class="modal-dialog modal-dialog-centered @Size">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">@Title</h5>
-                <button type="button" class="btn-close" @onclick="Close"></button>
-            </div>
+        <div class="modal-content" @onclick:stopPropagation>
+            @if (ShowHeader)
+            {
+                <div class="modal-header">
+                    <h5 class="modal-title">@Title</h5>
+                    @if (ShowCloseButton)
+                    {
+                        <button type="button" class="btn-close" @onclick="Close" aria-label="ปิด"></button>
+                    }
+                </div>
+            }
+
             <div class="modal-body">
                 @ChildContent
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" @onclick="Close">ปิด</button>
-                @if (ShowConfirmButton)
-                {
-                    <button type="submit" form="@FormId" class="btn btn-primary">ยืนยัน</button>
-                }
-            </div>
+
+            @if (ShowFooter)
+            {
+                <div class="modal-footer">
+                    @if (ShowCloseButton)
+                    {
+                        <button type="button" class="btn btn-secondary" @onclick="Close">ปิด</button>
+                    }
+
+                    @if (ShowConfirmButton)
+                    {
+                        <button type="submit" form="@FormId" class="btn btn-primary">ยืนยัน</button>
+                    }
+                </div>
+            }
         </div>
     </div>
 </div>
@@ -24,15 +43,28 @@
 @code {
     [Parameter] public string Title { get; set; } = "Modal Title";
     [Parameter] public bool IsVisible { get; set; }
+
+    [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public bool ShowFooter { get; set; } = true;
+    [Parameter] public bool ShowCloseButton { get; set; } = true;
     [Parameter] public bool ShowConfirmButton { get; set; } = true;
+
+    [Parameter] public string FormId { get; set; } = "modalForm";
+    [Parameter] public string Size { get; set; } = "";
+
     [Parameter] public RenderFragment ChildContent { get; set; }
+
     [Parameter] public EventCallback OnConfirm { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
-    [Parameter] public string Size { get; set; } = "";
-    [Parameter] public string FormId { get; set; } = "modalForm";
 
     private async Task Close()
     {
         await OnClose.InvokeAsync();
+    }
+
+    private async Task HandleBackdropClick()
+    {
+        // เมื่อคลิกนอกกรอบ modal
+        await Close();
     }
 }

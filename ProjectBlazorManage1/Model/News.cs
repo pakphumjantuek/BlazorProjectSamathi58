@@ -21,7 +21,5 @@
         public string? YouTubeUrl { get; set; }
         [DisplayName("สถานะข่าว")]
         public bool Status { get; set; }
-
-
     }
 }

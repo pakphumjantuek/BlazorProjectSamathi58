@@ -16,12 +16,21 @@ namespace ProjectBlazorManage1.Service
            return  await _context.Personnel.AsNoTracking()
                 .Include(p => p.jobPosition)
                 .Include(p => p.initial)
+                .Include(p => p.DhamaHistories)
+                 .ThenInclude(d => d.CourseName)
                 .ToListAsync();
         }
         public async Task<Personnel> GetPersonnelById(int id)
         {
-           return await _context.Personnel.FindAsync(id);
+        return  await _context.Personnel
+             .Include(p => p.DhamaHistories)
+             .ThenInclude(h => h.CourseName)
+             .Include(p => p.jobPosition)
+             .Include(p => p.initial)
+             .FirstOrDefaultAsync(p => p.Id == id);
         }
+
+
         public async Task AddPersonnel(Personnel personnel)
         {
             await _context.Personnel.AddAsync(personnel);

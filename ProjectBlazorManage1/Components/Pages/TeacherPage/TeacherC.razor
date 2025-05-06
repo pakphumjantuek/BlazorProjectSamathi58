@@ -23,123 +23,135 @@
 
 			@if (currentTeacher != null)
 			{
-				<InputNumber hidden class="form-control" @bind-Value="currentTeacher.Teacher_Id" />
+			
 
-				<div class="row">
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label for="initial">คำนำหน้าชื่อ</label>
-							<InputSelect @bind-Value="currentTeacher.Initial_Id" class="form-control form-select" id="initial">
-								<option value="0" disabled selected>--โปรดเลือกคำนำหน้าชื่อ--</option>
-								@foreach (var initial in _initial)
-								{
-									<option value="@initial.Initial_Id">@initial.Initial_Name</option>
-								}
-							</InputSelect>
-							<ValidationMessage For="@(() => currentTeacher.Initial_Id)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>ชื่อ</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Teacher_Name" placeholder="โปรดกรอกชื่อ" />
-							<ValidationMessage For="@(() => currentTeacher.Teacher_Name)" />
-						</div>
-					</div>
-					<div class="col-md-4">
-						<div class="form-group mb-3">
-							<label>นามสกุล</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Teacher_LastName" placeholder="โปรดกรอกนามสกุล" />
-							<ValidationMessage For="@(() => currentTeacher.Teacher_LastName)" />
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>เบอร์โทรศัพท์</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Phone_Number" MaxLength="10" onkeypress="return /[0-9]/.test(event.key)" placeholder="โปรดกรอกเบอร์โทรศัพท์" />
-							<ValidationMessage For="@(() => currentTeacher.Phone_Number)" />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>ทักษะพิเศษ</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Special_Skill" placeholder="โปรดกรอกทักษะพิเศษ" />
-							<ValidationMessage For="@(() => currentTeacher.Special_Skill)" />
-						</div>
-					</div>
-				</div>
+					<MudGrid>
+					<MudItem xs="4">
+					<MudSelect T="int"
+							   Label="คำนำหน้าชื่อ"
+							   @bind-Value="currentTeacher.Initial_Id"
+							   Required="true"
+							   RequiredError="โปรดเลือกคำนำหน้าชื่อ"
+							   Dense="true"
+							   Variant="Variant.Text"
+							   Class="my-2">
+						<MudSelectItem Value="0" Disabled="true">--โปรดเลือกคำนำหน้าชื่อ--</MudSelectItem>
+						@foreach (var initial in _initial)
+						{
+							<MudSelectItem Value="@initial.Initial_Id">@initial.Initial_Name</MudSelectItem>
+						}
+					</MudSelect>
+					</MudItem>
+					<MudItem xs="4">
+						<MudTextField T="string"
+									  Label="ชื่อ"
+									  @bind-Value="currentTeacher.Teacher_Name"
+									  For="@(() => currentTeacher.Teacher_Name)"
+									  RequiredError="กรุณากรอกชื่อ" />
+					</MudItem>
+					<MudItem xs="4">
+						<MudTextField T="string"
+									  Label="นามสกุล"
+									  @bind-Value="currentTeacher.Teacher_LastName"
+									  For="@(() => currentTeacher.Teacher_LastName)"
+									  RequiredError="กรุณากรอกนามสกุล" />
+					</MudItem>
+					</MudGrid>
 
-				<div class="col-md-12">
-					<div class="form-group mb-3">
-						<label>ที่อยู่ปัจจุบัน</label>
-						<InputTextArea class="form-control" @bind-Value="currentTeacher.Address" placeholder="โปรดกรอกที่อยู่ปัจจุบัน" />
-						<ValidationMessage For="@(() => currentTeacher.Address)" />
-					</div>
-				</div>
+				<MudGrid>					
+					<MudItem xs="6">
+						<MudTextField T="string"
+									  Label="เบอร์โทรศัพท์"
+									  @bind-Value="currentTeacher.Phone_Number"
+									  MaxLength=10
+									  For="@(() => currentTeacher.Phone_Number)"
+									  RequiredError="กรุณากรอกเบอร์โทรศัพท์" />
+					</MudItem>
+					<MudItem xs="6">
+						<MudTextField T="string"
+									  Label="ทักษะพิเศษ"
+									  @bind-Value="currentTeacher.Special_Skill"
+									  For="@(() => currentTeacher.Special_Skill)"
+									  RequiredError="กรุณากรอกทักษะพิเศษ" />
+					</MudItem>
+				</MudGrid>
 
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>อาชีพปัจจุบัน</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Occupation" placeholder="โปรดกรอกอาชีพปัจจุบัน" />
-							<ValidationMessage For="@(() => currentTeacher.Occupation)" />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label>ตำเเหน่งงานเพิ่มเติม</label>
-							<InputText class="form-control" @bind-Value="currentTeacher.Position_detail" placeholder="โปรดกรอกตำเเหน่งงานเพิ่มเติม" />
-							<ValidationMessage For="@(() => currentTeacher.Position_detail)" />
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-md-6">
-						<div class="form-floating py-3">
-							<InputSelect @bind-Value="currentTeacher.Branch_Id" class="form-select" id="branch">
-								<option value="0" disabled selected>--โปรดเลือกสาขา--</option>
-								@foreach (var b in _branch)
-								{
-									if (b.Status == true)
-									{
-										<option value="@b.Branch_Id">@b.Branch_Name</option>
-									}
-								}
-							</InputSelect>
-							<label for="branch">สาขา</label>
-							<ValidationMessage For="@(() => currentTeacher.Branch_Id)" />
-						</div>
-					</div>
-					<div class="col-md-6">
-						<div class="form-floating py-3">
-							<InputSelect @bind-Value="currentTeacher.JobPosition_Id" class="form-select" id="JobPosition">
-								<option value="0" disabled selected>--โปรดเลือกตำเเหน่งงานในสถาบัน--</option>
-								@foreach (var jobPS in _jobps)
-								{
-									if (jobPS.Status == true)
-									{
-										<option value="@jobPS.Id">@jobPS.Position_Name</option>
-									}
-								}
-							</InputSelect>
-							<label for="JobPosition">ตำเเหน่งงานในสถาบัน</label>
-							<ValidationMessage For="@(() => currentTeacher.JobPosition_Id)" />
-						</div>
-					</div>
-				</div>
-				<div class="form-floating py-3 col-12">
-					@if (currentTeacher.Images == null)
-					{
 
-						<InputFile OnChange="LoadFiles" class="form-control" id="customFile"
-								   accept="image/x-png,image/jpeg"></InputFile>
-						<label for="customFile">Upload Image</label>
-					}
-					<label for="customFile">Upload Image</label>
+				<MudTextField T="string"
+							  Label="ที่อยู่ปัจจุบัน"
+							  @bind-Value="currentTeacher.Address"
+							  Lines="5"
+							  For="@(() => currentTeacher.Address)"  
+							  RequiredError="กรุณากรอกที่อยู่ปัจจุบัน" />
 
-				</div>
+				<MudGrid>
+					<MudItem xs="6">
+						<MudTextField T="string"
+									  Label="อาชีพปัจจุบัน"
+									  @bind-Value="currentTeacher.Occupation"
+									  For="@(() => currentTeacher.Occupation)"
+									  RequiredError="กรุณากรอกอาชีพปัจจุบัน" />
+					</MudItem>
+					<MudItem xs="6">
+						<MudTextField T="string"
+									  Label="ตำเเหน่งงานเพิ่มเติม"
+									  @bind-Value="currentTeacher.Position_detail"
+									  For="@(() => currentTeacher.Position_detail)"
+									  RequiredError="กรุณากรอกตำเเหน่งงานเพิ่มเติม" />
+					</MudItem>
+				</MudGrid>
+
+
+				<MudGrid>
+					<MudItem xs="6">
+						<MudSelect T="int?" Label="โปรดเลือกสาขา"
+								   @bind-Value="currentTeacher.Branch_Id"
+								   Required="true"
+								   RequiredError="โปรดเลือกสาขา"
+								   Dense="true"
+								   Variant="Variant.Text"
+								   Class="my-2">
+
+							<MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกสาขา--</MudSelectItem>
+
+							@foreach (var branch in _branch)
+							{
+								<MudSelectItem T="int?" Value="@branch.Branch_Id">@branch.Branch_Name</MudSelectItem>
+							}
+						</MudSelect>
+					</MudItem>
+					<MudItem xs="6">
+						<MudSelect T="int?" Label="โปรดเลือกตำเเหน่งงานในสถาบัน"
+								   @bind-Value="currentTeacher.JobPosition_Id"
+								   Required="true"
+								   RequiredError="โปรดเลือกตำเเหน่งงานในสถาบัน"
+								   Dense="true"
+								   Variant="Variant.Text"
+								   Class="my-2">
+
+							<MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกสาขา--</MudSelectItem>
+
+							@foreach (var job in _jobps)
+							{
+								<MudSelectItem T="int?" Value="@job.Id">@job.Position_Name</MudSelectItem>
+							}
+						</MudSelect>
+					</MudItem>
+				</MudGrid>
+
+				<MudFileUpload T="IBrowserFile"
+							   FilesChanged="LoadFiles"
+							   Accept=".jpg,.jpeg,.png"
+							   MaxFiles="1"
+							   Multiple="false">
+					<ActivatorContent>
+						<MudButton Variant="Variant.Filled"
+								   Color="Color.Primary"
+								   StartIcon="@Icons.Material.Filled.CloudUpload">
+							อัพโหลดรูปภาพ
+						</MudButton>
+					</ActivatorContent>
+				</MudFileUpload>
 
 				@if (!string.IsNullOrEmpty(GetImageUrl()))
 				{
@@ -522,6 +534,8 @@ else
 				await JSRuntime.InvokeAsync<bool>("ShowSwal", "test", "เพิ่มสำเร็จ");
 			}
 
+			_selectedFile = null;
+			_previewImage = null;
 			await LoadData();
 			showModal = false;
 		}
@@ -589,22 +603,28 @@ else
 		return currentTeacher.Images ?? string.Empty;
 	}
 
-	private async Task LoadFiles(InputFileChangeEventArgs e)
+
+	private async Task LoadFiles(IBrowserFile file)
 	{
-		IsProcessing = true;
-		_selectedFile = e.File;
-		long maxAllowedSize = 10 * 1024 * 1024;
+		if (file == null) return;
 
-		using (var memoryStream = new MemoryStream())
+		try
 		{
-			await _selectedFile.OpenReadStream(maxAllowedSize).CopyToAsync(memoryStream);
+			const long maxAllowedSize = 10 * 1024 * 1024;
+			_selectedFile = file;
+
+			using var memoryStream = new MemoryStream();
+			await file.OpenReadStream(maxAllowedSize).CopyToAsync(memoryStream);
+
 			byte[] buffer = memoryStream.ToArray();
-
 			string imageBase64Data = Convert.ToBase64String(buffer);
-			string imageDataUrl = $"data:{_selectedFile.ContentType};base64,{imageBase64Data}";
+			_previewImage = $"data:{file.ContentType};base64,{imageBase64Data}";
 
-			_previewImage = imageDataUrl;
-			IsProcessing = false;
+			StateHasChanged();
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาดในการโหลดไฟล์: {ex.Message}");
 		}
 	}
 

@@ -15,24 +15,21 @@
 
             @if (currentCoureseName != null)
             {
-                <div class="form-group mb-3">
-                    <label>ชื่อหลักสูตร</label>
-                    <InputText class="form-control" @bind-Value="currentCoureseName.Name" />
-                    <ValidationMessage For="@(() => currentCoureseName.Name)" />
-                </div>
-                <div class="form-group mb-3">
-                    <label>ลำดับหลักสูตร</label>
-                    <InputNumber class="form-control" @bind-Value="currentCoureseName.Level" />
-                    <ValidationMessage For="@(() => currentCoureseName.Level)" />
-                </div>
-                <div class="form-group mb-3">
-                    <label>สถานะ</label>
-                    <InputSelect class="form-select" @bind-Value="currentCoureseName.Status">
-                        <option value="false">ประวัติทางธรรม</option>
-                        <option value="true">ประวัติหลักสูตร</option>
-                    </InputSelect>
-                    <ValidationMessage For="@(() => currentCoureseName.Status)" />
-                </div>
+                <MudTextField T="string"
+                              Label="ชื่อหลักสูตร"
+                              @bind-Value="currentCoureseName.Name"
+                              For="@(() => currentCoureseName.Name)"
+                              RequiredError="กรุณากรอกชื่อหลักสูตร" />
+                <MudTextField T="int"
+                              Label="ลำดับหลักสูตร"
+                              @bind-Value="currentCoureseName.Level"
+                              For="@(() => currentCoureseName.Level)"
+                              RequiredError="กรุณากรอกลำดับหลักสูตร" />
+                <MudSelect T="bool" Label="สถานะ" @bind-Value="currentCoureseName.Status" Required="true">
+                    <MudSelectItem Value="false">ประวัติทางธรรม</MudSelectItem>
+                    <MudSelectItem Value="true">ประวัติหลักสูตร</MudSelectItem>
+                </MudSelect>
+                <ValidationMessage For="@(() => currentCoureseName.Status)" />
             }
         </EditForm>
     </ChildContent>

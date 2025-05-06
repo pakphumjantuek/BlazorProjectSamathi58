@@ -15,45 +15,77 @@
 
 			@if (currentClassStudied != null)
 			{
-				<div class="form-group mb-3">
-					<label>รหัสรุ่น</label>
-					<InputNumber class="form-control" @bind-Value="currentClassStudied.Id" min="1" />
-					<ValidationMessage For="@(() => currentClassStudied.Id)" />
-				</div>
-				<div class="form-group mb-3">
-					<label>ชื่อรุ่น</label>
-					<InputText class="form-control" @bind-Value="currentClassStudied.ClassName" placeholder="โปรดกรอกชื่อรุ่น" />
-					<ValidationMessage For="@(() => currentClassStudied.ClassName)" />
-				</div>
-				<div class="form-floating py-3">
-					<InputSelect @bind-Value="currentClassStudied.Branch_Id" class="form-select" id="branch">
-						<option value="0" disabled selected>--โปรดเลือกสาขา--</option>
-						@foreach (var b in _branch)
-						{
-							if (b.Status == true)
+				<MudGrid>
+					<MudItem xs="12">
+						<MudTextField T="int"
+									  Label="รหัสรุ่น"
+									  @bind-Value="currentClassStudied.Id"
+									  For="@(() => currentClassStudied.Id)"
+									  RequiredError="กรุณากรอกรหัสรุ่น" />
+					</MudItem>
+
+					<MudItem xs="12">
+						<MudTextField T="string"
+									  Label="ชื่อรุ่น"
+									  @bind-Value="currentClassStudied.ClassName"
+									  For="@(() => currentClassStudied.ClassName)"
+									  RequiredError="กรุณากรอกชื่อรุ่น" />
+					</MudItem>
+
+					<MudItem xs="12">
+						<MudSelect T="int?" Label="โปรดเลือกสาขา"
+								   @bind-Value="currentClassStudied.Branch_Id"
+								   Required="true"
+								   RequiredError="โปรดเลือกสาขา"
+								   Dense="true"
+								   Variant="Variant.Text"
+								   Class="my-2">
+							<MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกสาขา--</MudSelectItem>
+							@foreach (var job in _branch)
 							{
-								<option value="@b.Branch_Id">@b.Branch_Id @b.Branch_Name</option>
+								<MudSelectItem T="int?" Value="@job.Branch_Id">@job.Branch_Name</MudSelectItem>
 							}
-						}
-					</InputSelect>
-					<label for="branch">สาขา</label>
-					<ValidationMessage For="@(() => currentClassStudied.Branch_Id)" />
-				</div>
-				<div class="form-group mb-3">
-					<label>ภาคเรียน</label>
-					<InputText class="form-control" @bind-Value="currentClassStudied.termClass" placeholder="โปรดกรอกภาคเรียน" />
-					<ValidationMessage For="@(() => currentClassStudied.termClass)" />
-				</div>
-				<div class="form-group mb-3">
-					<label>วันที่เริมเรียน</label>
-					<InputDate class="form-control" @bind-Value="currentClassStudied.StartDate" />
-					<ValidationMessage For="@(() => currentClassStudied.StartDate)" />
-				</div>
-				<div class="form-group mb-3">
-					<label>วันที่สิ้นสุดการเรียน</label>
-					<InputDate class="form-control" @bind-Value="currentClassStudied.EndDate" />
-					<ValidationMessage For="@(() => currentClassStudied.EndDate)" />
-				</div>
+						</MudSelect>
+					</MudItem>
+
+					<MudItem xs="12">
+						<MudTextField T="string"
+									  Label="ภาคเรียน"
+									  @bind-Value="currentClassStudied.termClass"
+									  For="@(() => currentClassStudied.termClass)"
+									  RequiredError="กรุณากรอกภาคเรียน" />
+					</MudItem>
+
+
+					<MudItem xs="12" sm="6">
+						<MudDatePicker Label="วันที่เริ่มเรียน"
+									   @bind-Date="currentClassStudied.StartDate"
+									   For="@(() => currentClassStudied.StartDate)"
+									   DateFormat="dd/MM/yyyy"
+									   Placeholder="เลือกวันที่"
+									   Editable="true"
+									   OpenTo="OpenTo.Date"
+									   InputIcon="@Icons.Material.Filled.CalendarToday"
+									   Clearable="true"
+									   Class="w-100" />
+					</MudItem>
+
+					<MudItem xs="12" sm="6">
+						<MudDatePicker Label="วันที่สิ้นสุดการเรียน"
+									   @bind-Date="currentClassStudied.EndDate"
+									   DateFormat="dd/MM/yyyy"
+									   Placeholder="เลือกวันที่"
+									   MinDate="currentClassStudied.StartDate"
+									   Editable="true"
+									   OpenTo="OpenTo.Date"
+									   InputIcon="@Icons.Material.Filled.CalendarToday"
+									   Clearable="true"
+									   Class="w-100" />
+					</MudItem>
+				</MudGrid>
+
+				
+				
 
 			}
 		</EditForm>
@@ -132,7 +164,7 @@ else
 									Filterable="false"
 									Sortable="true">
 						<CellTemplate>
-							@context.Item.StartDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))
+							@context.Item.StartDate?.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))
 						</CellTemplate>
 					</TemplateColumn>
 
@@ -140,7 +172,7 @@ else
 									Filterable="false"
 									Sortable="true">
 						<CellTemplate>
-							@context.Item.EndDate.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))
+							@context.Item.EndDate?.ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("th-TH"))
 						</CellTemplate>
 					</TemplateColumn>
 
@@ -244,6 +276,8 @@ else
 
 	}
 
+
+
 	private void ShowAddModal()
 	{
 		currentClassStudied = new ClassStudied();
@@ -294,6 +328,12 @@ else
 		{
 			IsProcessing = true;
 			StateHasChanged();
+
+			if (!currentClassStudied.IsStudyPeriodValid())
+			{
+				await JSRuntime.InvokeAsync<bool>("ShowSwal", "error", "กรุณาเลือกช่วงเวลาเรียนให้ครบ 6 เดือน");
+				return;
+			}
 
 			if (isEditMode)
 			{

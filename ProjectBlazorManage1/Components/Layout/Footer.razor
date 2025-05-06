@@ -1,119 +1,74 @@
-﻿<footer class="institute-footer">
+﻿<!-- Enhanced Footer with Golden Theme -->
+<footer class="institute-footer">
+    <div class="footer-top-wave"></div>
+
     <div class="container">
-        <div class="footer-grid">
-            <div class="footer-section">
-                <h4>สถาบันพลังจิตตานุภาพ</h4>
-                <p>สาขา 58 วัดสิริกาญจนาราม<br>จังหวัดกาญจนบุรี</p>
+        <div class="footer-logo-section">
+            <img src="/images/Logo.png" alt="สถาบันพลังจิตตานุภาพ" class="footer-logo">
+            <div class="footer-title">
+                <h3>สถาบันพลังจิตตานุภาพ</h3>
+                <p>สาขา 58 วัดสิริกาญจนาราม</p>
             </div>
-            <div class="footer-section">
-                <h4>ที่ตั้ง</h4>
+        </div>
+
+        <div class="footer-grid">
+            <div class="footer-section info-section">
+                <h4><i class="bi bi-info-circle-fill"></i> เกี่ยวกับเรา</h4>
+                <p>สถาบันพลังจิตตานุภาพ สาขา 58<br>วัดสิริกาญจนาราม จังหวัดกาญจนบุรี</p>
+                <p>เปิดทำการ: วันเสาร์-อาทิตย์<br>เวลา 9:00 - 17:00 น.</p>
+                <p>เปิดทำการ: วันจันทร์-ศุกร์<br>เวลา 9:00 - 17:00 น.</p>
+            </div>
+
+            <div class="footer-section location-section">
+                <h4><i class="bi bi-geo-alt-fill"></i> ที่ตั้ง</h4>
                 <p>
                     วัดสิริกาญจนาราม 3 หมู่ 1<br>
                     ถนนสายเลี่ยงเมือง ต.ท่ามะขาม<br>
                     อ.เมือง จ.กาญจนบุรี 71000
                 </p>
+                <a href="https://maps.app.goo.gl/awEbtrkvqVfGXXte6" class="map-link" target="_blank">
+                    <i class="bi bi-map"></i> ดูแผนที่
+                </a>
             </div>
-            <div class="footer-section contact">
-                <h4>ติดตามเรา</h4>
+
+            <div class="footer-section contact-section">
+                <h4><i class="bi bi-telephone-fill"></i> ติดต่อเรา</h4>
+                <p><i class="bi bi-telephone"></i> 089-122-6292</p>
+                <p><i class="bi bi-envelope"></i> email@example.com</p>
                 <div class="social-links">
-                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" aria-label="Line"><i class="fab fa-line"></i></a>
-                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="https://www.facebook.com/profile.php?id=100064591852472&locale=th_TH" target="_blank" aria-label="Facebook" class="facebook-link">
+                        <i class="bi bi-facebook"></i>
+                    </a>
+                    <a href="#" aria-label="Line" class="line-link">
+                        <i class="bi bi-line"></i>
+                    </a>
+                    <a href="#" aria-label="Instagram" class="instagram-link">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                    <a href="#" aria-label="YouTube" class="youtube-link">
+                        <i class="bi bi-youtube"></i>
+                    </a>
                 </div>
+            </div>
+
+            <div class="footer-section links-section">
+                <h4><i class="bi bi-link-45deg"></i> ลิงก์ด่วน</h4>
+                <ul class="quick-links">
+                    <li><a href="/"><i class="bi bi-house-door"></i> หน้าแรก</a></li>
+                    <li><a href="/about"><i class="bi bi-info-circle"></i> เกี่ยวกับสถาบัน</a></li>
+                    <li><a href="/NewsPage"><i class="bi bi-newspaper"></i> ข่าวสาร</a></li>
+                    <li><a href="/personnel-list"><i class="bi bi-people"></i> บุคลากร</a></li>
+                    <li><a href="/contact"><i class="bi bi-chat-dots"></i> ติดต่อเรา</a></li>
+                </ul>
             </div>
         </div>
     </div>
+
+
     <div class="footer-bottom">
-        <p>© 2023 สถาบันพลังจิตตานุภาพ สาขา 58. All rights reserved.</p>
+        <div class="container">
+            <p>© 2023-2025 สถาบันพลังจิตตานุภาพ สาขา 58 วัดสิริกาญจนาราม. All rights reserved.</p>
+            <p class="developer-credit">พัฒนาโดย <a href="#">ทีมพัฒนาเว็บไซต์</a></p>
+        </div>
     </div>
 </footer>
-
-<style>
-
-    .institute-footer {
-        background: linear-gradient(to right, #e6c96e, #dfc268, #e6c96e);
-        color: #333;
-        font-family: 'Sarabun', sans-serif;
-        padding: 30px 0 0;
-        box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-
-    .footer-grid {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        gap: 30px;
-    }
-
-    .footer-section {
-        flex: 1;
-        min-width: 200px;
-    }
-
-        .footer-section h4 {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #5a4a1f;
-            position: relative;
-            font-weight: 500;
-            padding-bottom: 10px;
-        }
-
-            .footer-section h4:after {
-                content: '';
-                position: absolute;
-                left: 0;
-                bottom: 0;
-                width: 40px;
-                height: 2px;
-                background-color: #5a4a1f;
-            }
-
-        .footer-section p {
-            line-height: 1.6;
-            font-weight: 300;
-            margin-bottom: 10px;
-        }
-
-    .social-links {
-        display: flex;
-        gap: 15px;
-        margin-top: 10px;
-    }
-
-        .social-links a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background-color: #5a4a1f;
-            color: #e6c96e;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-            .social-links a:hover {
-                transform: translateY(-3px);
-                background-color: #333;
-                box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-            }
-
-    .footer-bottom {
-        text-align: center;
-        padding: 15px 0;
-        margin-top: 30px;
-        background-color: rgba(90, 74, 31, 0.1);
-        font-size: 14px;
-        color: #5a4a1f;
-    }
-
-   
-</style>
