@@ -25,12 +25,12 @@ else
                     <h5 class="mb-0">
                         <i class="bi bi-bar-chart-fill me-2"></i> เลือกรายการ
                     </h5>
-                    <a href="/ClassStudie/Timetable/@ClassId" class="btn btn-outline-light shadow-sm">
+                    <a href="ClassStudie/Timetable/@ClassId" class="btn btn-outline-light shadow-sm">
                         ย้อนกลับ
                     </a>
                 </div>
                 <div class="card-body">
-                    <a class="list-group-item list-group-item-action" href="@($"/attendance/report/{ClassId}")">
+                    <a class="list-group-item list-group-item-action" href="@($"attendance/report/{ClassId}")">
                         รายงานการเข้าเรียนทั้งหมด
                     </a>
                 </div>
@@ -91,7 +91,7 @@ else
                                     <td>@plan.Tape</td>
                                     <td>@($"{plan.teacher?.Teacher_Name} {plan.teacher?.Teacher_LastName}")</td>
                                     <td>
-                                        <a class="btn btn-sm btn-outline-primary" href="@($"/attendance/take/{ClassId}/{plan.Id}")">
+                                        <a class="btn btn-sm btn-outline-primary" href="@($"attendance/take/{ClassId}/{plan.Id}")">
                                             <i class="bi bi-pencil-square me-1"></i> บันทึก
                                         </a>
                                     </td>
@@ -112,7 +112,7 @@ else
     </div>
 
     <div class="text-center mt-4">
-        <a class="btn btn-outline-secondary" href="@($"/ClassStudie/Timetable/{ClassId}")">
+        <a class="btn btn-outline-secondary" href="@($"ClassStudie/Timetable/{ClassId}")">
             <i class="bi bi-arrow-left me-1"></i> กลับหน้าตารางสอน
         </a>
     </div>

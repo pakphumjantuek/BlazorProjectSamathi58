@@ -100,16 +100,16 @@
                 <div class="col-lg-4 col-md-6">
                     <div class="card h-100 border-0 shadow-sm hover-card overflow-hidden">
                         <div class="position-relative news-image-container">
-                            @if (!string.IsNullOrEmpty(news.Images))
+                            @if (GetImages(news).Any())
                             {
-                                var firstImage = news.Images.Split(';').FirstOrDefault();
+                                var firstImage = GetImages(news).FirstOrDefault();
+
                                 if (!string.IsNullOrEmpty(firstImage))
                                 {
                                     <img src="@firstImage"
                                          class="card-img-top"
                                          style="height: 220px; object-fit: cover; transition: transform 0.3s ease;"
-                                         alt="ข่าว @news.Title"
-                                         onerror="this.onerror=null; this.src='/images/placeholder.png';" />
+                                         alt="ข่าว @news.Title" />
                                 }
                             }
                             else
@@ -146,7 +146,7 @@
         </div>
 
         <div class="text-center mt-4">
-            <a href="/NewsPage" class="btn btn-outline-success">
+            <a href="NewsPage" class="btn btn-outline-success">
                 <i class="bi bi-newspaper me-1"></i>ดูข่าวทั้งหมด
             </a>
         </div>
@@ -175,6 +175,9 @@
 
 @code {
     private List<News> newsList;
+    private News news;
+    private string BaseUrl => NavigationManager.BaseUri.TrimEnd('/');
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -188,7 +191,7 @@
 
     private void GoToDetails(int newsId)
     {
-        NavigationManager.NavigateTo($"/News/NewsDetails/{newsId}");
+        NavigationManager.NavigateTo($"News/NewsDetails/{newsId}");
     }
 
     // เมื่อคลิกที่ปุ่ม "ดูหลักสูตรการสอน" ให้เลื่อนลงไปที่ส่วนของหลักสูตร
@@ -205,4 +208,23 @@
             ");
         }
     }
+
+    private List<string> GetImages(News newsItem)
+    {
+        if (string.IsNullOrEmpty(newsItem?.Images))
+            return new List<string>();
+
+        var imageNames = newsItem.Images.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                                        .Select(img => img.Trim())
+                                        .ToList();
+
+        var imageUrls = imageNames.Select(img =>
+        {
+            var fileName = Path.GetFileName(img);
+            return $"{BaseUrl}/images/News/{fileName}";
+        }).ToList();
+
+        return imageUrls;
+    }
+
 }

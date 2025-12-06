@@ -17,15 +17,19 @@
             {
                 <MudTextField T="string"
                               Label="ชื่อหลักสูตร"
+                              							   Variant="Variant.Outlined"
                               @bind-Value="currentCoureseName.Name"
                               For="@(() => currentCoureseName.Name)"
                               RequiredError="กรุณากรอกชื่อหลักสูตร" />
+
                 <MudTextField T="int"
                               Label="ลำดับหลักสูตร"
+                               Variant="Variant.Outlined"
                               @bind-Value="currentCoureseName.Level"
                               For="@(() => currentCoureseName.Level)"
                               RequiredError="กรุณากรอกลำดับหลักสูตร" />
-                <MudSelect T="bool" Label="สถานะ" @bind-Value="currentCoureseName.Status" Required="true">
+
+                <MudSelect T="bool" Label="สถานะ" @bind-Value="currentCoureseName.Status" Variant="Variant.Outlined" Required="true">
                     <MudSelectItem Value="false">ประวัติทางธรรม</MudSelectItem>
                     <MudSelectItem Value="true">ประวัติหลักสูตร</MudSelectItem>
                 </MudSelect>

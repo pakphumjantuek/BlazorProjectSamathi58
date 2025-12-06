@@ -1,4 +1,4 @@
-
+﻿
 
 namespace ProjectBlazorManage1.Data
 {
@@ -20,8 +20,10 @@ namespace ProjectBlazorManage1.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             base.OnConfiguring(optionsBuilder);
-            optionsBuilder.UseSqlServer("Server=DESKTOP-FUBH5IH\\SQLEXPRESS;Database=ProjectBlazorManage;Trusted_Connection=True;MultipleActiveResultSets=true;TrustServerCertificate=True");
+            optionsBuilder.UseSqlServer("Server=10.103.0.17,1433;Database=ProjectBlazorManageTemple; Trusted_Connection = false; MultipleActiveResultSets = true; " +
+                "TrustServerCertificate = True; User Id = student;Password = Pass@sql; Encrypt = false; ");
         }
+
     }
 }
 

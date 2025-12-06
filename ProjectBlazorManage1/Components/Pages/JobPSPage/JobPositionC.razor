@@ -17,11 +17,13 @@
 			{
 				<MudTextField T="string"
 							  Label="ชื่อตำเเหน่ง"
+							  							   Variant="Variant.Outlined"
 							  @bind-Value="currentJobPosition.Position_Name"
 							  For="@(() => currentJobPosition.Position_Name)"
 							  RequiredError="กรุณากรอกชื่อตำเเหน่ง" />
 				<MudTextField T="int"
 							  Label="ลำดับขั้น"
+							  							   Variant="Variant.Outlined"
 							  @bind-Value="currentJobPosition.Position_Level"
 							  For="@(() => currentJobPosition.Position_Level)"
 							  RequiredError="กรุณากรอกลำดับขั้น" />
@@ -54,7 +56,7 @@ else
 		</div>
 		<div class="card-body p-4">
 			<MudDataGrid T="JobPosition"
-						 Items="@FilteredJobList"
+						 Items="@FilteredJobList.OrderBy(p => p.Position_Level)"
 						 SortMode="SortMode.Multiple"
 						 Filterable="true"
 						 Hover="true"

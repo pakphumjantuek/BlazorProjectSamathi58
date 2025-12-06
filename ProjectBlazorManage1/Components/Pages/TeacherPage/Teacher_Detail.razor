@@ -22,44 +22,61 @@
 			<DataAnnotationsValidator />
 			<ValidationSummary />
 
-			<div class="form-group mb-3">
-				<label for="degree">ระดับการศึกษา</label>
-				<InputSelect @bind-Value="currentEducationHistory.Degree" class="form-control form-select">
-					<option value="" disabled selected>กรุณาเลือก</option>
-					@foreach (var degree in Enum.GetValues(typeof(DegreeTypes)))
-					{
-						<option value="@degree">@degree</option>
-					}
-				</InputSelect>
-				<ValidationMessage For="@(() => currentEducationHistory.Degree)" />
-			</div>
+			<div class="col-md-12">
+				<MudItem xs="12" sm="12" class="mb-1">
+					<MudSelect T="DegreeTypes"
+							   Label="ระดับการศึกษา"
+							   Variant="Variant.Outlined"
+							   @bind-Value="currentEducationHistory.Degree"
+							   For="@(() => currentEducationHistory.Degree)">
+						<MudSelectItem T="DegreeTypes" Disabled="true">--โปรดเลือกระดับการศึกษา--</MudSelectItem>
+						@foreach (DegreeTypes degree in Enum.GetValues(typeof(DegreeTypes)))
+						{
+							<MudSelectItem T="DegreeTypes" Value="@degree">@degree</MudSelectItem>
+						}
+					</MudSelect>
+				</MudItem>
 
-			<div class="form-group mb-3">
-				<label for="institution">สถาบันการศึกษา</label>
-				<InputText class="form-control" @bind-Value="currentEducationHistory.Institution" />
-			</div>
+				<MudItem xs="12" sm="12" class="mb-1">
+					<MudTextField T="string"
+								  Label="สถาบันการศึกษา"
+								  @bind-Value="currentEducationHistory.Institution"
+								  For="@(() => currentEducationHistory.Institution)"
+								  Variant="Variant.Outlined"
+								  RequiredError="กรุณากรอกสถาบันการศึกษา" />
+				</MudItem>
 
-			<div class="form-group mb-3">
-				<label for="majorName">สาขาเอก</label>
-				<InputText class="form-control" @bind-Value="currentEducationHistory.MajorName" />
-			</div>
+				<MudItem xs="12" sm="12" class="mb-1">
+					<MudTextField T="string"
+								  Label="สาขาเอก"
+								  @bind-Value="currentEducationHistory.MajorName"
+								  For="@(() => currentEducationHistory.MajorName)"
+								  Variant="Variant.Outlined"
+								  RequiredError="กรุณากรอกสาขาเอก" />
+				</MudItem>
 
-			<div class="form-group mb-3">
-				<label for="yearGraduated">ประเทศที่จบ</label>
-				<InputText class="form-control" @bind-Value="currentEducationHistory.YearGraduated" />
-			</div>
+				<MudItem xs="12" sm="12" class="mb-1">
+					<MudTextField T="string"
+								  Label="ประเทศที่จบ"
+								  @bind-Value="currentEducationHistory.YearGraduated"
+								  For="@(() => currentEducationHistory.YearGraduated)"
+								  Variant="Variant.Outlined"
+								  RequiredError="กรุณากรอกประเทศที่จบ" />
+				</MudItem>
 
-
-			<div class="form-group mb-3">
-				<label for="degreeName">วุฒิที่จบ</label>
-				<InputSelect @bind-Value="currentEducationHistory.degreeName" class="form-control form-select">
-					<option value="" disabled selected>กรุณาเลือก</option>
-					@foreach (var degree in Enum.GetValues(typeof(DegreeName)))
-					{
-						<option value="@degree">@degree</option>
-					}
-				</InputSelect>
-				<ValidationMessage For="@(() => currentEducationHistory.degreeName)" />
+				<MudItem xs="12" sm="12" class="mb-1">
+					<MudSelect T="DegreeName"
+							   Label="ชื่อปริญญา"
+							   Variant="Variant.Outlined"
+							   @bind-Value="currentEducationHistory.degreeName"
+							   For="@(() => currentEducationHistory.degreeName)">
+						<MudSelectItem T="DegreeName" Disabled="true">--โปรดเลือกระดับการศึกษา--</MudSelectItem>
+						@foreach (DegreeName degree in Enum.GetValues(typeof(DegreeName)))
+						{
+							<MudSelectItem T="DegreeName" Value="@degree">@degree</MudSelectItem>
+						}
+					</MudSelect>
+				</MudItem>
 			</div>
 		</EditForm>
 	</ChildContent>
@@ -78,32 +95,42 @@
 			<ValidationSummary />
 
 			<div class="col-md-12">
-				<div class="form-group mb-3">
-					<label>หลักสูตร</label>
-					<InputSelect @bind-Value="currentDhammaCourse.CourseName_Id" class="form-control form-select">
-						<option value="0" disabled selected>--โปรดเลือกหลักสูตร--</option>
-						@if (isCourse)
-						{
-							@foreach (var cn in _CourseName.Where(c => c.Status))
-							{
-								<option value="@cn.Id">@cn.Name</option>
-							}
-						}
-						else
-						{
-							@foreach (var cn in _CourseName.Where(c => !c.Status))
-							{
-								<option value="@cn.Id">@cn.Name</option>
-							}
-						}
-					</InputSelect>
-					<ValidationMessage For="@(() => currentDhammaCourse.CourseName_Id)" />
-				</div>
 
-				<div class="form-group mb-3">
-					<label>รุ่นที่</label>
-					<InputNumber class="form-control" @bind-Value="currentDhammaCourse.generation" />
-				</div>
+				<MudSelect T="int"
+						   Label="ประวัติ"
+						   @bind-Value="currentDhammaCourse.CourseName_Id"
+						   For="@(() => currentDhammaCourse.CourseName_Id)"
+						   Required="true"
+						   RequiredError="โปรดเลือกประวัติ"
+						   Dense="true"
+						   Variant="Variant.Outlined"
+						   SearchFunc="SearchCourse"
+						   SearchDelay="0"
+						   Class="my-2">
+
+					<MudSelectItem Value="0" Disabled="true">--โปรดเลือกประวัติ--</MudSelectItem>
+
+					@if (isCourse)
+					{
+						@foreach (var cn in _CourseName.Where(c => c.Status))
+						{
+							<MudSelectItem Value="@cn.Id">@cn.Name</MudSelectItem>
+						}
+					}
+					else
+					{
+						@foreach (var cn in _CourseName.Where(c => !c.Status))
+						{
+							<MudSelectItem Value="@cn.Id">@cn.Name</MudSelectItem>
+						}
+					}
+				</MudSelect>
+				<MudTextField T="int"
+							  Label="รุ่นที่"
+							  @bind-Value="currentDhammaCourse.generation"
+							  For="@(() => currentDhammaCourse.generation)"
+							  Variant="Variant.Outlined"
+							  RequiredError="กรุณากรอกรุ่นที่" />
 			</div>
 		</EditForm>
 	</ChildContent>
@@ -125,7 +152,7 @@
 			<div class="card-header bg-secondary bg-gradient text-white">
 				<div class="d-flex align-items-center">
 					<h2 class="mb-0 fs-4"><i class="bi bi-person-badge me-2"></i>ข้อมูลอาจารย์</h2>
-					<a href="/Teacher" class="btn btn-light btn-sm ms-auto">
+					<a href="Teacher" class="btn btn-light btn-sm ms-auto">
 						<i class="bi bi-arrow-left me-1"></i>กลับ
 					</a>
 				</div>
@@ -138,7 +165,7 @@
 						<div class="avatar-container position-relative mx-auto" style="width: 150px; height: 150px;">
 							@if (!string.IsNullOrEmpty(teacher.Images))
 							{
-								var firstImage = teacher.Images.Split(',').FirstOrDefault()?.Trim();
+								var firstImage = GetImageUrl();
 								if (!string.IsNullOrEmpty(firstImage))
 								{
 									<img src="@firstImage" class="img-thumbnail rounded-circle w-100 h-100 object-fit-cover" alt="@teacher.Teacher_Name" />
@@ -470,6 +497,7 @@
 	private IEnumerable<Teacher> _Teachers = new List<Teacher>();
 	private IEnumerable<CourseName> _CourseName = new List<CourseName>();
 	private bool isCourse = false;
+	private string BaseUrl => NavigationManager.BaseUri.TrimEnd('/');
 
 	private Modals EducationModal;
 	private Modals DhammaCourseModal;
@@ -487,6 +515,15 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await LoadTeacher();
+	}
+
+	private string GetImageUrl()
+	{
+		var fileName = Path.GetFileName(teacher.Images);
+
+		var imageUrl = $"{BaseUrl}/images/Teacher/{fileName}";
+
+		return imageUrl;
 	}
 
 	private async Task LoadTeacher()

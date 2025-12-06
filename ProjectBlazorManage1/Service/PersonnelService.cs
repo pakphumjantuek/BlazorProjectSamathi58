@@ -5,6 +5,7 @@ namespace ProjectBlazorManage1.Service
     {
         private readonly ApplicationDbContext _context;
         private readonly ILogger<PersonnelService> _logger;
+        private readonly string _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/Personnel");
 
         public PersonnelService(ApplicationDbContext context, ILogger<PersonnelService> logger)
         {
@@ -80,6 +81,22 @@ namespace ProjectBlazorManage1.Service
                 throw new InvalidOperationException("ไม่สามารถลบได้ ข้อมูลอาจถูกใช้งานอยู่", ex);
             }
         }
-      
+        public async Task DeleteImage(string imageUrl)
+        {
+            try
+            {
+                var fileName = Path.GetFileName(imageUrl);
+                var filePath = Path.Combine(_imagePath, fileName);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to delete image: {ex.Message}");
+            }
+        }
+
     }
 }

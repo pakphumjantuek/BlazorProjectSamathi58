@@ -2,6 +2,9 @@
 @inject NewsService _NewsService
 @inject IJSRuntime JSRuntime
 @inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+@inject IWebHostEnvironment Env
+
 
 
 <Modals @ref="NewsModal"
@@ -20,12 +23,14 @@
 
                 <MudTextField T="string"
                               Label="หัวข้อข่าว"
+                              									  Variant="Variant.Outlined"
                               @bind-Value="Currentnews.Title"
                               For="@(() => Currentnews.Title)"
                               RequiredError="กรุณากรอกหัวข้อข่าว" />
 
                 <MudTextField T="string"
                               Label="เนื้อหาข่าว"
+                              									  Variant="Variant.Outlined"
                               @bind-Value="Currentnews.News_Content"
                               Lines="5"
                               For="@(() => Currentnews.News_Content)"
@@ -33,6 +38,7 @@
 
                 <MudTextField T="string"
                               Label="วิดีโอ YouTube (ถ้ามี)"
+                              									  Variant="Variant.Outlined"
                               @bind-Value="Currentnews.YouTubeUrl" />
 
                 <MudFileUpload T="IReadOnlyList<IBrowserFile>"
@@ -162,9 +168,9 @@ else
                                 @context.Item.News_Content.Substring(0, Math.Min(30, context.Item.News_Content.Length))
 
                                 @(context.Item.News_Content.Length > 30 ? "..." : "")
-                            }                        
+                            }
                         </CellTemplate>
-                    </PropertyColumn> 
+                    </PropertyColumn>
                     <PropertyColumn Property="x => x.DateStart" Title="วันที่เผยเเพร่" Filterable="true" Sortable="true" CellStyle="font-size: 14px;" />
 
                     <TemplateColumn Title="สถานะ" CellClass="status-column" Sortable="false">
@@ -246,6 +252,8 @@ else
                x.Title.Contains(searchString, StringComparison.OrdinalIgnoreCase) ||
                x.News_Content.Contains(searchString, StringComparison.OrdinalIgnoreCase))
         .OrderBy(p => p.News_Id);
+
+    private string BaseUrl => NavigationManager.BaseUri.TrimEnd('/');
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -350,12 +358,23 @@ else
     private IEnumerable<string> GetImageUrls()
     {
         var allImages = new List<string>();
-        allImages.AddRange(_previewImages); // Base64 previews สำหรับไฟล์ใหม่
-        allImages.AddRange(ExistingImages.Where(img => !string.IsNullOrEmpty(img))); // Server URLs
+
+        allImages.AddRange(_previewImages);
+
+        allImages.AddRange(ExistingImages.Select(img =>
+        {
+            var fileName = Path.GetFileName(img);
+            return $"{BaseUrl}/images/News/{fileName}";
+        }));
+
+        // ดีบัก URL
+        foreach (var url in allImages)
+        {
+            Console.WriteLine($"Generated Image URL: {url}");
+        }
+
         return allImages;
     }
-
-
 
     private async Task DeleteImage(string imageUrl)
     {
@@ -366,21 +385,33 @@ else
                 var index = _previewImages.IndexOf(imageUrl);
                 _previewImages.RemoveAt(index);
                 _selectedFiles.RemoveAt(index);
-            }
-            else if (ExistingImages.Contains(imageUrl))
-            {
-                var imagesList = ExistingImages.ToList();
-                imagesList.Remove(imageUrl);
-                Currentnews.Images = imagesList.Any() ? string.Join(";", imagesList) : null;
 
-                // ลบไฟล์จากเซิร์ฟเวอร์ถ้าเป็นโหมดแก้ไข
-                if (isEditMode)
+                await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบรูปภาพสำเร็จจากรายการที่เลือก");
+            }
+            else
+            {
+                var fileName = Path.GetFileName(new Uri(imageUrl).AbsolutePath);
+
+                var fullPath = $"/images/News/{fileName}";
+
+                var existingImagesList = ExistingImages.ToList();
+                if (existingImagesList.Any(img => img.EndsWith(fileName)))
                 {
-                    await _NewsService.DeleteImage(imageUrl);
+                    // ลบจาก ExistingImages
+                    existingImagesList.RemoveAll(img => img.EndsWith(fileName));
+                    Currentnews.Images = existingImagesList.Any() ? string.Join(";", existingImagesList) : null;
+
+                    if (isEditMode)
+                    {
+                        await _NewsService.DeleteImage(fileName);
+                        await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบรูปภาพสำเร็จจากเซิร์ฟเวอร์");
+                    }
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("showToastr", "error", "ไม่พบรูปภาพที่ต้องการลบ");
                 }
             }
-
-            await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบรูปภาพสำเร็จ");
         }
         catch (Exception ex)
         {
@@ -389,6 +420,8 @@ else
 
         StateHasChanged();
     }
+
+
 
     private async Task HandleValidSubmit()
     {
@@ -417,12 +450,12 @@ else
             if (isEditMode)
             {
                 await _NewsService.UpdateNews(Currentnews);
-                await JSRuntime.InvokeVoidAsync("showToastr", "success", "อัปเดตข่าวสำเร็จ");
+                await JSRuntime.InvokeVoidAsync("ShowSwal", "test", "อัปเดตข่าวสำเร็จ");
             }
             else
             {
                 await _NewsService.AddNews(Currentnews);
-                await JSRuntime.InvokeVoidAsync("showToastr", "success", "เพิ่มข่าวสำเร็จ");
+                await JSRuntime.InvokeVoidAsync("ShowSwal", "test", "เพิ่มข่าวสำเร็จ");
             }
 
             // รีเซ็ตสถานะ
@@ -433,7 +466,7 @@ else
         }
         catch (Exception ex)
         {
-            await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("ShowSwal", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
         }
         finally
         {

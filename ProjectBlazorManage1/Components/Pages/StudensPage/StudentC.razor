@@ -5,10 +5,10 @@
 @inject IWebHostEnvironment _webHostEnvironment
 @inject IJSRuntime JSRuntime
 @inject NavigationManager Navigation
-
+@inject NavigationManager NavigationManager
 
 <Modals @ref="StudensModal"
-		Title="ระบบจัดการข้อมูลคำนำหน้าชื่อ"
+		Title="ระบบจัดการข้อมูลนักศึกษา"
 		IsVisible="showModal"
 		OnConfirm="HandleValidSubmit"
 		OnClose="CloseModal"
@@ -21,38 +21,41 @@
 
 			@if (currentStudents != null)
 			{
-				<MudGrid> 
+				<MudGrid Spacing="2">
 
 					@if (currentStudents.Id != 0)
 					{
-						<MudItem xs="12" sm="6" md="4">
+						<MudItem xs="4">
 							<MudTextField T="int" Label="ลำดับที่"
+										  Variant="Variant.Outlined"
 										  @bind-Value="currentStudents.Id"
 										  For="@(() => currentStudents.Id)"
 										  Disabled="true" />
 						</MudItem>
-						<MudItem xs="12" sm="6" md="4">
+						<MudItem xs="4">
 							<MudTextField T="string" Label="รหัสนักศึกษาส่วนกลาง"
+										  Variant="Variant.Outlined"
 										  @bind-Value="currentStudents.Student_Id"
 										  For="@(() => currentStudents.Student_Id)"
 										  RequiredError="กรุณากรอกรหัสนักศึกษา" />
 						</MudItem>
-						<MudItem xs="12" sm="6" md="4">
+						<MudItem xs="4">
 							<MudTextField T="double?" Label="โอนหน่วยกิต"
+										  Variant="Variant.Outlined"
 										  @bind-Value="currentStudents.credit"
 										  For="@(() => currentStudents.credit)" />
 						</MudItem>
 					}
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudSelect T="int"
 								   Label="คำนำหน้าชื่อ"
+								   Variant="Variant.Outlined"
 								   @bind-Value="currentStudents.Initial_Id"
 								   For="@(() => currentStudents.Initial_Id)"
 								   Required="true"
 								   RequiredError="โปรดเลือกคำนำหน้าชื่อ"
 								   Dense="true"
-								   Variant="Variant.Text"
 								   Class="my-2">
 							<MudSelectItem Value="0" Disabled="true">--โปรดเลือกคำนำหน้าชื่อ--</MudSelectItem>
 							@foreach (var initial in _initial)
@@ -62,43 +65,49 @@
 						</MudSelect>
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="ชื่อ"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.FirstName"
 									  For="@(() => currentStudents.FirstName)"
 									  RequiredError="กรุณากรอกชื่อ" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="นามสกุล"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.LastName"
 									  For="@(() => currentStudents.LastName)"
 									  RequiredError="กรุณากรอกนามสกุล" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="ชื่อเล่น"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.Nickname"
 									  For="@(() => currentStudents.Nickname)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="ชื่อภาษาอังกฤษ"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.EnglishName"
 									  For="@(() => currentStudents.EnglishName)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="เบอร์โทรศัพท์"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.Phone_Number"
 									  For="@(() => currentStudents.Phone_Number)"
 									  MaxLength="10"
 									  Pattern="^[0-9]*$"
-									  Placeholder="เช่น 0812345678" />
+									  Placeholder="เช่น 081XXXX123" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudSelect T="DegreeType"
+								   Variant="Variant.Outlined"
 								   @bind-Value="currentStudents.degreeType"
 								   For="@(() => currentStudents.degreeType)">
 							<MudSelectItem T="DegreeType" Disabled="true">--โปรดเลือกวุฒิ--</MudSelectItem>
@@ -109,22 +118,25 @@
 						</MudSelect>
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="สถาบันการศึกษา"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.Institution"
 									  For="@(() => currentStudents.Institution)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudDatePicker Label="วันเกิด"
+									   Variant="Variant.Outlined"
 									   @bind-Date="currentStudents.BirthDate"
 									   For="@(() => currentStudents.BirthDate)"
-									   DateFormat="dd/MM/yyyy"
+									   DateFormat="dd MMMM yyyy"
 									   OpenTo="OpenTo.Date" />
 					</MudItem>
 
 					<MudItem xs="12">
 						<MudTextField T="string" Label="ที่อยู่ตามบัตรประชาชน"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.CitizenCardAddress"
 									  For="@(() => currentStudents.CitizenCardAddress)"
 									  Lines="4" />
@@ -132,40 +144,47 @@
 
 					<MudItem xs="12">
 						<MudTextField T="string" Label="ที่อยู่ที่ติดต่อได้"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.ContactAddress"
 									  For="@(() => currentStudents.ContactAddress)"
 									  Lines="4" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="อาชีพปัจจุบัน"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.Occupation"
 									  For="@(() => currentStudents.Occupation)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="สถานที่ทำงาน"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.Workplace"
 									  For="@(() => currentStudents.Workplace)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="บุคคลใกล้ชิด"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.ClosePersonName"
 									  For="@(() => currentStudents.ClosePersonName)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="เบอร์โทรบุคคลใกล้ชิด"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.ClosePersonPhone"
 									  For="@(() => currentStudents.ClosePersonPhone)"
 									  MaxLength="10"
-									  Pattern="^[0-9]*$" />
+									  Pattern="^[0-9]*$"
+									  Placeholder="เช่น 081XXXX123" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudSelect T="RelationshipType"
 								   Label="ความสัมพันธ์"
+								   Variant="Variant.Outlined"
 								   @bind-Value="currentStudents.relationshipType"
 								   For="@(() => currentStudents.relationshipType)"
 								   Required="true">
@@ -177,44 +196,51 @@
 						</MudSelect>
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="อีเมล"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.Email"
 									  For="@(() => currentStudents.Email)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="ไอดีไลน์"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.LineId"
 									  For="@(() => currentStudents.LineId)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="โรคประจำตัว"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.MedicalCondition"
 									  For="@(() => currentStudents.MedicalCondition)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="สถานะโรคประจำตัว"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.Status_Medical"
 									  For="@(() => currentStudents.Status_Medical)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="ผู้แนะนำ"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.adviser"
 									  For="@(() => currentStudents.adviser)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudTextField T="string" Label="หมายเหตุ"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentStudents.Remarks"
 									  For="@(() => currentStudents.Remarks)" />
 					</MudItem>
 
-					<MudItem xs="12" sm="6" md="4">
+					<MudItem xs="4">
 						<MudSelect T="int?" Label="รุ่นที่เรียน"
+								   Variant="Variant.Outlined"
 								   @bind-Value="currentStudents.ClassStudie_Id"
 								   For="@(() => currentStudents.ClassStudie_Id)"
 								   Required="true">
@@ -244,15 +270,15 @@
 
 						@if (!string.IsNullOrEmpty(GetImageUrl()))
 						{
-							<div class="mt-1 position-relative" style="width:100px; height:100px;">
-								<img src="@GetImageUrl()"
-									 style="width:100%; height:100%; object-fit:cover; border:1px solid #ccc; padding:5px; border-radius:5px;" />
-								<MudIconButton Icon="@Icons.Material.Filled.Delete"
-											   Color="Color.Error"
-											   Class="position-absolute top-0 end-0"
-											   Size="Size.Small"
-											   OnClick="@(() => DeleteImage())" />
-							</div>
+							 <div class="mt-1 position-relative" style="width:100px; height:100px;">
+								<img src="@GetImageUrl()" 
+								 style="width:100%; height:100%; object-fit:cover; border:1px solid #ccc; padding:5px; border-radius:5px;" /> 
+								<MudIconButton Icon="@Icons.Material.Filled.Delete" 
+										   Color="Color.Error" 
+										   Class="position-absolute top-0 end-0" 
+											   Size="Size.Small" 
+							 				   OnClick="@(() => DeleteImage(GetImageUrl()))" /> 
+							 </div> 
 						}
 					</MudItem>
 
@@ -262,8 +288,6 @@
 		</EditForm>
 	</ChildContent>
 </Modals>
-
-
 
 @if (IsProcessing)
 {
@@ -371,7 +395,7 @@ else
 					<TemplateColumn Title="รายละเอียด" CellStyle="text-align:center;">
 						<CellTemplate>
 							<MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Small"
-									   Href="@($"/Student/Student_Details/{context.Item.Id}")">
+									   Href="@($"Student/Student_Details/{context.Item.Id}")">
 								รายละเอียด
 							</MudButton>
 						</CellTemplate>
@@ -451,6 +475,7 @@ else
 	private IBrowserFile? _selectedFile { get; set; }
 	private string? _previewImage { get; set; }
 	private bool isSelectAll = false;
+	private string BaseUrl => NavigationManager.BaseUri.TrimEnd('/');
 
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -475,7 +500,7 @@ else
 
 		if (isConfirmed)
 		{
-			Navigation.NavigateTo($"/student-to-teacher/{studentId}");
+			Navigation.NavigateTo($"student-to-teacher/{studentId}");
 		}
 	}
 
@@ -483,7 +508,7 @@ else
 	{
 		if (!selectedStudents.Any())
 		{
-			await JSRuntime.InvokeVoidAsync("showToastr", "warning", "กรุณาเลือกนักเรียนอย่างน้อย 1 คน");
+			await JSRuntime.InvokeVoidAsync("ShowSwal", "warning", "โปรดเลือกนักเรียนอย่างน้อย 1 คน");
 			return;
 		}
 
@@ -690,8 +715,23 @@ else
 		{
 			return _previewImage;
 		}
-		return currentStudents.Images ?? string.Empty;
+
+		// ตรวจสอบว่า currentStudents และ Images มีค่าไม่ใช่ Null และไม่ว่าง
+		if (currentStudents != null && !string.IsNullOrEmpty(currentStudents.Images))
+		{
+			var fileName = Path.GetFileName(currentStudents.Images);
+
+			// ตรวจสอบอีกครั้งว่า fileName มีนามสกุลไฟล์ถูกต้องหรือไม่
+			if (!string.IsNullOrEmpty(fileName) && (fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png")))
+			{
+				return $"{BaseUrl}/images/Students/{fileName}";
+			}
+		}
+
+		// ถ้าไม่ผ่านเงื่อนไขทั้งหมด จะส่งกลับ `null`
+		return null;
 	}
+
 
 	private async Task LoadFiles(IBrowserFile file)
 	{
@@ -717,23 +757,46 @@ else
 		}
 	}
 
-
-	void DeleteImage()
+	private async Task DeleteImage(string imageUrl)
 	{
-		_previewImage = null;
-		_selectedFile = null;
-
-		if (currentStudents.Images == null) return;
-
-		var fileToDelete = currentStudents.Images.Split('/').Last();
-		var filePathToDeleteImage = Path.Combine(_directoryPath, fileToDelete);
-
-		if (File.Exists(filePathToDeleteImage))
+		try
 		{
-			File.Delete(filePathToDeleteImage);
+			// 🔍 ตรวจสอบ Preview Image
+			if (!string.IsNullOrEmpty(_previewImage) && _previewImage.Contains(imageUrl))
+			{
+				// ลบจาก Preview
+				_previewImage = null;
+				_selectedFile = null;
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบรูปภาพจาก Preview สำเร็จ");
+			}
+			else
+			{
+				// 🔍 ตรวจสอบไฟล์ที่อยู่บน Server
+				var fileName = Path.GetFileName(new Uri(imageUrl).AbsolutePath);
+				var fullPath = Path.Combine(_directoryPath, fileName); // <-- Path ที่ถูกต้อง
+
+				if (File.Exists(fullPath))
+				{
+					File.Delete(fullPath);
+
+					// ถ้าเป็นภาพจาก Server จะต้องอัปเดตข้อมูลของอาจารย์ด้วย
+					currentStudents.Images = null;
+
+					await _StudentService.DeleteImage(fileName);
+					await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบรูปภาพสำเร็จจากเซิร์ฟเวอร์");
+				}
+				else
+				{
+					await JSRuntime.InvokeVoidAsync("showToastr", "error", "ไม่พบรูปภาพที่ต้องการลบ");
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
 		}
 
-		currentStudents.Images = null;
+		StateHasChanged();
 	}
 
 }

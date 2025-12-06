@@ -36,7 +36,7 @@
             message = $"แปลงข้อมูลนักเรียน {newTeacher.Teacher_Name} เป็นผู้สอนเรียบร้อยแล้ว";
             // 🕒 หน่วงเวลา 2 วิ แล้วค่อยไปหน้า Teacher
             await Task.Delay(2000);
-            Navigation.NavigateTo("/Teacher");
+            Navigation.NavigateTo("Teacher");
         }
         catch (Exception ex)
         {
@@ -46,6 +46,6 @@
 
     private void GoToTeacherPage()
     {
-        Navigation.NavigateTo("/Student");
+        Navigation.NavigateTo("Student");
     }
 }

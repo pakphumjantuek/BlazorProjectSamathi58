@@ -37,7 +37,7 @@ window.ShowSwal = function (type, message) {
         }
         else if (type == "error") {
             Swal.fire({
-                title: "บันทึกล้มเหลว!",
+                title: "โอ๊ะ! มีบางอย่างผิดพลาด!",
                 text: message,
                 icon: "error"
             }).then(() => {
@@ -66,6 +66,16 @@ window.ShowSwal = function (type, message) {
                 cancelButtonText: "ยกเลิก"
             }).then((result) => {
                 test(result.isConfirmed);
+            });
+        }
+        else if (type == "warning") {
+            Swal.fire({
+                icon: "warning",
+                title: message,
+                showConfirmButton: false,
+                timer: 1500
+            }).then(() => {
+                test(false);
             });
         }
     });

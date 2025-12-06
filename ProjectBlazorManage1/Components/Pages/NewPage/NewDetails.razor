@@ -6,8 +6,6 @@
 
 <PageTitle>@(news?.Title ?? "กำลังโหลดข้อมูล...")</PageTitle>
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
 @if (news == null)
 {
     <div class="container my-5 py-5">
@@ -74,7 +72,6 @@ else
                                         }
                                     </div>
                                 }
-
                                 <!-- รูปภาพในสไลด์ -->
                                 <div class="carousel-inner">
                                     @for (int i = 0; i < images.Count(); i++)
@@ -88,10 +85,11 @@ else
                                     }
                                 </div>
 
-                             
+
                             </div>
                         }
 
+                     
                         <!-- เนื้อหาข่าว -->
                         <div class="content-section mb-5">
                             <div class="section-title d-flex align-items-center mb-4">
@@ -106,7 +104,7 @@ else
                         </div>
 
                         <!-- รูปภาพเพิ่มเติม -->
-                        @if (GetImages().Count > 1)
+                         @if (GetImages().Count > 1)
                         {
                             <div class="additional-images mb-5">
                                 <div class="section-title d-flex align-items-center mb-4">
@@ -120,12 +118,18 @@ else
                                     @foreach (var imageUrl in GetImages().Skip(1))
                                     {
                                         <div class="col-md-4 col-sm-6">
-                                            <div class="image-card shadow-sm rounded-4 overflow-hidden hover-zoom">
+                                            <div class="image-card shadow-sm rounded-4 overflow-hidden hover-zoom position-relative">
                                                 <img src="@imageUrl"
                                                      class="img-fluid w-100"
                                                      style="height: 220px; object-fit: cover; cursor: pointer;"
                                                      alt="รูปภาพเพิ่มเติม"
                                                      @onclick="() => ShowImageModal(imageUrl)" />
+                                                <!-- Fullscreen icon overlay -->
+                                                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center bg-dark bg-opacity-25 opacity-0 hover-opacity-100 transition-opacity"
+                                                     style="cursor: pointer;"
+                                                     @onclick="() => ShowImageModal(imageUrl)">
+                                                    <i class="bi bi-arrows-fullscreen text-white fs-3"></i>
+                                                </div>
                                             </div>
                                         </div>
                                     }
@@ -163,19 +167,18 @@ else
                             </div>
 
                             <div class="d-flex flex-wrap gap-2">
-                                <button type="button" class="btn btn-facebook rounded-pill px-4 py-2" @onclick="ShareToFacebook">
+                                <button type="button" class="btn btn-primary rounded-pill px-4 py-2" @onclick="ShareToFacebook">
                                     <i class="bi bi-facebook me-2"></i> Facebook
                                 </button>
 
-                                <button type="button" class="btn btn-line rounded-pill px-4 py-2" @onclick="ShareToLine">
+                                <button type="button" class="btn btn-success rounded-pill px-4 py-2" @onclick="ShareToLine">
                                     <i class="bi bi-line me-2"></i> Line
                                 </button>
 
-                                <button type="button" class="btn btn-copy rounded-pill px-4 py-2" @onclick="CopyLink">
+                                <button type="button" class="btn btn-secondary rounded-pill px-4 py-2" @onclick="CopyLink">
                                     <i class="bi bi-link-45deg me-2"></i> คัดลอกลิงก์
                                 </button>
                             </div>
-
                         </div>
                     </header>
                 </article>
@@ -205,9 +208,7 @@ else
                                             {
                                                 <img src="@firstImage"
                                                      class="img-fluid w-100"
-                                                     style="height: 200px; object-fit: cover;"
-                                                     
-                                                     onerror="this.onerror=null; this.src='/images/placeholder.png';" />
+                                                     style="height: 200px; object-fit: cover;" />
                                             }
                                             else
                                             {
@@ -276,6 +277,7 @@ else
     private List<News> relatedNews = new();
     private bool isImageModalVisible = false;
     private string selectedImageUrl = string.Empty;
+    private string BaseUrl => NavigationManager.BaseUri.TrimEnd('/');
 
     private void ShowImageModal(string imageUrl)
     {
@@ -310,7 +312,7 @@ else
         }
         catch (Exception)
         {
-            NavigationManager.NavigateTo("/NewsPage");
+            NavigationManager.NavigateTo("NewsPage");
         }
     }
 
@@ -319,9 +321,18 @@ else
         if (string.IsNullOrEmpty(news?.Images))
             return new List<string>();
 
-        return news.Images.Split(';', StringSplitOptions.RemoveEmptyEntries)
-                          .Select(img => img.Trim())
-                          .ToList();
+        var imageNames = news.Images.Split(';', StringSplitOptions.RemoveEmptyEntries)
+                                    .Select(img => img.Trim())
+                                    .ToList();
+
+        // Generate URLs from the image names
+        var imageUrls = imageNames.Select(img =>
+        {
+            var fileName = Path.GetFileName(img);
+            return $"{BaseUrl}/images/News/{fileName}";
+        }).ToList();
+ 
+        return imageUrls;
     }
 
     private string GetEmbedYoutubeUrl(string youtubeUrl)
@@ -333,12 +344,12 @@ else
 
     private void GoBack()
     {
-        NavigationManager.NavigateTo("/NewsPage");
+        NavigationManager.NavigateTo("NewsPage");
     }
 
     private void GoToNews(int id)
     {
-        NavigationManager.NavigateTo($"/News/NewsDetails/{id}");
+        NavigationManager.NavigateTo($"News/NewsDetails/{id}");
     }
 
     private async Task ShareToFacebook()

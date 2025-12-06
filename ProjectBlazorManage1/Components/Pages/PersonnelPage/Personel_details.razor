@@ -3,7 +3,7 @@
 @inject DhammaCourseService dhammaCourseService
 @inject CourseNameService courseNameService
 @inject IJSRuntime JSRuntime
-
+@inject NavigationManager NavigationManager
 
 <Modals @ref="DhammaCourseModal"
 		Title="เพิ่ม/แก้ไขประวัติหลักสูตร"
@@ -20,14 +20,14 @@
 			<div class="col-md-12">
 				<MudItem xs="12">
 					<MudSelect T="int"
-							   Label="คำนำหน้าชื่อ"
+							   Label="ประวัติ"
 							   @bind-Value="currentDhammaCourse.CourseName_Id"
 							   Required="true"
-							   RequiredError="โปรดเลือกบุคลากร"
+							   RequiredError="โปรดเลือกประวัติ"
 							   Dense="true"
 							   Variant="Variant.Text"
 							   Class="my-2">
-						<MudSelectItem Value="0" Disabled="true">--โปรดเลือกคำนำหน้าชื่อ--</MudSelectItem>
+						<MudSelectItem Value="0" Disabled="true">--โปรดเลือกประวัติ--</MudSelectItem>
 						@if (isCourse)
 						{
 							@foreach (var cn in _CourseName.Where(p => p.Status))
@@ -71,7 +71,7 @@
 			<div class="card-header bg-secondary bg-gradient text-white">
 				<div class="d-flex align-items-center">
 					<h2 class="mb-0 fs-4"><i class="bi bi-person-badge me-2"></i>ข้อมูลอาจารย์</h2>
-					<a href="/Personnel" class="btn btn-light btn-sm ms-auto">
+					<a href="Personnel" class="btn btn-light btn-sm ms-auto">
 						<i class="bi bi-arrow-left me-1"></i>กลับ
 					</a>
 				</div>
@@ -84,7 +84,7 @@
 						<div class="avatar-container position-relative mx-auto" style="width: 150px; height: 150px;">
 							@if (!string.IsNullOrEmpty(personnel.images))
 							{
-								var firstImage = personnel.images.Split(',').FirstOrDefault()?.Trim();
+								var firstImage = GetImageUrl();
 								if (!string.IsNullOrEmpty(firstImage))
 								{
 									<img src="@firstImage" class="img-thumbnail rounded-circle w-100 h-100 object-fit-cover" alt="@personnel.Personnel_Name" />
@@ -344,6 +344,7 @@
 	private bool showModal = false;
 	private EducationHistory currentEducationHistory = new();
 	private DhammaCourse currentDhammaCourse = new();
+	private string BaseUrl => NavigationManager.BaseUri.TrimEnd('/');
 
 	private bool isEditMode = false;
 	private bool showModalDhammaCourse = false;
@@ -404,7 +405,14 @@
 		StateHasChanged();
 	}
 
+	private string GetImageUrl()
+	{
+		var fileName = Path.GetFileName(personnel.images);
 
+		var imageUrl = $"{BaseUrl}/images/Personnel/{fileName}";
+
+		return imageUrl;
+	}
 
 	private void CloseModals()
 	{

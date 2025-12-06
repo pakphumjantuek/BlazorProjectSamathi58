@@ -15,6 +15,7 @@ global using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 global using static ProjectBlazorManage1.Utility.SD;
 global using ProjectBlazorManage1.Model.Dtos;
 global using MudBlazor.Services;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,10 +29,10 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
 builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    })
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
     .AddIdentityCookies();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -69,10 +70,20 @@ builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<NewsService>();
 builder.Services.AddScoped<PersonnelService>();
 
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+var supportedCultures = new[] { "th-TH" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
 builder.Services.AddMudServices();
+
 
 var app = builder.Build();
 
+app.UseRequestLocalization(localizationOptions);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -88,6 +99,14 @@ else
 
 app.UseHttpsRedirection();
 
+app.UsePathBase("/cs67/blazor/s14/ProjectBlazorMN");
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        Path.Combine(Directory.GetCurrentDirectory(), "wwwroot")
+    )
+});
 
 app.UseAntiforgery();
 

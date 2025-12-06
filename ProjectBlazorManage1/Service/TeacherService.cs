@@ -16,6 +16,7 @@ namespace ProjectBlazorManage1.Service
         private readonly ApplicationDbContext _context;
         private readonly ILogger<TeacherService> _logger;
         private readonly IWebHostEnvironment _environment;
+        private readonly string _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/Teacher");
 
         public TeacherService(
             ApplicationDbContext context,
@@ -468,6 +469,22 @@ namespace ProjectBlazorManage1.Service
                     workbook.SaveAs(stream);
                     return stream.ToArray();
                 }
+            }
+        }
+        public async Task DeleteImage(string imageUrl)
+        {
+            try
+            {
+                var fileName = Path.GetFileName(imageUrl);
+                var filePath = Path.Combine(_imagePath, fileName);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to delete image: {ex.Message}");
             }
         }
 

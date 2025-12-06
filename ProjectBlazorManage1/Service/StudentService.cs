@@ -12,6 +12,7 @@ namespace ProjectBlazorManage1.Service
         private readonly ApplicationDbContext _context;
         private readonly ILogger<BranchService> _logger;
         private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly string _imagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/Students");
 
         public StudentService(ApplicationDbContext context, ILogger<BranchService> logger, IWebHostEnvironment webHostEnvironment)
         {
@@ -408,6 +409,22 @@ namespace ProjectBlazorManage1.Service
                         .Replace('9', '๙');
         }
 
+        public async Task DeleteImage(string imageUrl)
+        {
+            try
+            {
+                var fileName = Path.GetFileName(imageUrl);
+                var filePath = Path.Combine(_imagePath, fileName);
+                if (File.Exists(filePath))
+                {
+                    File.Delete(filePath);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Failed to delete image: {ex.Message}");
+            }
+        }
 
     }
 }

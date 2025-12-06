@@ -19,6 +19,7 @@
 					<MudItem xs="12">
 						<MudTextField T="int"
 									  Label="รหัสรุ่น"
+									  							   Variant="Variant.Outlined"
 									  @bind-Value="currentClassStudied.Id"
 									  For="@(() => currentClassStudied.Id)"
 									  RequiredError="กรุณากรอกรหัสรุ่น" />
@@ -27,6 +28,7 @@
 					<MudItem xs="12">
 						<MudTextField T="string"
 									  Label="ชื่อรุ่น"
+									  							   Variant="Variant.Outlined"
 									  @bind-Value="currentClassStudied.ClassName"
 									  For="@(() => currentClassStudied.ClassName)"
 									  RequiredError="กรุณากรอกชื่อรุ่น" />
@@ -34,11 +36,11 @@
 
 					<MudItem xs="12">
 						<MudSelect T="int?" Label="โปรดเลือกสาขา"
+													   Variant="Variant.Outlined"
 								   @bind-Value="currentClassStudied.Branch_Id"
 								   Required="true"
 								   RequiredError="โปรดเลือกสาขา"
 								   Dense="true"
-								   Variant="Variant.Text"
 								   Class="my-2">
 							<MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกสาขา--</MudSelectItem>
 							@foreach (var job in _branch)
@@ -51,6 +53,7 @@
 					<MudItem xs="12">
 						<MudTextField T="string"
 									  Label="ภาคเรียน"
+									  							   Variant="Variant.Outlined"
 									  @bind-Value="currentClassStudied.termClass"
 									  For="@(() => currentClassStudied.termClass)"
 									  RequiredError="กรุณากรอกภาคเรียน" />
@@ -59,28 +62,31 @@
 
 					<MudItem xs="12" sm="6">
 						<MudDatePicker Label="วันที่เริ่มเรียน"
+													   Variant="Variant.Outlined"
 									   @bind-Date="currentClassStudied.StartDate"
-									   For="@(() => currentClassStudied.StartDate)"
-									   DateFormat="dd/MM/yyyy"
+									   DateFormat="dd MMMM yyyy"
 									   Placeholder="เลือกวันที่"
 									   Editable="true"
 									   OpenTo="OpenTo.Date"
 									   InputIcon="@Icons.Material.Filled.CalendarToday"
 									   Clearable="true"
-									   Class="w-100" />
+									   Class="w-100"
+									   Culture="@CultureInfo.GetCultureInfo("th-TH")" />
 					</MudItem>
 
 					<MudItem xs="12" sm="6">
 						<MudDatePicker Label="วันที่สิ้นสุดการเรียน"
+													   Variant="Variant.Outlined"
 									   @bind-Date="currentClassStudied.EndDate"
-									   DateFormat="dd/MM/yyyy"
+									   DateFormat="dd MMMM yyyy"
 									   Placeholder="เลือกวันที่"
 									   MinDate="currentClassStudied.StartDate"
 									   Editable="true"
 									   OpenTo="OpenTo.Date"
 									   InputIcon="@Icons.Material.Filled.CalendarToday"
 									   Clearable="true"
-									   Class="w-100" />
+									   Class="w-100"
+									   Culture="@CultureInfo.GetCultureInfo("th-TH")" />
 					</MudItem>
 				</MudGrid>
 
@@ -200,7 +206,7 @@ else
 								<MudButton Variant="Variant.Outlined"
 										   Color="Color.Primary"
 										   Size="Size.Small"
-										   Href="@($"/ClassStudie/Timetable/{context.Item.Id}")">
+										   Href="@($"ClassStudie/Timetable/{context.Item.Id}")">
 									ตารางเรียน
 								</MudButton>
 							</div>

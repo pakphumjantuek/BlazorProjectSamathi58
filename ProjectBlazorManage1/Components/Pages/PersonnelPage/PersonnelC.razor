@@ -4,6 +4,7 @@
 @inject JobPositionService jobPositionService
 @inject IWebHostEnvironment _webHostEnvironment
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 
 
 <Modals @ref="PersonnelModal"
@@ -23,11 +24,11 @@
 					<MudItem xs="4">
 						<MudSelect T="int"
 								   Label="คำนำหน้าชื่อ"
+								   									  Variant="Variant.Outlined"
 								   @bind-Value="currentPersonnel.Initial_Id"
 								   Required="true"
 								   RequiredError="โปรดเลือกบุคลากร"
 								   Dense="true"
-								   Variant="Variant.Text"
 								   Class="my-2">
 							<MudSelectItem Value="0" Disabled="true">--โปรดเลือกคำนำหน้าชื่อ--</MudSelectItem>
 							@foreach (var initial in _initial)
@@ -39,6 +40,7 @@
 					<MudItem xs="4">
 						<MudTextField T="string"
 									  Label="ชื่อ"
+									  									  Variant="Variant.Outlined"
 									  @bind-Value="currentPersonnel.Personnel_Name"
 									  For="@(() => currentPersonnel.Personnel_Name)"
 									  RequiredError="กรุณากรอกชื่อ" />
@@ -46,6 +48,7 @@
 					<MudItem xs="4">
 						<MudTextField T="string"
 									  Label="นามสกุล"
+									  Variant="Variant.Outlined"
 									  @bind-Value="currentPersonnel.Personnel_LastName"
 									  For="@(() => currentPersonnel.Personnel_LastName)"
 									  RequiredError="กรุณากรอกนามสกุล" />
@@ -56,6 +59,7 @@
 				<MudItem xs="6">
 				<MudTextField T="string"
 							  Label="เบอร์โทร (เฉพาะตัวเลข)"
+							  									  Variant="Variant.Outlined"
 							  @bind-Value="currentPersonnel.Phone_Number"
 							  For="@(() => currentPersonnel.Phone_Number)"
 							  MaxLength="10"
@@ -69,6 +73,7 @@
 			    <MudItem xs="6">
 				<MudTextField T="string"
 							  Label="อีเมล"
+							  									  Variant="Variant.Outlined"
 							  @bind-Value="currentPersonnel.Personnel_Email"
 							  For="@(() => currentPersonnel.Personnel_Email)"
 							  RequiredError="อีเมล" />
@@ -77,14 +82,16 @@
 
 				<MudTextField T="string"
 							  Label="ที่อยู่ปัจจุบัน"
+							  									  Variant="Variant.Outlined"
 							  @bind-Value="currentPersonnel.Personnel_Address"
 							  For="@(() => currentPersonnel.Personnel_Address)"
 							  MaxLength="10"
 							  Lines="3"
 							  RequiredError="ที่อยู่" />
 				<MudDatePicker Label="วันที่"
+							   Variant="Variant.Outlined"
 							   @bind-Date="currentPersonnel.Date"
-							   DateFormat="dd/MM/yyyy"
+							   DateFormat="dd MMMM yyyy"
 							   Placeholder="เลือกวันที่"
 							   Editable="true"
 							   OpenTo="OpenTo.Date"
@@ -95,11 +102,11 @@
 				<MudItem xs="12" md="12">
 					<MudSelect T="int"
 							   Label="ตำแหน่งงานในสถาบัน"
+							   									  Variant="Variant.Outlined"
 							   @bind-Value="currentPersonnel.jobPosition_ID"
 							   Required="true"
 							   RequiredError="โปรดเลือกตำแหน่งงานในสถาบัน"
 							   Dense="true"
-							   Variant="Variant.Text"
 							   Class="my-2">
 						<MudSelectItem Value="0" Disabled="true">--โปรดเลือกตำแหน่งงานในสถาบัน--</MudSelectItem>
 
@@ -132,10 +139,9 @@
 									   Color="Color.Error"
 									   Class="position-absolute top-0 end-0"
 									   Size="Size.Small"
-									   OnClick="@(() => DeleteImage())" />
+									   OnClick="@(() => DeleteImage(GetImageUrl()))" />
 					</div>
 				}
-
 			</div>
 		</EditForm>
 	
@@ -291,6 +297,7 @@ else
 	private string? _directoryPath { get; set; }
 	private IBrowserFile? _selectedFile = null;
 	private string? _previewImage = null;
+	private string BaseUrl => NavigationManager.BaseUri.TrimEnd('/');
 
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -473,7 +480,21 @@ else
 		{
 			return _previewImage;
 		}
-		return currentPersonnel.images ?? string.Empty;
+
+		// ตรวจสอบว่า currentStudents และ Images มีค่าไม่ใช่ Null และไม่ว่าง
+		if (currentPersonnel != null && !string.IsNullOrEmpty(currentPersonnel.images))
+		{
+			var fileName = Path.GetFileName(currentPersonnel.images);
+
+			// ตรวจสอบอีกครั้งว่า fileName มีนามสกุลไฟล์ถูกต้องหรือไม่
+			if (!string.IsNullOrEmpty(fileName) && (fileName.EndsWith(".jpg") || fileName.EndsWith(".jpeg") || fileName.EndsWith(".png")))
+			{
+				return $"{BaseUrl}/images/Personnel/{fileName}";
+			}
+		}
+
+		// ถ้าไม่ผ่านเงื่อนไขทั้งหมด จะส่งกลับ `null`
+		return null;
 	}
 
 	private async Task LoadFiles(IBrowserFile file)
@@ -491,23 +512,46 @@ else
 		StateHasChanged();
 	}
 
-	void DeleteImage()
+	private async Task DeleteImage(string imageUrl)
 	{
-		if (!string.IsNullOrEmpty(currentPersonnel.images))
+		try
 		{
-			var fileToDelete = Path.GetFileName(currentPersonnel.images);
-			var filePath = Path.Combine(_directoryPath, fileToDelete);
-
-			if (File.Exists(filePath))
+			// 🔍 ตรวจสอบ Preview Image
+			if (!string.IsNullOrEmpty(_previewImage) && _previewImage.Contains(imageUrl))
 			{
-				File.Delete(filePath);
+				// ลบจาก Preview
+				_previewImage = null;
+				_selectedFile = null;
+				await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบรูปภาพจาก Preview สำเร็จ");
 			}
+			else
+			{
+				// 🔍 ตรวจสอบไฟล์ที่อยู่บน Server
+				var fileName = Path.GetFileName(new Uri(imageUrl).AbsolutePath);
+				var fullPath = Path.Combine(_directoryPath, fileName); // <-- Path ที่ถูกต้อง
 
-			currentPersonnel.images = null;
+				if (File.Exists(fullPath))
+				{
+					File.Delete(fullPath);
+
+					// ถ้าเป็นภาพจาก Server จะต้องอัปเดตข้อมูลของอาจารย์ด้วย
+					currentPersonnel.images = null;
+
+					await personnelService.DeleteImage(fileName);
+					await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบรูปภาพสำเร็จจากเซิร์ฟเวอร์");
+				}
+				else
+				{
+					await JSRuntime.InvokeVoidAsync("showToastr", "error", "ไม่พบรูปภาพที่ต้องการลบ");
+				}
+			}
+		}
+		catch (Exception ex)
+		{
+			await JSRuntime.InvokeVoidAsync("showToastr", "error", $"เกิดข้อผิดพลาด: {ex.Message}");
 		}
 
-		_previewImage = null;
-		_selectedFile = null;
+		StateHasChanged();
 	}
 
 

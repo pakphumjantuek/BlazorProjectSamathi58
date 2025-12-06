@@ -175,5 +175,35 @@ namespace ProjectBlazorManage1.Service
             return stream.ToArray();
         }
 
+        public async Task<List<ClassPassSummary>> GetClassPassSummaryAsync()
+        {
+            var summaries = new List<ClassPassSummary>();
+
+            // ดึงข้อมูลทุก ClassStudied
+            var classes = await _context.ClassStudieds.ToListAsync();
+
+            foreach (var classInfo in classes)
+            {
+                var report = await GetClassReportAsync(classInfo.Id);
+                if (report.ClassInfo == null) continue;
+
+                int totalStudents = report.Students.Count;
+                int passedStudents = report.Students.Count(s => report.StudentMetricsDict[s.Id].ExamEligibility);
+                int passedStudentsWithCertificate = report.Students.Count(s => report.StudentMetricsDict[s.Id].DiligenceCertificate);
+
+                summaries.Add(new ClassPassSummary
+                {
+                    ClassId = classInfo.Id,
+                    ClassName = classInfo.ClassName, // สมมติว่ามี property Name ใน ClassStudied
+                    TotalStudents = totalStudents,
+                    PassedStudents = passedStudents,
+                    PassPercentage = totalStudents > 0 ? (double)passedStudents / totalStudents * 100 : 0,
+                    PassedStudentsWithCertificate = passedStudentsWithCertificate
+                });
+            }
+
+            return summaries;
+        }
+
     }
 }

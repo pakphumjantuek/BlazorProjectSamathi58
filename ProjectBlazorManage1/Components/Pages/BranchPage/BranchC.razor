@@ -20,6 +20,7 @@
 				{
 					<MudTextField T="int"
 								  Label="รหัสสาขา"
+								  Variant="Variant.Outlined"
 								  @bind-Value="currentBranch.Branch_Id"
 								  For="@(() => currentBranch.Branch_Id)"
 								  RequiredError="กรุณากรอกรหัสสาขา" />
@@ -28,6 +29,7 @@
 				{
 					<MudTextField T="int"
 								  Label="รหัสสาขา"
+								  Variant="Variant.Outlined"
 								  @bind-Value="currentBranch.Branch_Id"
 								  For="@(() => currentBranch.Branch_Id)"
 								  Disabled
@@ -35,17 +37,20 @@
 				}
 			<MudTextField T="string"
 						  Label="ชื่อสาขา"
+						  Variant="Variant.Outlined"
 						  @bind-Value="currentBranch.Branch_Name"
 						  For="@(() => currentBranch.Branch_Name)"
 						  RequiredError="กรุณากรอกชื่อสาขา" />
 			<MudTextField T="string"
 						  Label="เบอร์โทรศัพท์"
+					      Variant="Variant.Outlined"
 						  @bind-Value="currentBranch.Branch_Phone"
 						  For="@(() => currentBranch.Branch_Phone)"
 		                  MaxLength =10				  
 						  RequiredError="กรุณากรอกเบอร์โทรศัพท์" />
 			<MudTextField T="string"
 						  Label="อีเมล"
+						  Variant="Variant.Outlined"
 						  @bind-Value="currentBranch.Branch_Email"
 						  For="@(() => currentBranch.Branch_Email)"
 						  RequiredError="อีเมล" />

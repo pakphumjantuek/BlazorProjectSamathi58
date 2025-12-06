@@ -16,80 +16,94 @@
 
             @if (currentLearningPlan != null)
             {
+                <MudGrid Class="my-2">
+                    <MudItem xs="12" md="6">
+                        <MudDatePicker Label="วันที่เรียน"
+                                       @bind-Date="currentLearningPlan.Date"
+                                       DateFormat="dd MMMM yyyy"
+                                       Placeholder="เลือกวันที่"
+                                       Editable="true"
+                                       OpenTo="OpenTo.Date"
+                                       Variant="Variant.Outlined"
+                                       InputIcon="@Icons.Material.Filled.CalendarToday"
+                                       Clearable="true"
+                                       Class="w-100" />
+                    </MudItem>
 
-                <MudDatePicker Label="วันที่เรียน"
-                                   @bind-Date="currentLearningPlan.Date"
-                                   DateFormat="dd/MM/yyyy"
-                                   Placeholder="เลือกวันที่"
-                                   Editable="true"
-                                   OpenTo="OpenTo.Date"
-                                   InputIcon="@Icons.Material.Filled.CalendarToday"
-                                   Clearable="true"
-                                   Class="w-100" />
-                <MudTextField T="string"
-                              Label="เวลาเรียน"
-                              @bind-Value="currentLearningPlan.Time"
-                              For="@(() => currentLearningPlan.Time)"
-                              RequiredError="เวลาเรียน" />
-                <MudTextField T="string"
-                              Label="หัวข้อการเรียน"
-                              @bind-Value="currentLearningPlan.Name"
-                              For="@(() => currentLearningPlan.Name)"
-                              RequiredError="หัวข้อการเรียน" />
-                <MudTextField T="string"
-                              Label="เทป"
-                              @bind-Value="currentLearningPlan.Tape"
-                              For="@(() => currentLearningPlan.Tape)"
-                              RequiredError="เทป" />
-                <MudTextField T="string"
-                              Label="เล่มที่"
-                              @bind-Value="currentLearningPlan.Book"
-                              For="@(() => currentLearningPlan.Book)"
-                              RequiredError="เล่มที่" />
+                    <MudItem xs="12" md="6">
+                        <MudTextField T="string"
+                                      Label="เวลาเรียน"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="currentLearningPlan.Time"
+                                      For="@(() => currentLearningPlan.Time)"
+                                      RequiredError="เวลาเรียน" />
+                    </MudItem>
 
-                <MudTextField T="double?"
-                              Label="คะแนน"
-                              @bind-Value="currentLearningPlan.Score"
-                              For="@(() => currentLearningPlan.Score)"
-                              RequiredError="คะแนน" />
+                    <MudItem xs="12" md="12">
+                        <MudTextField T="string"
+                                      Label="หัวข้อการเรียน"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="currentLearningPlan.Name"
+                                      For="@(() => currentLearningPlan.Name)"
+                                      RequiredError="หัวข้อการเรียน" />
+                    </MudItem>
 
-                <MudItem xs="12" md="12">
-                    <MudSelect T="int?" Label="เลือกผู้สอน"
-                               @bind-Value="currentLearningPlan.Teacher_ID"
-                               Required="true"
-                               RequiredError="โปรดเลือกผู้สอน"
-                               Dense="true"
-                               Variant="Variant.Text"
-                               Class="my-2">
+                    <MudItem xs="12" md="6">
+                        <MudTextField T="string"
+                                      Label="เทป"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="currentLearningPlan.Tape"
+                                      For="@(() => currentLearningPlan.Tape)"
+                                      RequiredError="เทป" />
+                    </MudItem>
 
-                        <MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกผู้สอน--</MudSelectItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField T="string"
+                                      Label="เล่มที่"
+                                      Variant="Variant.Outlined"
+                                      @bind-Value="currentLearningPlan.Book"
+                                      For="@(() => currentLearningPlan.Book)"
+                                      RequiredError="เล่มที่" />
+                    </MudItem>
+              
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="int?" Label="เลือกผู้สอน"
+                                   @bind-Value="currentLearningPlan.Teacher_ID"
+                                  Variant="Variant.Outlined"
+                                   Required="true"
+                                   RequiredError="โปรดเลือกผู้สอน"
+                                   Dense="true"
+                                   Class="my-2">
 
-                        @foreach (var t in _teacher)
-                        {
-                            <MudSelectItem T="int?" Value="@( (int?)t.Teacher_Id )">
-                                @t.Teacher_Name @t.Teacher_LastName
-                            </MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
+                            <MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกผู้สอน--</MudSelectItem>
 
-                <MudItem xs="12" md="12">
-                    <MudSelect T="int?" Label="เลือกรุ่น"
-                               @bind-Value="currentLearningPlan.ClassStudiedId"
-                               Required="true"
-                               RequiredError="โปรดเลือกรุ่น"
-                               Dense="true"
-                               Variant="Variant.Text"
-                               Class="my-2">
+                            @foreach (var t in _teacher)
+                            {
+                                <MudSelectItem T="int?" Value="@( (int?)t.Teacher_Id )">
+                                    @t.Teacher_Name @t.Teacher_LastName
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
 
-                        <MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกรุ่น--</MudSelectItem>
+                    <MudItem xs="12" md="6">
+                        <MudSelect T="int?" Label="เลือกรุ่น"
+                                   @bind-Value="currentLearningPlan.ClassStudiedId"
+                                   Required="true"
+                                   RequiredError="โปรดเลือกรุ่น"
+                                   Dense="true"
+                                   Variant="Variant.Outlined"
+                                   Class="my-2">
 
-                        @foreach (var t in _ClassStudied.Where(x => x.Status))
-                        {
-                            <MudSelectItem T="int?" Value="@( (int?)t.Id )">@t.Id</MudSelectItem>
-                        }
-                    </MudSelect>
-                </MudItem>
+                            <MudSelectItem T="int?" Value="@((int?)null)" Disabled="true">--โปรดเลือกรุ่น--</MudSelectItem>
+
+                            @foreach (var t in _ClassStudied.Where(x => x.Status))
+                            {
+                                <MudSelectItem T="int?" Value="@( (int?)t.Id )">@t.Id</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
             }
         </EditForm>
     </ChildContent>
@@ -162,7 +176,7 @@ else
                             เพิ่มข้อมูลแผนการเรียน
                         </MudButton>
 
-                        <MudButton Variant="Variant.Filled" Color="Color.Success" Href="/upload-excel"
+                        <MudButton Variant="Variant.Filled" Color="Color.Success" Href="upload-excel"
                                    StartIcon="@Icons.Material.Filled.UploadFile"
                                    Style="min-width: 160px;">
                             อัปโหลด Excel
@@ -329,7 +343,7 @@ else
         if (confirmDelete)
         {
             await LearningPlanService.DeleteAsync(id);
-            await JSRuntime.InvokeVoidAsync("showToastr", "success", "ลบสำเร็จ");
+            await JSRuntime.InvokeVoidAsync("ShowSwal", "test", "ลบสำเร็จ");
             await LoadLearningPlan();
         }
     }
